@@ -23,9 +23,14 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, InvalidJwtTokenReceivedException.class})
-    public ResponseEntity<Object> handleBadRequest(Exception ex) {
-        return buildAndLog(HttpStatus.BAD_REQUEST, CLIENT_ERROR, ex);
+    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class})
+    public ResponseEntity<Object> handleConflict(Exception ex) {
+        return buildAndLog(HttpStatus.CONFLICT, CLIENT_ERROR, ex);
+    }
+
+    @ExceptionHandler(InvalidJwtTokenReceivedException.class)
+    public ResponseEntity<Object> handleUnauthorized(Exception ex) {
+        return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler(Exception.class)
