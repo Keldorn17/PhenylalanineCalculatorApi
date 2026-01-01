@@ -1,6 +1,9 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,32 +19,35 @@ public class ControllerAdvice {
     private final String INTERNAL_ERROR = "Internal Error";
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Object> handleException(UsernameNotFoundException exception) {
-        log.warn("UsernameNotFoundException {}", exception.getMessage());
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .type(CLIENT_ERROR)
-                .title(status.getReasonPhrase())
-                .statusCode(status)
-                .details(exception.getMessage())
-                .build();
-        return builderResponse(errorResponse);
+    public ResponseEntity<Object> handleNotFound(Exception ex) {
+        return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
+    }
+
+    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, InvalidJwtTokenReceivedException.class})
+    public ResponseEntity<Object> handleBadRequest(Exception ex) {
+        return buildAndLog(HttpStatus.BAD_REQUEST, CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleException(Exception exception) {
-        log.warn("Exception {}", exception.getMessage());
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .type(INTERNAL_ERROR)
-                .title(status.getReasonPhrase())
-                .statusCode(status)
-                .details(exception.getMessage())
-                .build();
-        return builderResponse(errorResponse);
+    public ResponseEntity<Object> handleInternalError(Exception ex) {
+        return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR, ex);
     }
 
-    private ResponseEntity<Object> builderResponse(ErrorResponse errorResponse) {
-        return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse);
+    private ResponseEntity<Object> buildAndLog(HttpStatus status, String type, Exception ex) {
+        boolean isError = status.is5xxServerError();
+        if (isError) {
+            log.error("Internal server error: ", ex);
+        } else {
+            log.warn("{} : {}", ex.getClass().getSimpleName(), ex.getMessage());
+        }
+
+        ErrorResponse response = ErrorResponse.builder()
+                .type(type)
+                .title(status.getReasonPhrase())
+                .statusCode(status)
+                .details(isError ? "An internal error occurred" : ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(status).body(response);
     }
 }
