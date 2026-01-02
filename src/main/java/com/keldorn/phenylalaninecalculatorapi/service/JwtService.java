@@ -3,47 +3,44 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final SecretKey signingKey;
+
+    public JwtService(@Value("${jwt.secret.string}") String secretString) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));;
+    }
+
 
     public String generateToken(String username) {
         final long EXPIRATION = 1000 * 60 * 60 * 24;
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(key)
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(signingKey)
                 .compact();
     }
 
     public String extractUsername(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
+            return Jwts.parser()
+                    .verifyWith(signingKey)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getSubject();
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidJwtTokenReceivedException("Invalid token received");
-        }
-    }
-
-    public boolean isValid(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parse(token);
-            return true;
-        } catch (JwtException e) {
-            return false;
         }
     }
 }
