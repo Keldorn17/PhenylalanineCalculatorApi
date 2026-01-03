@@ -7,6 +7,7 @@ import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,7 +29,7 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.CONFLICT, CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler(InvalidJwtTokenReceivedException.class)
+    @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
         return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
     }

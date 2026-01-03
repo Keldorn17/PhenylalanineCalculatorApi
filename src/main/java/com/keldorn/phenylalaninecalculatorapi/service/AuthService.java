@@ -9,12 +9,14 @@ import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,13 +27,15 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse authenticate(AuthRequest request) {
-        manageAuth(request.username(), request.password());
+        log.debug("Authenticating User.");
         var user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        manageAuth(user.getUsername(), request.password());
         return getResponse(user);
     }
 
     public AuthResponse register(AuthRegisterRequest request) {
+        log.debug("Registering New User.");
         isUsernameTakenAndThrow(request.username());
         isEmailTakenAndThrow(request.email());
         var user = User.builder()
@@ -58,6 +62,7 @@ public class AuthService {
     }
 
     private AuthResponse getResponse(User user) {
+        log.debug("Authentication Succeeded, Sending Token Back.");
         var jwtToken = jwtService.generateToken(user.getUsername());
         return new AuthResponse(jwtToken);
     }
