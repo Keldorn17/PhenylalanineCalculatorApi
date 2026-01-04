@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class AuthController {
             }
     )
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
         log.info("Authenticate POST {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.authenticate(request));
     }
@@ -54,7 +55,7 @@ public class AuthController {
             }
     )
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody AuthRegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRegisterRequest request) {
         log.info("Register POST {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.register(request));
     }

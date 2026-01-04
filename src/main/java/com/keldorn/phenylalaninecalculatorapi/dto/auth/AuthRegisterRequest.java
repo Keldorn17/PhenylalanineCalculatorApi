@@ -1,3 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.dto.auth;
 
-public record AuthRegisterRequest(String email, String username, String password) {}
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
+public record AuthRegisterRequest(@NotNull @Email String email, @NotNull String username, @NotNull String password) {}

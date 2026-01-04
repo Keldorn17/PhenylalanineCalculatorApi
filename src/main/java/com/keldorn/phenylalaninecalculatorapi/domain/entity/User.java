@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<Food> foods;
+
     public User(String username, String email, String password, Role role) {
         this.username = username;
         this.email = email;
