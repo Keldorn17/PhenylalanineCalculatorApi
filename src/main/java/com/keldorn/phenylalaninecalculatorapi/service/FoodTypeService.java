@@ -47,7 +47,6 @@ public class FoodTypeService {
     }
 
     public void deleteById(Long id) {
-        findByIdOrThrow(id);
-        foodTypeRepository.deleteById(id);
+        foodTypeRepository.delete(findByIdOrThrow(id));
     }
 }

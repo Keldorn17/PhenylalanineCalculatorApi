@@ -2,10 +2,8 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.*;
+import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
@@ -37,11 +36,11 @@ public class AuthService {
     public AuthResponse register(AuthRegisterRequest request) {
         log.debug("Registering New User.");
         isUsernameTakenAndThrow(request.username());
-        isEmailTakenAndThrow(request.email());
+        userService.isEmailTakenAndThrow(request.email());
         var user = User.builder()
                 .username(request.username())
                 .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
+                .password(encodePassword(request.password()))
                 .role(Role.ROLE_USER)
                 .build();
         userRepository.save(user);
@@ -49,16 +48,40 @@ public class AuthService {
         return getResponse(user);
     }
 
-    private void isUsernameTakenAndThrow(String username) {
-        if (userRepository.existsByUsername(username)) {
-            throw new UsernameIsTakenException("Username is taken.");
+    public AuthResponse changePassword(AuthPasswordChangeRequest request) {
+        log.debug("Changing users password");
+        if (request.oldPassword().equals(request.password())) {
+            throw new PasswordMismatchException("Old password can not be equal to new password.");
         }
+        var user = userService.getCurrentUser();
+        if (checkIfTwoPasswordNotMatch(request.oldPassword(), user.getPassword())) {
+            throw new PasswordMismatchException("Invalid password passed as old password.");
+        }
+        user.setPassword(encodePassword(request.password()));
+        userRepository.save(user);
+        manageAuth(user.getUsername(), request.password());
+        return getResponse(user);
     }
 
-    private void isEmailTakenAndThrow(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailIsTakenException("Email is taken");
+    public AuthResponse changeUsername(AuthUsernameChangeRequest request) {
+        log.debug("Change users username");
+        isUsernameTakenAndThrow(request.username());
+        var user = userService.getCurrentUser();
+        if (checkIfTwoPasswordNotMatch(request.password(), user.getPassword())) {
+            throw new PasswordMismatchException("Invalid password passed.");
         }
+        user.setUsername(request.username());
+        userRepository.save(user);
+        manageAuth(request.username(), request.password());
+        return getResponse(user);
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    private boolean checkIfTwoPasswordNotMatch(String rawPassword, String encodedPassword) {
+        return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     private AuthResponse getResponse(User user) {
@@ -74,5 +97,11 @@ public class AuthService {
                         password
                 )
         );
+    }
+
+    private void isUsernameTakenAndThrow(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new UsernameIsTakenException("Username is taken.");
+        }
     }
 }

@@ -30,7 +30,7 @@ public class FoodTypeController {
     private final FoodTypeService foodTypeService;
 
     private final String NOT_FOUND = "Food Type Not Found";
-    private final String UNAUTHORIZED = "Unauthorized";
+    private final String FORBIDDEN = "Forbidden";
     private final String BAD_REQUEST = "Bad Request";
 
     @Operation(operationId = "findById",
@@ -39,7 +39,7 @@ public class FoodTypeController {
             responses = {
                 @ApiResponse(responseCode = "200", description = "Successfully found food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
                 @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = "403", description = UNAUTHORIZED, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @GetMapping("/{id}")
@@ -53,7 +53,7 @@ public class FoodTypeController {
             tags = {"Food Type"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully found all food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
-                    @ApiResponse(responseCode = "403", description = UNAUTHORIZED, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @GetMapping
@@ -68,7 +68,7 @@ public class FoodTypeController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully created food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
                     @ApiResponse(responseCode = "400", description = BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = UNAUTHORIZED, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @PostMapping
@@ -86,7 +86,7 @@ public class FoodTypeController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully updated food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
                     @ApiResponse(responseCode = "400", description = BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = UNAUTHORIZED, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @PutMapping("/{id}")
@@ -101,7 +101,7 @@ public class FoodTypeController {
             responses = {
                     @ApiResponse(responseCode = "204", description = "Successfully deleted food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
                     @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = UNAUTHORIZED, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @DeleteMapping("/{id}")

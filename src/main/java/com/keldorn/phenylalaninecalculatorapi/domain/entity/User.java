@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +36,9 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private Role role;
+
+    @Column(name = "daily_limit")
+    private BigDecimal dailyLimit;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Food> foods;

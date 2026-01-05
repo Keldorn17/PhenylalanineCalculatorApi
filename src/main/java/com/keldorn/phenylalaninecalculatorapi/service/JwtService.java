@@ -22,7 +22,6 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));;
     }
 
-
     public String generateToken(String username) {
         log.debug("Generating Token");
         final long EXPIRATION = 1000 * 60 * 60 * 24;
