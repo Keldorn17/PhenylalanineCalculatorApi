@@ -34,7 +34,7 @@ public class FoodTypeController {
     private final String BAD_REQUEST = "Bad Request";
 
     @Operation(operationId = "findById",
-            summary = "Finds a food type by its id",
+            summary = "Finds a food type by its id.",
             tags = {"Food Type"},
             responses = {
                 @ApiResponse(responseCode = "200", description = "Successfully found food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
@@ -63,10 +63,10 @@ public class FoodTypeController {
     }
 
     @Operation(operationId = "postFoodType",
-            summary = "Creates a new food type",
+            summary = "Creates a new food type.",
             tags = {"Food Type"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully created food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
+                    @ApiResponse(responseCode = "201", description = "Successfully created food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
                     @ApiResponse(responseCode = "400", description = BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
@@ -81,7 +81,7 @@ public class FoodTypeController {
     }
 
     @Operation(operationId = "putFoodType",
-            summary = "Updates food type by id",
+            summary = "Updates food type by id.",
             tags = {"Food Type"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully updated food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
@@ -96,7 +96,7 @@ public class FoodTypeController {
     }
 
     @Operation(operationId = "deleteById",
-            summary = "Deletes food type by its id",
+            summary = "Deletes food type by its id. Warning this is permanent.",
             tags = {"Food Type"},
             responses = {
                     @ApiResponse(responseCode = "204", description = "Successfully deleted food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),

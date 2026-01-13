@@ -60,7 +60,7 @@ public class AuthController {
     }
 
     @Operation(operationId = "changePassword",
-            summary = "Changes users password",
+            summary = "Changes users password.",
             tags = {"Authentication" },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successful password change", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
@@ -76,7 +76,7 @@ public class AuthController {
     }
 
     @Operation(operationId = "changeUsername",
-            summary = "Changes users username",
+            summary = "Changes users username.",
             tags = {"Authentication" },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successful username change", content = @Content(schema = @Schema(implementation = AuthResponse.class))),

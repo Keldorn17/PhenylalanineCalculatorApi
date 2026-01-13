@@ -20,7 +20,7 @@ public class ControllerAdvice {
     private final String CLIENT_ERROR = "Client Error";
     private final String INTERNAL_ERROR = "Internal Error";
 
-    @ExceptionHandler({UsernameNotFoundException.class, FoodTypeNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({UsernameNotFoundException.class, FoodTypeNotFoundException.class, UserNotFoundException.class, FoodNotFoundException.class})
     public ResponseEntity<Object> handleNotFound(Exception ex) {
         return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
     }
