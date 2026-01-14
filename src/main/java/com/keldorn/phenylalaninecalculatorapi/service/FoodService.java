@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -45,6 +46,14 @@ public class FoodService {
         food.setUser(user);
     }
 
+    private void updatePhenylalanine(Food food) {
+        if (food.getFoodType().getMultiplier() != null) {
+            BigDecimal updated = food.getProtein()
+                    .multiply(BigDecimal.valueOf(food.getFoodType().getMultiplier()));
+            food.setPhenylalanine(updated);
+        }
+    }
+
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
         return foodMapper.toResponse(findByIdOrThrow(id));
@@ -63,6 +72,7 @@ public class FoodService {
         Food food = foodMapper.toEntity(request);
         addTypeToFood(food, request);
         addUserToFood(food);
+        updatePhenylalanine(food);
         return foodMapper.toResponse(foodRepository.save(food));
     }
 
@@ -72,11 +82,11 @@ public class FoodService {
         if (request.name() != null) food.setName(request.name());
         if (request.protein() != null) food.setProtein(request.protein());
         if (request.calories() != null) food.setCalories(request.calories());
-        if (request.phenylalanine() != null) food.setPhenylalanine(request.phenylalanine());
         if (request.foodTypeId() != null) {
             FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
             food.setFoodType(foodType);
         }
+        updatePhenylalanine(food);
         return foodMapper.toResponse(foodRepository.save(food));
     }
 

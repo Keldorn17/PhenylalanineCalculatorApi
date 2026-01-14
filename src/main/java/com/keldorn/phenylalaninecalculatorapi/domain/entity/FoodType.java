@@ -23,5 +23,5 @@ public class FoodType {
     private String name;
 
     @Column(name = "multiplier", nullable = false)
-    private int multiplier;
+    private Integer multiplier;
 }
