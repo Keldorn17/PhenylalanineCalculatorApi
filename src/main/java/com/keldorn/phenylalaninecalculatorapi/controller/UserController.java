@@ -40,6 +40,7 @@ public class UserController {
     )
     @GetMapping
     public ResponseEntity<UserResponse> me() {
+        log.info("Get Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.getProfile());
     }
 
@@ -54,6 +55,7 @@ public class UserController {
     )
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
+        log.info("Patch Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.update(userRequest));
     }
 
@@ -68,6 +70,7 @@ public class UserController {
     )
     @DeleteMapping
     public ResponseEntity<Void> deleteUser() {
+        log.info("Delete Request: {}", ApiRoutes.USER_PATH);
         userService.delete();
         return ResponseEntity.noContent().build();
     }
