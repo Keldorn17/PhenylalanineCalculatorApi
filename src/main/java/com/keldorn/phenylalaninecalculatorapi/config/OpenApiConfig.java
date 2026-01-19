@@ -19,7 +19,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Phenylalanine calculator API")
                         .description("This API is created in order to help keep track of the daily phenylalanine intake.")
-                        .version("v0.0.2")
+                        .version("v0.0.3")
                 )
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()

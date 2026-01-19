@@ -20,12 +20,16 @@ public class ControllerAdvice {
     private final String CLIENT_ERROR = "Client Error";
     private final String INTERNAL_ERROR = "Internal Error";
 
-    @ExceptionHandler({UsernameNotFoundException.class, FoodTypeNotFoundException.class, UserNotFoundException.class, FoodNotFoundException.class})
+    @ExceptionHandler({UsernameNotFoundException.class, FoodTypeNotFoundException.class, UserNotFoundException.class,
+            FoodNotFoundException.class, DailyIntakeNotFoundException.class
+    })
     public ResponseEntity<Object> handleNotFound(Exception ex) {
         return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class})
+    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class,
+            DailyIntakeCannotBeLowerThanZeroException.class
+    })
     public ResponseEntity<Object> handleConflict(Exception ex) {
         return buildAndLog(HttpStatus.CONFLICT, CLIENT_ERROR, ex);
     }

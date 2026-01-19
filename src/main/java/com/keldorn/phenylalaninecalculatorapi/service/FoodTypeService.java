@@ -20,7 +20,7 @@ public class FoodTypeService {
     private final FoodTypeRepository foodTypeRepository;
     private final FoodTypeMapper foodTypeMapper;
 
-    protected FoodType findByIdOrThrow(Long id) {
+    protected final FoodType findByIdOrThrow(Long id) {
         log.debug("Getting Food Type By Id: {}", id);
         return foodTypeRepository.findById(id)
                 .orElseThrow(() -> new FoodTypeNotFoundException("Food Type Not Found."));

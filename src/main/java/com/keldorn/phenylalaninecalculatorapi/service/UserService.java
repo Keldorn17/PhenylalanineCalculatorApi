@@ -22,11 +22,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    protected User getCurrentUser() {
+    protected final User getCurrentUser() {
         log.debug("Getting current user from SecurityContextHolder");
         String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Authenticated User Not Found: " + username));
+    }
+
+    protected final Long getCurrentUserId() {
+        log.debug("Getting current user's id");
+        return getCurrentUser().getUserId();
+    }
+
+    protected final void isEmailTakenAndThrow(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailIsTakenException("Email is taken");
+        }
     }
 
     public UserResponse getProfile() {
@@ -51,11 +62,5 @@ public class UserService {
         User user = getCurrentUser();
         log.debug("Deleting user for: {}", user.getUserId());
         userRepository.delete(user);
-    }
-
-    protected void isEmailTakenAndThrow(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailIsTakenException("Email is taken");
-        }
     }
 }

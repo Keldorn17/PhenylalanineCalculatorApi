@@ -99,7 +99,7 @@ public class FoodTypeController {
             summary = "Deletes food type by its id. Warning this is permanent.",
             tags = {"Food Type"},
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Successfully deleted food type", content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
+                    @ApiResponse(responseCode = "204", description = "Successfully deleted food type"),
                     @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }

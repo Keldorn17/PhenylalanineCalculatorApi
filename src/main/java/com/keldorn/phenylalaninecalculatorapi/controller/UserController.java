@@ -63,7 +63,7 @@ public class UserController {
             summary = "Deletes user. Warning this is permanent.",
             tags = {"User"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful deletion", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    @ApiResponse(responseCode = "200", description = "Successful deletion"),
                     @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = USER_NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
