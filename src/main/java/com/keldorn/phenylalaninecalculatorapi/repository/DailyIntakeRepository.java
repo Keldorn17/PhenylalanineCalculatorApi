@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface DailyIntakeRepository extends JpaRepository<DailyIntake, Long> {
 
     @Query("FROM DailyIntake d WHERE d.user.userId = ?1 AND d.date = ?2")
-    Optional<DailyIntake> findByUserIdAndDate(Long id, LocalDate date);
+    Optional<DailyIntake> findByUserIdAndDate(Long userid, LocalDate date);
 }

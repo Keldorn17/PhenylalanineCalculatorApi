@@ -7,11 +7,13 @@ import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeNotFoundExcep
 import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DailyIntakeService {
@@ -20,7 +22,8 @@ public class DailyIntakeService {
     private final DailyIntakeMapper dailyIntakeMapper;
     private final UserService userService;
 
-    private DailyIntake findByDateToThrow(LocalDate date) {
+    private DailyIntake findByDateOrThrow(LocalDate date) {
+        log.debug("Getting daily intake by date");
         return dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
                 .orElseThrow(() -> new DailyIntakeNotFoundException("No daily intake information found at: " + date));
     }
@@ -30,24 +33,39 @@ public class DailyIntakeService {
      * <p>
      * This method supports both increments and decrements. Pass a positive value to add
      * to the total, or a negative value to subtract from it.
+     * <p>
+     * If there isn't any data registered for a specific date it will create one.
      *
      * @param date   The date for which the intake data should be updated.
      * @param amount The amount to add to (positive) or subtract from (negative) the total.
-     * @return The updated {@link DailyIntake} entity.
-     * @throws DailyIntakeNotFoundException if no record exists for the given date.
+     * @throws DailyIntakeNotFoundException              if no record exists for the given date.
      * @throws DailyIntakeCannotBeLowerThanZeroException if the update would result in a negative total.
      */
-    protected final DailyIntake update(LocalDate date, BigDecimal amount) {
-        DailyIntake dailyIntake = findByDateToThrow(date);
-        dailyIntake.setTotalPhenylalanine(dailyIntake.getTotalPhenylalanine().add(amount));
-        if (dailyIntake.getTotalPhenylalanine().compareTo(BigDecimal.ZERO) < 0) {
+    protected final void addAmount(LocalDate date, BigDecimal amount) {
+        log.debug("Adding amount for daily intake");
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero");
         }
+
+        DailyIntake dailyIntake = dailyIntakeRepository
+                .findByUserIdAndDate(userService.getCurrentUserId(), date)
+                .orElseGet(() -> DailyIntake.builder()
+                        .user(userService.getCurrentUser())
+                        .date(date)
+                        .totalPhenylalanine(BigDecimal.ZERO)
+                        .build());
+
+        BigDecimal updated = dailyIntake.getTotalPhenylalanine().add(amount);
+        if (updated.compareTo(BigDecimal.ZERO) < 0) {
+            throw new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero");
+        }
+
+        dailyIntake.setTotalPhenylalanine(updated);
         dailyIntakeRepository.save(dailyIntake);
-        return dailyIntake;
     }
 
     public DailyIntakeResponse findByDate(LocalDate date) {
-        return dailyIntakeMapper.toResponse(findByDateToThrow(date));
+        log.debug("Sending response for findByDate");
+        return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
     }
 }

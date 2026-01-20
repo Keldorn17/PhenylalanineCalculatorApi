@@ -23,14 +23,14 @@ import java.time.LocalDate;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(ApiRoutes.DAILY_INTAKE_PATH)
-@Tag(name = "Daily Intake", description = "Shows the user's daily intake")
+@Tag(name = "Daily Intake", description = "Endpoint for showing the user's daily intake")
 public class DailyIntakeController {
+    
+    private final DailyIntakeService dailyIntakeService;
 
     private final String NOT_FOUND = "Daily Intake Found";
     private final String CONFLICT = "Conflict";
     private final String FORBIDDEN = "Forbidden";
-    
-    private final DailyIntakeService dailyIntakeService;
 
     @Operation(operationId = "getDailyIntake",
             summary = "Gets user's daily intake",
@@ -44,6 +44,7 @@ public class DailyIntakeController {
     )
     @GetMapping
     public ResponseEntity<DailyIntakeResponse> getDailyIntake(@RequestParam LocalDate date) {
+        log.info("Get request: {}", ApiRoutes.DAILY_INTAKE_PATH);
         return ResponseEntity.ok(dailyIntakeService.findByDate(date));
     }
 }

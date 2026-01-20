@@ -9,7 +9,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.FoodNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
-import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,12 +22,11 @@ import java.util.List;
 public class FoodService {
 
     private final FoodRepository foodRepository;
-    private final FoodTypeRepository foodTypeRepository;
     private final FoodMapper foodMapper;
     private final UserService userService;
     private final FoodTypeService foodTypeService;
 
-    private Food findByIdOrThrow(Long id) {
+    protected Food findByIdOrThrow(Long id) {
         log.debug("Getting Food By Id: {}", id);
         return foodRepository.findById(id)
                 .orElseThrow(() -> new FoodNotFoundException("Food Not Found."));

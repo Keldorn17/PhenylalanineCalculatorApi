@@ -7,4 +7,5 @@ public class ApiRoutes {
     public static final String USER_PATH = BASE_PATH + "/user/me";
     public static final String FOOD_PATH = BASE_PATH +  "/food";
     public static final String DAILY_INTAKE_PATH = BASE_PATH + "/daily-intake";
+    public static final String FOOD_CONSUMPTION_PATH = BASE_PATH + "/food-consumption";
 }
