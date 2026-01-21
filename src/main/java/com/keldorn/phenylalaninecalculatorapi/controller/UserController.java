@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
@@ -33,7 +32,7 @@ public class UserController {
             summary = "Gets the current users information.",
             tags = {"User"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful retrieval", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    @ApiResponse(responseCode = "200", description = "Successful retrieval", content = @Content(schema = @Schema(implementation = UserResponse.class))),
                     @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = USER_NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
@@ -48,7 +47,7 @@ public class UserController {
             summary = "Updates user information. All fields are optional. Only non-null fields will be applied to update.",
             tags = {"User"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful update", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    @ApiResponse(responseCode = "200", description = "Successful update", content = @Content(schema = @Schema(implementation = UserResponse.class))),
                     @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = USER_NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }

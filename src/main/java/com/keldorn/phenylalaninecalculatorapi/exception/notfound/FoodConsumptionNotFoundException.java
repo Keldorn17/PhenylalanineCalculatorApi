@@ -1,4 +1,4 @@
-package com.keldorn.phenylalaninecalculatorapi.exception;
+package com.keldorn.phenylalaninecalculatorapi.exception.notfound;
 
 import lombok.experimental.StandardException;
 

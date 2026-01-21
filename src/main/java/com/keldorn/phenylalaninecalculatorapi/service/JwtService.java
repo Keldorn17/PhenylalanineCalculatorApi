@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

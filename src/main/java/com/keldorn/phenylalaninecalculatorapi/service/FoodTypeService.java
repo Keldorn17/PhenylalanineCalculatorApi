@@ -3,7 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.FoodTypeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodTypeNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 import lombok.RequiredArgsConstructor;

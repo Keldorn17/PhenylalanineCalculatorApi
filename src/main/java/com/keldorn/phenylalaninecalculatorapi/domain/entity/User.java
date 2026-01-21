@@ -8,8 +8,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -18,6 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "user")
 public class User implements UserDetails {
+
+    private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +37,9 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "timezone", nullable = false)
+    private String timezone = "UTC";
+
     @Column(name = "role", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private Role role;
@@ -42,6 +49,25 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Food> foods;
+
+    public void setTimezone(String timezone) {
+        if (isNotValidTimezone(timezone)) {
+            this.timezone = "UTC";
+        } else {
+            this.timezone = timezone;
+        }
+    }
+
+    public ZoneId resolveZoneId() {
+        if (isNotValidTimezone(this.timezone)) {
+            return ZoneId.of("UTC");
+        }
+        return ZoneId.of(this.timezone);
+    }
+
+    private boolean isNotValidTimezone(String timezoneId) {
+        return timezoneId == null || timezoneId.isEmpty() || !AVAILABLE_ZONE_IDS.contains(timezoneId);
+    }
 
     public User(String username, String email, String password, Role role) {
         this.username = username;

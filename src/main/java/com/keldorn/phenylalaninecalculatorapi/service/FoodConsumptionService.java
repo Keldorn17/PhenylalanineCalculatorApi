@@ -4,7 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.FoodConsumptionNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 import jakarta.transaction.Transactional;
@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -38,8 +39,9 @@ public class FoodConsumptionService {
 
     public List<FoodConsumptionResponse> findAllByDate(LocalDate date) {
         log.debug("Finding all food consumptions by date");
-        Timestamp start = Timestamp.valueOf(date.atStartOfDay());
-        Timestamp end = Timestamp.valueOf(date.plusDays(1).atStartOfDay());
+        ZoneId zoneId = userService.getCurrentUser().resolveZoneId();
+        Instant start = date.atStartOfDay(zoneId).toInstant();
+        Instant end = date.plusDays(1).atStartOfDay(zoneId).toInstant();
         Long userId = userService.getCurrentUserId();
         return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end)
                 .stream()
@@ -51,10 +53,13 @@ public class FoodConsumptionService {
         log.debug("Creating food consumption");
         Food food = foodService.findByIdOrThrow(foodId);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
-        dailyIntakeService.addAmount(LocalDate.now(), phenylalanineAmount);
+        Instant now = Instant.now();
+        LocalDate userLocalDate = LocalDate.from(now.atZone(userService.getCurrentUser().resolveZoneId()));
+        dailyIntakeService.addAmount(userLocalDate, phenylalanineAmount);
         FoodConsumption foodConsumption = FoodConsumption.builder()
                 .user(userService.getCurrentUser())
                 .food(food)
+                .consumedAt(now)
                 .amount(request.amount())
                 .phenylalanineAmount(phenylalanineAmount)
                 .build();
@@ -65,7 +70,8 @@ public class FoodConsumptionService {
         log.debug("Updating food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
-        LocalDate localDate = foodConsumption.getConsumedAt().toLocalDateTime().toLocalDate();
+        LocalDate localDate = foodConsumption.getConsumedAt().atZone(userService.getCurrentUser()
+                .resolveZoneId()).toLocalDate();
         dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());
@@ -75,13 +81,16 @@ public class FoodConsumptionService {
     public void deleteById(Long id) {
         log.debug("Deleting food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id);
-        LocalDate localDate = foodConsumption.getConsumedAt().toLocalDateTime().toLocalDate();
+        LocalDate localDate = foodConsumption.getConsumedAt().atZone(userService.getCurrentUser()
+                .resolveZoneId()).toLocalDate();
         dailyIntakeService.addAmount(localDate, foodConsumption.getPhenylalanineAmount().negate());
         foodConsumptionRepository.delete(foodConsumption);
     }
 
     private BigDecimal calculatePhenylalanineAmount(BigDecimal phenylalanine, BigDecimal amount) {
         log.debug("Calculating phenylalanine amount");
-        return phenylalanine.multiply(amount).setScale(4, RoundingMode.HALF_UP);
+        return phenylalanine.multiply(amount)
+                .divide(BigDecimal.valueOf(1000), RoundingMode.HALF_UP)
+                .setScale(4, RoundingMode.HALF_UP);
     }
 }

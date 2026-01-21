@@ -3,8 +3,8 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.UserNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +55,7 @@ public class UserService {
             user.setEmail(request.email());
         }
         if (request.dailyLimit() != null) user.setDailyLimit(request.dailyLimit());
+        if (request.timezone() != null) user.setTimezone(request.timezone());
         return userMapper.toResponse(userRepository.save(user));
     }
 

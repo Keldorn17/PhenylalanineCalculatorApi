@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.security;
 
-import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

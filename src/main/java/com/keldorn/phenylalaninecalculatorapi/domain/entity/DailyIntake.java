@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Data
@@ -23,17 +22,11 @@ public class DailyIntake {
     @Column(name = "daily_intake_id")
     private Long id;
 
-    @Column(name = "date", unique = true)
+    @Column(name = "date")
     private LocalDate date;
 
     @Column(name = "total_phenylalanine", precision = 12, scale = 4)
     private BigDecimal totalPhenylalanine;
-
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Data
 @Entity
@@ -26,7 +26,7 @@ public class FoodConsumption {
     private BigDecimal amount;
 
     @Column(name = "consumed_at")
-    private Timestamp consumedAt;
+    private Instant consumedAt;
 
     @Column(name = "phenylalanine_amount", precision = 12, scale = 4)
     private BigDecimal phenylalanineAmount;

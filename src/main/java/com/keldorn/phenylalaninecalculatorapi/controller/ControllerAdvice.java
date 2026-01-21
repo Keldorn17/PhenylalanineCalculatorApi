@@ -1,7 +1,12 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.*;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.*;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

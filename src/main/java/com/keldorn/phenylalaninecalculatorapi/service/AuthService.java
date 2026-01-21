@@ -3,8 +3,8 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.*;
-import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
-import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
+import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +42,7 @@ public class AuthService {
                 .email(request.email())
                 .password(encodePassword(request.password()))
                 .role(Role.ROLE_USER)
+                .timezone(request.timezone())
                 .build();
         userRepository.save(user);
         manageAuth(request.username(), request.password());
