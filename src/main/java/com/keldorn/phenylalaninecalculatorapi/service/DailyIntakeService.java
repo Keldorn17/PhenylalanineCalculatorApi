@@ -43,9 +43,6 @@ public class DailyIntakeService {
      */
     protected final void addAmount(LocalDate date, BigDecimal amount) {
         log.debug("Adding amount for daily intake");
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero");
-        }
 
         DailyIntake dailyIntake = dailyIntakeRepository
                 .findByUserIdAndDate(userService.getCurrentUserId(), date)

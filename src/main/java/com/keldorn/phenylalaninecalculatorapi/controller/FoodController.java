@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
+import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
@@ -30,18 +31,13 @@ public class FoodController {
 
     private final FoodService foodService;
 
-    private final String NOT_FOUND = "Food Not Found";
-    private final String NOT_FOUND_FOOD_TYPE = "Food Type Not Found";
-    private final String FORBIDDEN = "Forbidden";
-    private final String BAD_REQUEST = "Bad Request";
-
     @Operation(operationId = "findById",
             summary = "Finds a food by its id.",
             tags = {"Food"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully found food", content = @Content(schema = @Schema(implementation = FoodResponse.class))),
-                    @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = FoodResponse.class))),
+                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @GetMapping("/{id}")
@@ -54,8 +50,8 @@ public class FoodController {
             summary = "Finds all foods.",
             tags = {"Food"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully found all foods", content = @Content(schema = @Schema(implementation = FoodResponse.class))),
-                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = FoodResponse.class))),
+                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @GetMapping
@@ -68,10 +64,10 @@ public class FoodController {
             summary = "Creates a new food.",
             tags = {"Food"},
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Successfully created food", content = @Content(schema = @Schema(implementation = FoodResponse.class))),
-                    @ApiResponse(responseCode = "400", description = BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = NOT_FOUND_FOOD_TYPE, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "201", description = SwaggerDescriptions.SUCCESS_CREATE, content = @Content(schema = @Schema(implementation = FoodResponse.class))),
+                    @ApiResponse(responseCode = "400", description = SwaggerDescriptions.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @PostMapping
@@ -87,9 +83,9 @@ public class FoodController {
             summary = "Updates food by its id. All fields are optional. Only non-null fields will be applied to update.",
             tags = {"Food"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully updated food", content = @Content(schema = @Schema(implementation = FoodResponse.class))),
-                    @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_UPDATE, content = @Content(schema = @Schema(implementation = FoodResponse.class))),
+                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @PatchMapping("/{id}")
@@ -102,9 +98,9 @@ public class FoodController {
             summary = "Deletes food by its id. Warning this is permanent.",
             tags = {"Food"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully deleted food"),
-                    @ApiResponse(responseCode = "404", description = NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = "204", description = SwaggerDescriptions.SUCCESS_DELETE),
+                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
     @DeleteMapping("/{id}")
