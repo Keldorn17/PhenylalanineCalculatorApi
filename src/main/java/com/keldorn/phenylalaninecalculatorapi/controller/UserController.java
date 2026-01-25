@@ -1,8 +1,10 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
-import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
@@ -26,45 +28,55 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(operationId = "me",
-            summary = "Gets the current users information.",
-            tags = {"User"},
+    @Operation(
+            summary = "Retrieves the authenticated user's information.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = UserResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = UserResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @GetMapping
     public ResponseEntity<UserResponse> me() {
         log.info("Get Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.getProfile());
     }
 
-    @Operation(operationId = "updateUser",
-            summary = "Updates user information. All fields are optional. Only non-null fields will be applied to update.",
-            tags = {"User"},
+    @Operation(
+            summary = "Updates user information",
+            description = "All fields are optional. Only non-null fields will be applied to update.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_UPDATE, content = @Content(schema = @Schema(implementation = UserResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_UPDATE,
+                            content = @Content(schema = @Schema(implementation = UserResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
         log.info("Patch Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.update(userRequest));
     }
 
-    @Operation(operationId = "deleteUser",
-            summary = "Deletes user. Warning this is permanent.",
-            tags = {"User"},
+    @Operation(
+            summary = "Deletes the authenticated user",
+            description = "Warning this is permanent",
             responses = {
-                    @ApiResponse(responseCode = "204", description = SwaggerDescriptions.SUCCESS_DELETE),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.NO_CONTENT,
+                            description = SwaggerDescriptions.SUCCESS_DELETE
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @DeleteMapping
     public ResponseEntity<Void> deleteUser() {
         log.info("Delete Request: {}", ApiRoutes.USER_PATH);

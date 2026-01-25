@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
 
@@ -47,6 +48,20 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleInternalError(Exception ex) {
         return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR, ex);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleException(MethodArgumentTypeMismatchException ex) {
+        log.error("Malformed data received: {}", ex.getMessage());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .statusCode(HttpStatus.BAD_REQUEST)
+                .details("Malformed data received")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

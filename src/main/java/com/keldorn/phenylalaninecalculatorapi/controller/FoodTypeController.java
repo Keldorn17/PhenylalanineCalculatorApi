@@ -1,12 +1,16 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
-import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,44 +34,56 @@ public class FoodTypeController {
 
     private final FoodTypeService foodTypeService;
 
-    @Operation(operationId = "findById",
-            summary = "Finds a food type by its id.",
-            tags = {"Food Type"},
+    @Operation(
+            summary = "Retrieves a food type entry by id",
             responses = {
-                @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
-                @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @GetMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> findById(@PathVariable Long id) {
         log.info("Get Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
         return ResponseEntity.ok(foodTypeService.findById(id));
     }
 
-    @Operation(operationId = "findAll",
-            summary = "Finds all food type.",
-            tags = {"Food Type"},
+    @Operation(
+            summary = "Retrieves all food type entries",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = FoodTypeResponse.class))
+                            )
+
+                    )
             }
     )
+    @ForbiddenApiResponse
     @GetMapping
     public ResponseEntity<List<FoodTypeResponse>> findAll() {
         log.info("Get All: {}", ApiRoutes.FOOD_TYPE_PATH);
         return ResponseEntity.ok(foodTypeService.findAll());
     }
 
-    @Operation(operationId = "postFoodType",
-            summary = "Creates a new food type.",
-            tags = {"Food Type"},
+    @Operation(
+            summary = "Creates a food type entry",
             responses = {
-                    @ApiResponse(responseCode = "201", description = SwaggerDescriptions.SUCCESS_CREATE, content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
-                    @ApiResponse(responseCode = "400", description = SwaggerDescriptions.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.CREATED,
+                            description = SwaggerDescriptions.SUCCESS_CREATE,
+                            content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))
+                    )
             }
     )
+    @BadRequestApiResponse
+    @ForbiddenApiResponse
     @PostMapping
     public ResponseEntity<FoodTypeResponse> postFoodType(@Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Post Request: {}", ApiRoutes.FOOD_TYPE_PATH);
@@ -77,30 +93,36 @@ public class FoodTypeController {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @Operation(operationId = "putFoodType",
-            summary = "Updates food type by id.",
-            tags = {"Food Type"},
+    @Operation(
+            summary = "Updates a food type entry by id",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_UPDATE, content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))),
-                    @ApiResponse(responseCode = "400", description = SwaggerDescriptions.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_UPDATE,
+                            content = @Content(schema = @Schema(implementation = FoodTypeResponse.class))
+                    )
             }
     )
+    @BadRequestApiResponse
+    @ForbiddenApiResponse
     @PutMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> putFoodType(@PathVariable Long id, @Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Put Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
         return ResponseEntity.ok(foodTypeService.update(id, foodTypeRequest));
     }
 
-    @Operation(operationId = "deleteById",
-            summary = "Deletes food type by its id. Warning this is permanent.",
-            tags = {"Food Type"},
+    @Operation(
+            summary = "Deletes a food type entry by id",
+            description = "Warning this is permanent",
             responses = {
-                    @ApiResponse(responseCode = "204", description = SwaggerDescriptions.SUCCESS_DELETE),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.NO_CONTENT,
+                            description = SwaggerDescriptions.SUCCESS_DELETE
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         log.info("Delete Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);

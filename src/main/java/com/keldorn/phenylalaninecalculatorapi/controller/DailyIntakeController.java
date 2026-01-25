@@ -1,11 +1,16 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
+import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.DailyIntakeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,21 +31,28 @@ import java.time.LocalDate;
 @RequestMapping(ApiRoutes.DAILY_INTAKE_PATH)
 @Tag(name = "Daily Intake", description = "Endpoint for showing the user's daily intake")
 public class DailyIntakeController {
-    
+
     private final DailyIntakeService dailyIntakeService;
 
-    @Operation(operationId = "getDailyIntake",
-            summary = "Gets user's daily intake",
-            tags = {"Daily Intake"},
+    @Operation(
+            summary = "Retrieves a daily intake entry by date",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = DailyIntakeResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "409", description = SwaggerDescriptions.CONFLICT, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = DailyIntakeResponse.class))
+                    )
             }
     )
+    @BadRequestApiResponse
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
+    @ConflictApiResponse
     @GetMapping
-    public ResponseEntity<DailyIntakeResponse> getDailyIntake(@RequestParam LocalDate date) {
+    public ResponseEntity<DailyIntakeResponse> getDailyIntake(
+            @Parameter(description = "Date of intake (ISO-8601)", example = "2026-01-01")
+            @RequestParam LocalDate date
+    ) {
         log.info("Get request: {}", ApiRoutes.DAILY_INTAKE_PATH);
         return ResponseEntity.ok(dailyIntakeService.findByDate(date));
     }

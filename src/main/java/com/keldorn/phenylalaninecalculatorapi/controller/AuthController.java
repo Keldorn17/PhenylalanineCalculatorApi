@@ -1,9 +1,12 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
+import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.*;
-import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,63 +28,74 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(operationId = "authenticate",
+    @Operation(
             summary = "Authenticates the user and sends back a token.",
-            tags = {"Authentication"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_GET, content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
         log.info("Authenticate POST {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
-    @Operation(operationId = "register",
+    @Operation(
             summary = "Registers a new user and sends back a token.",
-            tags = {"Authentication" },
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_CREATE, content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "409", description = SwaggerDescriptions.CONFLICT, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
+    @ConflictApiResponse
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRegisterRequest request) {
         log.info("Register POST {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @Operation(operationId = "changePassword",
-            summary = "Changes users password.",
-            tags = {"Authentication" },
+    @Operation(
+            summary = "Changes user's password.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_UPDATE, content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "409", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_UPDATE,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
+    @ConflictApiResponse
     @PutMapping("/password")
     public ResponseEntity<AuthResponse> changePassword(@Valid @RequestBody AuthPasswordChangeRequest request) {
         log.info("Password Change Request {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.changePassword(request));
     }
 
-    @Operation(operationId = "changeUsername",
-            summary = "Changes users username.",
-            tags = {"Authentication" },
+    @Operation(
+            summary = "Changes user's username.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = SwaggerDescriptions.SUCCESS_UPDATE, content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "403", description = SwaggerDescriptions.FORBIDDEN, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = SwaggerDescriptions.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "409", description = SwaggerDescriptions.CONFLICT, content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_UPDATE,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    )
             }
     )
+    @ForbiddenApiResponse
+    @NotFoundApiResponse
+    @ConflictApiResponse
     @PutMapping("/username")
     public ResponseEntity<AuthResponse> changeUsername(@Valid @RequestBody AuthUsernameChangeRequest request) {
         log.info("Username Change Request {}", ApiRoutes.AUTH_PATH);
