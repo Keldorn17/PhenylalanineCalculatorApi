@@ -9,9 +9,9 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -58,18 +57,19 @@ public class FoodController {
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
-                            description = SwaggerDescriptions.SUCCESS_GET,
-                            content = @Content(
-                                    array = @ArraySchema(schema = @Schema(implementation = FoodResponse.class))
-                            )
+                            description = SwaggerDescriptions.SUCCESS_GET
                     )
             }
     )
     @ForbiddenApiResponse
     @GetMapping
-    public ResponseEntity<List<FoodResponse>> getAll() {
+    public ResponseEntity<PageResponse<FoodResponse>> getAll(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
         log.info("Get All Request: {}", ApiRoutes.FOOD_PATH);
-        return ResponseEntity.ok(foodService.findAll());
+        var result = foodService.findAll(page, size);
+        return ResponseEntity.ok(new PageResponse<>(result));
     }
 
     @Operation(

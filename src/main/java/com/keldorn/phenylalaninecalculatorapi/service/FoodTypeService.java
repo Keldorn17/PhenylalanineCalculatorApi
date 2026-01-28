@@ -8,9 +8,10 @@ import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -31,12 +32,11 @@ public class FoodTypeService {
         return foodTypeMapper.toResponse(findByIdOrThrow(id));
     }
 
-    public List<FoodTypeResponse> findAll() {
+    public Page<FoodTypeResponse> findAll(int page, int size) {
         log.debug("Finding All Food Types");
-        return foodTypeRepository.findAll()
-                .stream()
-                .map(foodTypeMapper::toResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size);
+        return foodTypeRepository.findAll(pageable)
+                .map(foodTypeMapper::toResponse);
     }
 
     public FoodTypeResponse save(FoodTypeRequest request) {

@@ -11,10 +11,12 @@ import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -57,12 +59,11 @@ public class FoodService {
         return foodMapper.toResponse(findByIdOrThrow(id));
     }
 
-    public List<FoodResponse> findAll() {
+    public Page<FoodResponse> findAll(int page, int size) {
         log.debug("Finding All Foods");
-        return foodRepository.findAll()
-                .stream()
-                .map(foodMapper::toResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size);
+        return foodRepository.findAll(pageable)
+                .map(foodMapper::toResponse);
     }
 
     public FoodResponse save(FoodRequest request) {

@@ -8,9 +8,9 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -57,19 +56,19 @@ public class FoodTypeController {
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
-                            description = SwaggerDescriptions.SUCCESS_GET,
-                            content = @Content(
-                                    array = @ArraySchema(schema = @Schema(implementation = FoodTypeResponse.class))
-                            )
-
+                            description = SwaggerDescriptions.SUCCESS_GET
                     )
             }
     )
     @ForbiddenApiResponse
     @GetMapping
-    public ResponseEntity<List<FoodTypeResponse>> findAll() {
+    public ResponseEntity<PageResponse<FoodTypeResponse>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
         log.info("Get All: {}", ApiRoutes.FOOD_TYPE_PATH);
-        return ResponseEntity.ok(foodTypeService.findAll());
+        var result = foodTypeService.findAll(page, size);
+        return ResponseEntity.ok(new PageResponse<>(result));
     }
 
     @Operation(

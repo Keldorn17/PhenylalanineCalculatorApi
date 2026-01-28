@@ -10,6 +10,9 @@ import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionReposito
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,7 +20,6 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -37,16 +39,15 @@ public class FoodConsumptionService {
                 .orElseThrow(() -> new FoodConsumptionNotFoundException("Food consumption not found by id: " + id));
     }
 
-    public List<FoodConsumptionResponse> findAllByDate(LocalDate date) {
+    public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size) {
         log.debug("Finding all food consumptions by date");
         ZoneId zoneId = userService.getCurrentUser().resolveZoneId();
         Instant start = date.atStartOfDay(zoneId).toInstant();
         Instant end = date.plusDays(1).atStartOfDay(zoneId).toInstant();
         Long userId = userService.getCurrentUserId();
-        return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end)
-                .stream()
-                .map(foodConsumptionMapper::toResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size);
+        return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable)
+                .map(foodConsumptionMapper::toResponse);
     }
 
     public FoodConsumptionResponse create(Long foodId, FoodConsumptionRequest request) {
