@@ -14,7 +14,12 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "daily_intake")
+@Table(
+        name = "daily_intake",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "date"})
+        }
+)
 public class DailyIntake {
 
     @Id

@@ -18,7 +18,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
+@Table(name = "users")
 public class User implements UserDetails {
 
     private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
@@ -46,9 +46,6 @@ public class User implements UserDetails {
 
     @Column(name = "daily_limit")
     private BigDecimal dailyLimit;
-
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Food> foods;
 
     public void setTimezone(String timezone) {
         if (isNotValidTimezone(timezone)) {
