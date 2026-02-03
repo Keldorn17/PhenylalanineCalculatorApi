@@ -4,7 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
-import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
+import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
 
@@ -39,39 +38,11 @@ public class FoodConsumptionRepositoryTests {
 
     @BeforeEach
     public void setUp() {
-        User userSetUp = User.builder()
-                .timezone("UTC")
-                .dailyLimit(BigDecimal.valueOf(310))
-                .email("test@testmail.com")
-                .role(Role.ROLE_USER)
-                .password("testPassword")
-                .username("testUser")
-                .build();
-        user = userRepository.save(userSetUp);
+        user = userRepository.save(TestEntityFactory.user());
 
-        FoodType foodType = FoodType.builder()
-                .name("GeneralFoodType")
-                .multiplier(50)
-                .build();
-        FoodType savedFoodType = foodTypeRepository.save(foodType);
-
-        Food food = Food.builder()
-                .name("TestFood")
-                .protein(BigDecimal.TEN)
-                .phenylalanine(BigDecimal.TEN)
-                .calories(BigDecimal.TEN)
-                .foodType(savedFoodType)
-                .build();
-        Food savedFood = foodRepository.save(food);
-
-        FoodConsumption foodConsumption = FoodConsumption.builder()
-                .user(user)
-                .food(savedFood)
-                .amount(BigDecimal.TEN)
-                .phenylalanineAmount(BigDecimal.TEN)
-                .consumedAt(CONSUMED_AT)
-                .build();
-        foodConsumptionRepository.save(foodConsumption);
+        FoodType foodType = foodTypeRepository.save(TestEntityFactory.foodType());
+        Food food = foodRepository.save(TestEntityFactory.food(foodType));
+        foodConsumptionRepository.save(TestEntityFactory.foodConsumption(user, food, CONSUMED_AT));
     }
 
     @Test
@@ -86,7 +57,7 @@ public class FoodConsumptionRepositoryTests {
                 .hasSize(1)
                 .extracting(FoodConsumption::getFood)
                 .extracting(Food::getName)
-                .containsExactly("TestFood");
+                .containsExactly(TestEntityFactory.DEFAULT_FOOD_NAME);
     }
 
     @Test

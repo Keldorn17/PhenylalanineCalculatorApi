@@ -1,8 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.repository;
 
+import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
-import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,29 +29,13 @@ public class DailyIntakeRepositoryTests {
 
     @BeforeEach
     public void setUp() {
-        User userSetup = User.builder()
-                .timezone("UTC")
-                .dailyLimit(BigDecimal.valueOf(310))
-                .email("test@testmail.com")
-                .role(Role.ROLE_USER)
-                .password("testPassword")
-                .username("testUser")
-                .build();
-        user = userRepository.save(userSetup);
+        user = userRepository.save(TestEntityFactory.user());
     }
 
     @Test
     public void DailyIntakeRepository_SaveDuplicateUserAndDate_ThrowsDataIntegrityViolation() {
-        DailyIntake dailyIntake = DailyIntake.builder()
-                .date(TEST_DATE)
-                .user(user)
-                .totalPhenylalanine(BigDecimal.valueOf(10))
-                .build();
-        DailyIntake dailyIntake2 = DailyIntake.builder()
-                .date(TEST_DATE)
-                .user(user)
-                .totalPhenylalanine(BigDecimal.valueOf(10))
-                .build();
+        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(user, TEST_DATE);
+        DailyIntake dailyIntake2 = TestEntityFactory.dailyIntake(user, TEST_DATE);
 
         dailyIntakeRepository.save(dailyIntake);
         Assertions.assertThatThrownBy(() -> dailyIntakeRepository.saveAndFlush(dailyIntake2))
