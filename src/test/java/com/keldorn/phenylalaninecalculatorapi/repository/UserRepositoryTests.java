@@ -1,20 +1,17 @@
 package com.keldorn.phenylalaninecalculatorapi.repository;
 
-import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
+import com.keldorn.phenylalaninecalculatorapi.annotation.MySQLRepositoryTest;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
+import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@MySQLRepositoryTest
 public class UserRepositoryTests {
 
     @Autowired private UserRepository userRepository;
