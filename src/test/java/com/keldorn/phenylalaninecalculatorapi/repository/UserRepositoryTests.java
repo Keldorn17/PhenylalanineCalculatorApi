@@ -14,7 +14,8 @@ import java.util.Optional;
 @MySQLRepositoryTest
 public class UserRepositoryTests {
 
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private final String NON_EXISTENT_VALUE = " non-existent";
 

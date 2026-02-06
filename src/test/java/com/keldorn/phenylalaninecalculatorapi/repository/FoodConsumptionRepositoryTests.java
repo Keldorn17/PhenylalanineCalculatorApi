@@ -19,10 +19,14 @@ import java.util.List;
 @MySQLRepositoryTest
 public class FoodConsumptionRepositoryTests {
 
-    @Autowired private FoodConsumptionRepository foodConsumptionRepository;
-    @Autowired private FoodRepository foodRepository;
-    @Autowired private FoodTypeRepository foodTypeRepository;
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private FoodConsumptionRepository foodConsumptionRepository;
+    @Autowired
+    private FoodRepository foodRepository;
+    @Autowired
+    private FoodTypeRepository foodTypeRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private User user;
 

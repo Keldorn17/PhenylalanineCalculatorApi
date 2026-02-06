@@ -38,7 +38,6 @@ public class DailyIntakeService {
      *
      * @param date   The date for which the intake data should be updated.
      * @param amount The amount to add to (positive) or subtract from (negative) the total.
-     * @throws DailyIntakeNotFoundException              if no record exists for the given date.
      * @throws DailyIntakeCannotBeLowerThanZeroException if the update would result in a negative total.
      */
     protected final void addAmount(LocalDate date, BigDecimal amount) {

@@ -17,8 +17,10 @@ import java.util.Optional;
 @MySQLRepositoryTest
 public class DailyIntakeRepositoryTests {
 
-    @Autowired private DailyIntakeRepository dailyIntakeRepository;
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private DailyIntakeRepository dailyIntakeRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private User user;
 
