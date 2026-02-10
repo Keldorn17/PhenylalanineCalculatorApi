@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -35,20 +34,18 @@ public class DailyIntakeServiceTests {
     @InjectMocks
     private DailyIntakeService dailyIntakeService;
 
-    private final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
-
     @Test
     public void DailyIntakeService_FindByDate_ReturnsDailyIntakeResponse() {
         Long userId = 1L;
-        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(TestEntityFactory.user(), TEST_DATE);
-        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(1L, TEST_DATE, BigDecimal.TEN);
+        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(TestEntityFactory.user(), TestEntityFactory.TEST_DATE);
+        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(1L, TestEntityFactory.TEST_DATE, BigDecimal.TEN);
 
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         when(dailyIntakeMapper.toResponse(dailyIntake)).thenReturn(expectedResponse);
 
-        DailyIntakeResponse actualResponse = dailyIntakeService.findByDate(TEST_DATE);
+        DailyIntakeResponse actualResponse = dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE);
 
         Assertions.assertThat(actualResponse).isNotNull();
         Assertions.assertThat(actualResponse.totalPhenylalanine()).isEqualTo(BigDecimal.TEN);
@@ -59,10 +56,10 @@ public class DailyIntakeServiceTests {
         Long userId = 1L;
 
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TEST_DATE))
+        Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
                 .isInstanceOf(DailyIntakeNotFoundException.class)
                 .hasMessageContaining("No daily intake information found");
     }
@@ -78,10 +75,10 @@ public class DailyIntakeServiceTests {
                 .build();
 
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
 
-        dailyIntakeService.addAmount(TEST_DATE, amountToSubtract);
+        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract);
         ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
         verify(dailyIntakeRepository).save(captor.capture());
 
@@ -102,10 +99,10 @@ public class DailyIntakeServiceTests {
                 .build();
 
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
 
-        dailyIntakeService.addAmount(TEST_DATE, amountToAdd);
+        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
         ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
         verify(dailyIntakeRepository).save(captor.capture());
 
@@ -126,10 +123,10 @@ public class DailyIntakeServiceTests {
                 .build();
 
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
 
-        Assertions.assertThatThrownBy(() -> dailyIntakeService.addAmount(TEST_DATE, amountToSubtract))
+        Assertions.assertThatThrownBy(() -> dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class)
                 .hasMessageContaining("Daily intake cannot be lower than zero");
 
@@ -144,14 +141,14 @@ public class DailyIntakeServiceTests {
 
         when(userService.getCurrentUserId()).thenReturn(userId);
         when(userService.getCurrentUser()).thenReturn(user);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
 
-        dailyIntakeService.addAmount(TEST_DATE, amountToAdd);
+        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
 
         verify(dailyIntakeRepository).save(argThat(savedIntake ->
                 savedIntake.getTotalPhenylalanine().equals(amountToAdd) &&
-                savedIntake.getDate().equals(TEST_DATE) &&
+                savedIntake.getDate().equals(TestEntityFactory.TEST_DATE) &&
                 savedIntake.getUser().equals(user)
         ));
     }

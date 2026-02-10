@@ -4,8 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.*;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.*;
 
 public class TestEntityFactory {
 
@@ -15,11 +14,21 @@ public class TestEntityFactory {
     public static final String DEFAULT_TIMEZONE = "UTC";
     public static final String DEFAULT_FOOD_TYPE_NAME = "testFoodType";
     public static final String DEFAULT_FOOD_NAME = "TestFood";
+    public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN;
+    public static final Integer DEFAULT_INTEGER_VALUE = 10;
+
+    public static final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
+    public static final Instant START = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
+            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
+    public static final Instant END = ZonedDateTime.of(LocalDate.of(2026, 1, 2),
+            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
+    public static final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
+            LocalTime.of(12, 0), ZoneId.of("UTC")).toInstant();
 
     public static User user() {
         return User.builder()
                 .timezone(DEFAULT_TIMEZONE)
-                .dailyLimit(BigDecimal.TEN)
+                .dailyLimit(DEFAULT_BIG_DECIMAL_VALUE)
                 .email(DEFAULT_EMAIL)
                 .role(Role.ROLE_USER)
                 .password(DEFAULT_PASSWORD)
@@ -30,16 +39,16 @@ public class TestEntityFactory {
     public static FoodType foodType() {
         return FoodType.builder()
                 .name(DEFAULT_FOOD_TYPE_NAME)
-                .multiplier(10)
+                .multiplier(DEFAULT_INTEGER_VALUE)
                 .build();
     }
 
     public static Food food(FoodType foodType) {
         return Food.builder()
                 .name(DEFAULT_FOOD_NAME)
-                .protein(BigDecimal.TEN)
-                .phenylalanine(BigDecimal.TEN)
-                .calories(BigDecimal.TEN)
+                .protein(DEFAULT_BIG_DECIMAL_VALUE)
+                .phenylalanine(DEFAULT_BIG_DECIMAL_VALUE)
+                .calories(DEFAULT_BIG_DECIMAL_VALUE)
                 .foodType(foodType)
                 .build();
     }
@@ -48,8 +57,8 @@ public class TestEntityFactory {
         return FoodConsumption.builder()
                 .user(user)
                 .food(food)
-                .amount(BigDecimal.TEN)
-                .phenylalanineAmount(BigDecimal.TEN)
+                .amount(DEFAULT_BIG_DECIMAL_VALUE)
+                .phenylalanineAmount(DEFAULT_BIG_DECIMAL_VALUE)
                 .consumedAt(consumedAt)
                 .build();
     }
@@ -58,7 +67,7 @@ public class TestEntityFactory {
         return DailyIntake.builder()
                 .date(date)
                 .user(user)
-                .totalPhenylalanine(BigDecimal.TEN)
+                .totalPhenylalanine(DEFAULT_BIG_DECIMAL_VALUE)
                 .build();
     }
 }

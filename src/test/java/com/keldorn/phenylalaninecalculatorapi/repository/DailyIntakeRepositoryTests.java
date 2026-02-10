@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 
 @MySQLRepositoryTest
@@ -24,8 +23,6 @@ public class DailyIntakeRepositoryTests {
 
     private User user;
 
-    private static final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
-
     @BeforeEach
     public void setUp() {
         user = userRepository.save(TestEntityFactory.user());
@@ -33,8 +30,8 @@ public class DailyIntakeRepositoryTests {
 
     @Test
     public void DailyIntakeRepository_SaveDuplicateUserAndDate_ThrowsDataIntegrityViolation() {
-        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(user, TEST_DATE);
-        DailyIntake dailyIntake2 = TestEntityFactory.dailyIntake(user, TEST_DATE);
+        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
+        DailyIntake dailyIntake2 = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
 
         dailyIntakeRepository.save(dailyIntake);
         Assertions.assertThatThrownBy(() -> dailyIntakeRepository.saveAndFlush(dailyIntake2))
@@ -44,14 +41,14 @@ public class DailyIntakeRepositoryTests {
     @Test
     public void DailyIntakeRepository_FindByUserIdAndDate_ReturnDailyIntake() {
         DailyIntake dailyIntake = DailyIntake.builder()
-                .date(TEST_DATE)
+                .date(TestEntityFactory.TEST_DATE)
                 .user(user)
                 .totalPhenylalanine(BigDecimal.valueOf(10))
                 .build();
 
         DailyIntake save = dailyIntakeRepository.save(dailyIntake);
 
-        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(save.getUser().getUserId(), TEST_DATE);
+        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(save.getUser().getUserId(), TestEntityFactory.TEST_DATE);
 
         Assertions.assertThat(response).isPresent();
         Assertions.assertThat(response.get().getTotalPhenylalanine())
@@ -61,14 +58,14 @@ public class DailyIntakeRepositoryTests {
     @Test
     public void DailyIntakeRepository_FindByUserIdAndDate_InvalidDate_ReturnEmptyOptional() {
         DailyIntake dailyIntake = DailyIntake.builder()
-                .date(TEST_DATE)
+                .date(TestEntityFactory.TEST_DATE)
                 .user(user)
                 .totalPhenylalanine(BigDecimal.valueOf(10))
                 .build();
 
         DailyIntake save = dailyIntakeRepository.save(dailyIntake);
 
-        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(save.getUser().getUserId(), TEST_DATE.plusDays(1));
+        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(save.getUser().getUserId(), TestEntityFactory.TEST_DATE.plusDays(1));
 
         Assertions.assertThat(response.isEmpty()).isTrue();
     }
@@ -76,14 +73,14 @@ public class DailyIntakeRepositoryTests {
     @Test
     public void DailyIntakeRepository_FindByUserIdAndDate_InvalidUser_ReturnEmptyOptional() {
         DailyIntake dailyIntake = DailyIntake.builder()
-                .date(TEST_DATE)
+                .date(TestEntityFactory.TEST_DATE)
                 .user(user)
                 .totalPhenylalanine(BigDecimal.valueOf(10))
                 .build();
 
         dailyIntakeRepository.save(dailyIntake);
 
-        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(100L, TEST_DATE);
+        Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(100L, TestEntityFactory.TEST_DATE);
 
         Assertions.assertThat(response.isEmpty()).isTrue();
     }

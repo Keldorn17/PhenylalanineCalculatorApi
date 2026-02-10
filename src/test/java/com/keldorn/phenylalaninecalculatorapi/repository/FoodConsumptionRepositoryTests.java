@@ -30,20 +30,13 @@ public class FoodConsumptionRepositoryTests {
 
     private User user;
 
-    private final Instant START = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
-            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
-    private final Instant END = ZonedDateTime.of(LocalDate.of(2026, 1, 2),
-            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
-    private final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
-            LocalTime.of(12, 0), ZoneId.of("UTC")).toInstant();
-
     @BeforeEach
     public void setUp() {
         user = userRepository.save(TestEntityFactory.user());
 
         FoodType foodType = foodTypeRepository.save(TestEntityFactory.foodType());
         Food food = foodRepository.save(TestEntityFactory.food(foodType));
-        foodConsumptionRepository.save(TestEntityFactory.foodConsumption(user, food, CONSUMED_AT));
+        foodConsumptionRepository.save(TestEntityFactory.foodConsumption(user, food, TestEntityFactory.CONSUMED_AT));
     }
 
     @Test
@@ -51,7 +44,8 @@ public class FoodConsumptionRepositoryTests {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
-                .findAllByUserAndConsumedAtBetween(user.getUserId(), START, END, pageable).getContent();
+                .findAllByUserAndConsumedAtBetween(user.getUserId(),
+                        TestEntityFactory.START, TestEntityFactory.END, pageable).getContent();
 
         Assertions.assertThat(foodConsumptionResult).isNotEmpty();
         Assertions.assertThat(foodConsumptionResult)
@@ -66,7 +60,8 @@ public class FoodConsumptionRepositoryTests {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
-                .findAllByUserAndConsumedAtBetween(Long.MAX_VALUE, START, END, pageable).getContent();
+                .findAllByUserAndConsumedAtBetween(Long.MAX_VALUE,
+                        TestEntityFactory.START, TestEntityFactory.END, pageable).getContent();
 
         Assertions.assertThat(foodConsumptionResult).isEmpty();
     }
@@ -76,7 +71,8 @@ public class FoodConsumptionRepositoryTests {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
-                .findAllByUserAndConsumedAtBetween(user.getUserId(), END, END.plusSeconds(60L), pageable).getContent();
+                .findAllByUserAndConsumedAtBetween(user.getUserId(),
+                        TestEntityFactory.END, TestEntityFactory.END.plusSeconds(60L), pageable).getContent();
 
         Assertions.assertThat(foodConsumptionResult).isEmpty();
     }

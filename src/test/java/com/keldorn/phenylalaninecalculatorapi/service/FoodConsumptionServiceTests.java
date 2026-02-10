@@ -49,10 +49,6 @@ public class FoodConsumptionServiceTests {
     @InjectMocks
     private FoodConsumptionService foodConsumptionService;
 
-    private final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
-    private final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
-            LocalTime.of(12, 0), ZoneId.of("UTC")).toInstant();
-
     @Test
     public void FoodConsumptionService_Create_ReturnsFoodConsumptionResponse() {
         Long foodId = 1L;
@@ -137,7 +133,7 @@ public class FoodConsumptionServiceTests {
         when(foodConsumptionMapper.toResponse(any(FoodConsumption.class)))
                 .thenReturn(new FoodConsumptionResponse(1L, BigDecimal.ZERO, BigDecimal.ZERO, null));
 
-        Page<FoodConsumptionResponse> allByDate = foodConsumptionService.findAllByDate(TEST_DATE, 0, 20);
+        Page<FoodConsumptionResponse> allByDate = foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20);
 
         Assertions.assertThat(allByDate).isNotNull();
         Assertions.assertThat(allByDate).isNotEmpty();
@@ -152,7 +148,7 @@ public class FoodConsumptionServiceTests {
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(), any(), any(), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        Page<FoodConsumptionResponse> allByDate = foodConsumptionService.findAllByDate(TEST_DATE, 0, 20);
+        Page<FoodConsumptionResponse> allByDate = foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20);
 
         Assertions.assertThat(allByDate).isNotNull();
         Assertions.assertThat(allByDate).isEmpty();
@@ -177,7 +173,7 @@ public class FoodConsumptionServiceTests {
         FoodConsumption existingEntity = TestEntityFactory.foodConsumption(
                 user,
                 TestEntityFactory.food(TestEntityFactory.foodType()),
-                CONSUMED_AT
+                TestEntityFactory.CONSUMED_AT
         );
         existingEntity.setAmount(oldAmount);
         existingEntity.setPhenylalanineAmount(oldPheAmount);
@@ -225,7 +221,7 @@ public class FoodConsumptionServiceTests {
         FoodConsumption existingEntity = TestEntityFactory.foodConsumption(
                 user,
                 TestEntityFactory.food(TestEntityFactory.foodType()),
-                CONSUMED_AT
+                TestEntityFactory.CONSUMED_AT
         );
 
         when(foodConsumptionRepository.findById(id)).thenReturn(Optional.of(existingEntity));
@@ -252,7 +248,7 @@ public class FoodConsumptionServiceTests {
         FoodConsumption existingEntity = TestEntityFactory.foodConsumption(
                 user,
                 TestEntityFactory.food(TestEntityFactory.foodType()),
-                CONSUMED_AT
+                TestEntityFactory.CONSUMED_AT
         );
         existingEntity.setPhenylalanineAmount(currentPheAmount);
 
@@ -273,7 +269,7 @@ public class FoodConsumptionServiceTests {
         FoodConsumption existingEntity = TestEntityFactory.foodConsumption(
                 user,
                 TestEntityFactory.food(TestEntityFactory.foodType()),
-                CONSUMED_AT
+                TestEntityFactory.CONSUMED_AT
         );
 
         when(userService.getCurrentUser()).thenReturn(user);
@@ -284,7 +280,7 @@ public class FoodConsumptionServiceTests {
 
         Assertions.assertThatThrownBy(() -> foodConsumptionService.deleteById(id))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
-        verify(foodConsumptionRepository, never()).save(any());
+        verify(foodConsumptionRepository, never()).delete(any());
     }
 
     @Test
