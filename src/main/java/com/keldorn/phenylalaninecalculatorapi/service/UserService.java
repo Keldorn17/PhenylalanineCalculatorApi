@@ -5,14 +5,14 @@ import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -24,7 +24,11 @@ public class UserService {
 
     protected final User getCurrentUser() {
         log.debug("Getting current user from SecurityContextHolder");
-        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new InvalidJwtTokenReceivedException("No authentication found");
+        }
+        String username = authentication.getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Authenticated User Not Found: " + username));
     }
