@@ -50,7 +50,7 @@ public class FoodTypeService {
         var foodType = findByIdOrThrow(id);
         foodType.setName(request.name());
         foodType.setMultiplier(request.multiplier());
-        return foodTypeMapper.toResponse(foodType);
+        return foodTypeMapper.toResponse(foodTypeRepository.save(foodType));
     }
 
     public void deleteById(Long id) {
