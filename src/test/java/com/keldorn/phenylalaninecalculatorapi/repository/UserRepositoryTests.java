@@ -25,7 +25,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void UserRepository_SaveDuplicateUsername_ThrowsDataIntegrityViolation() {
+    public void save_shouldThrowDataIntegrityViolation_whenSavingDuplicateUsername() {
         User user = TestEntityFactory.user();
         user.setEmail(NON_EXISTENT_VALUE);
         Assertions.assertThatThrownBy(() -> userRepository.saveAndFlush(user))
@@ -33,7 +33,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void UserRepository_SaveDuplicateEmail_ThrowsDataIntegrityViolation() {
+    public void save_shouldThrowDataIntegrityViolation_whenSavingDuplicateEmail() {
         User user = TestEntityFactory.user();
         user.setUsername(NON_EXISTENT_VALUE);
         Assertions.assertThatThrownBy(() -> userRepository.saveAndFlush(user))
@@ -41,7 +41,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void UserRepository_FindByUsername_ReturnUser() {
+    public void findByUsername_shouldReturnUser() {
         Optional<User> user = userRepository.findByUsername(TestEntityFactory.DEFAULT_USERNAME);
 
         Assertions.assertThat(user).isPresent();
@@ -49,35 +49,35 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void UserRepository_FindByUsername_ReturnEmptyOptional() {
+    public void findByUsername_shouldReturnEmptyOptional() {
         Optional<User> user = userRepository.findByUsername(NON_EXISTENT_VALUE);
 
         Assertions.assertThat(user).isEmpty();
     }
 
     @Test
-    public void UserRepository_ExistsByEmail_ReturnTrue() {
+    public void existsByEmail_shouldReturnTrue() {
         Boolean response = userRepository.existsByEmail(TestEntityFactory.DEFAULT_EMAIL);
 
         Assertions.assertThat(response).isTrue();
     }
 
     @Test
-    public void UserRepository_ExistsByEmail_ReturnFalse() {
+    public void existsByEmail_shouldReturnFalse() {
         Boolean response = userRepository.existsByEmail(NON_EXISTENT_VALUE);
 
         Assertions.assertThat(response).isFalse();
     }
 
     @Test
-    public void UserRepository_ExistsByUsername_ReturnTrue() {
+    public void existsByUsername_shouldReturnTrue() {
         Boolean response = userRepository.existsByUsername(TestEntityFactory.DEFAULT_USERNAME);
 
         Assertions.assertThat(response).isTrue();
     }
 
     @Test
-    public void UserRepository_ExistsByUsername_ReturnFalse() {
+    public void existsByUsername_shouldReturnFalse() {
         Boolean response = userRepository.existsByUsername(NON_EXISTENT_VALUE);
 
         Assertions.assertThat(response).isFalse();

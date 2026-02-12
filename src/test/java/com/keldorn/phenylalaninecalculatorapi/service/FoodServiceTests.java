@@ -45,7 +45,7 @@ public class FoodServiceTests {
     private FoodService foodService;
 
     @Test
-    public void FoodService_FindById_WhenFoodNotFound_ThrowsFoodNotFoundException() {
+    public void findById_shouldThrowFoodNotFoundException_whenFoodNotFound() {
         Long foodId = 999L;
 
         when(foodRepository.findById(foodId)).thenReturn(Optional.empty());
@@ -56,7 +56,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_FindById_ReturnsFoodResponse() {
+    public void findById_shouldReturnFoodResponse_whenFoodExists() {
         Long foodId = 1L;
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         FoodResponse foodResponse = new FoodResponse(
@@ -79,7 +79,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_FindAll_ReturnsPageOfFoodResponses() {
+    public void findAll_shouldReturnPageOfFoodResponses() {
         List<Food> responseList = List.of(new Food());
         Page<Food> responsePage = new PageImpl<>(responseList);
 
@@ -95,7 +95,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_FindAll_ReturnsEmptyList() {
+    public void findAll_shouldReturnEmptyList() {
         when(foodRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
         Page<FoodResponse> response = foodService.findAll(0, 20);
@@ -105,7 +105,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_Save_ReturnsFoodResponse() {
+    public void save_shouldReturnsFoodResponse() {
         Long foodTypeId = 1L;
         FoodRequest request = new FoodRequest(null, BigDecimal.TEN, BigDecimal.TEN, 1L);
         FoodType foodType = TestEntityFactory.foodType();
@@ -138,7 +138,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_Save_WhenFoodTypeNotFound_ThrowsExceptionAndSavesNothing() {
+    public void save_shouldThrowExceptionAndSaveNothing_whenFoodTypeNotFound() {
         FoodRequest request = new FoodRequest(null, null, null, 1L);
 
         when(foodMapper.toEntity(any(FoodRequest.class))).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
@@ -152,7 +152,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_Save_WhenUserNotFound_ThrowsExceptionAndSavesNothing() {
+    public void save_shouldThrowExceptionAndSaveNothing_whenUserNotFound() {
         FoodRequest request = new FoodRequest(null, null, null, 1L);
 
         when(foodMapper.toEntity(any(FoodRequest.class))).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
@@ -168,7 +168,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_Update_ReturnsFoodResponse() {
+    public void update_shouldReturnFoodResponse() {
         Long foodId = 1L;
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         String foodName = "New Food Name";
@@ -200,7 +200,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_Update_WhenFoodNotFound_ThrowsExceptionAndSavesNothing() {
+    public void update_shouldThrowExceptionAndSaveNothing_whenFoodNotFound() {
         Long foodId = 1L;
 
         when(foodRepository.findById(foodId))
@@ -214,7 +214,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_DeleteById() {
+    public void deleteById_whenFoodExists() {
         Long foodId = 1L;
 
         when(foodRepository.findById(foodId))
@@ -226,7 +226,7 @@ public class FoodServiceTests {
     }
 
     @Test
-    public void FoodService_DeleteById_WhenFoodNotFound_ThrowsExceptionAndSavesNothing() {
+    public void deleteById_shouldThrowExceptionAndSaveNothing_whenFoodNotFound() {
         Long foodId = 1L;
 
         when(foodRepository.findById(foodId))

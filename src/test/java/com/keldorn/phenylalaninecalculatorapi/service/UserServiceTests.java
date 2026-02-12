@@ -57,7 +57,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_GetProfile_ReturnsUserResponse() {
+    public void getProfile_shouldReturnUserResponse_whenUserExists() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(TestEntityFactory.user()));
         when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, null, null, null, null));
 
@@ -67,7 +67,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_GetProfile_WhenUserNotFound_ThrowsUserNotFoundException() {
+    public void getProfile_shouldThrowUserNotFoundException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.getProfile())
@@ -75,7 +75,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_GetProfile_WhenAuthenticationMissing_ThrowsInvalidJwtTokenReceivedException() {
+    public void getProfile_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
 
         Assertions.assertThatThrownBy(() -> userService.getProfile())
@@ -83,7 +83,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Update_ReturnsUserResponse() {
+    public void update_shouldReturnUserResponse() {
         UserRequest request = new UserRequest("New Email", BigDecimal.ONE, "UTC");
         User user = TestEntityFactory.user();
 
@@ -105,7 +105,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Update_WhenUserNotFound_ThrowsUserNotFoundException() {
+    public void update_shouldThrowUserNotFoundException_whenUserNotFound() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
@@ -115,7 +115,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Update_WhenAuthenticationMissing_ThrowsInvalidJwtTokenReceivedException() {
+    public void update_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
 
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
@@ -125,7 +125,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Update_WhenEmailIsTaken_ThrowsEmailIsTakenException() {
+    public void update_shouldThrowEmailIsTakenException_whenEmailIsTaken() {
         User user = TestEntityFactory.user();
 
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
@@ -138,7 +138,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Update_WhenUserSetsInvalidTimezone_ReturnsUserResponseWithUTCTimezone() {
+    public void update_shouldReturnUserResponseWithUTCTimezone_whenUserSetInvalidTimezone() {
         UserRequest request = new UserRequest(null, null, "Invalid Timezone");
         User user = TestEntityFactory.user();
 
@@ -157,7 +157,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Delete() {
+    public void delete_whenUserExists() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(TestEntityFactory.user()));
 
         userService.delete();
@@ -166,7 +166,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Delete_WhenUserNotFound_ThrowsUserNotFoundException() {
+    public void delete_shouldThrowUserNotFoundException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.delete())
@@ -176,7 +176,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void UserService_Delete_WhenAuthenticationMissing_ThrowsInvalidJwtTokenReceivedException() {
+    public void delete_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
 
         Assertions.assertThatThrownBy(() -> userService.delete())

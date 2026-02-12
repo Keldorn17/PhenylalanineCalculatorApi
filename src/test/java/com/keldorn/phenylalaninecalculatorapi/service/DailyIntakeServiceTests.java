@@ -35,7 +35,7 @@ public class DailyIntakeServiceTests {
     private DailyIntakeService dailyIntakeService;
 
     @Test
-    public void DailyIntakeService_FindByDate_ReturnsDailyIntakeResponse() {
+    public void findByDate_shouldReturnsDailyIntakeResponse_whenDailyIntakeExists() {
         Long userId = 1L;
         DailyIntake dailyIntake = TestEntityFactory.dailyIntake(TestEntityFactory.user(), TestEntityFactory.TEST_DATE);
         DailyIntakeResponse expectedResponse = new DailyIntakeResponse(1L, TestEntityFactory.TEST_DATE, BigDecimal.TEN);
@@ -52,7 +52,7 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void DailyIntakeService_FindByDate_ThrowsDailyIntakeNotFoundException() {
+    public void findByDate_shouldThrowDailyIntakeNotFoundException() {
         Long userId = 1L;
 
         when(userService.getCurrentUserId()).thenReturn(userId);
@@ -65,7 +65,7 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void DailyIntakeService_AddAmount_SuccessfulSubtract() {
+    public void addAmount_shouldDoSuccessfulSubtract() {
         Long userId = 1L;
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToSubtract = BigDecimal.valueOf(-5);
@@ -89,7 +89,7 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void DailyIntakeService_AddAmount_SuccessfulAddition() {
+    public void addAmount_shouldDoSuccessfulAddition() {
         Long userId = 1L;
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToAdd = BigDecimal.valueOf(5);
@@ -113,7 +113,7 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void DailyIntakeService_AddAmount_ThrowsDailyIntakeCannotBeLowerThanZeroException() {
+    public void addAmount_shouldThrowDailyIntakeCannotBeLowerThanZeroException() {
         Long userId = 1L;
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToSubtract = BigDecimal.valueOf(-20);
@@ -134,7 +134,7 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void DailyIntakeService_AddAmount_WhenDateDoesNotExist_CreatesNewAndSaves() {
+    public void addAmount_shouldCreateNewDailyIntake_whenOneDoesntExists() {
         Long userId = 1L;
         BigDecimal amountToAdd = BigDecimal.TEN;
         User user = TestEntityFactory.user();

@@ -40,7 +40,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void FoodConsumptionRepository_FindAllByUserAndConsumedAtBetween_ReturnListOfFoodConsumption() {
+    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption() {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
@@ -56,7 +56,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void FoodConsumptionRepository_FindAllByUserAndConsumedAtBetween_InvalidUser_ReturnListOfFoodConsumption() {
+    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidUser() {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
@@ -67,7 +67,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void FoodConsumptionRepository_FindAllByUserAndConsumedAtBetween_InvalidDateInterval_ReturnListOfFoodConsumption() {
+    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidDateInterval() {
         Pageable pageable = PageRequest.of(0, 20);
 
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository

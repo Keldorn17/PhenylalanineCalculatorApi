@@ -80,7 +80,7 @@ public class FoodConsumptionController {
             @Valid @RequestBody FoodConsumptionRequest request
     ) {
         log.info("Post request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        FoodConsumptionResponse response = foodConsumptionService.create(foodId, request);
+        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);

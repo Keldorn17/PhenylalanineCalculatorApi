@@ -34,7 +34,7 @@ public class DailyIntakeService {
      * This method supports both increments and decrements. Pass a positive value to add
      * to the total, or a negative value to subtract from it.
      * <p>
-     * If there isn't any data registered for a specific date it will create one.
+     * If there isn't any data registered for a specific date it will save one.
      *
      * @param date   The date for which the intake data should be updated.
      * @param amount The amount to add to (positive) or subtract from (negative) the total.

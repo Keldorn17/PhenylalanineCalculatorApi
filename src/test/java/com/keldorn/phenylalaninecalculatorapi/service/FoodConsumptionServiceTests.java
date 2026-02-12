@@ -50,7 +50,7 @@ public class FoodConsumptionServiceTests {
     private FoodConsumptionService foodConsumptionService;
 
     @Test
-    public void FoodConsumptionService_Create_ReturnsFoodConsumptionResponse() {
+    public void save_shouldReturnFoodConsumptionResponse() {
         Long foodId = 1L;
         BigDecimal foodPheContent = BigDecimal.valueOf(200);
         BigDecimal consumedAmount = BigDecimal.valueOf(50);
@@ -70,7 +70,7 @@ public class FoodConsumptionServiceTests {
         when(foodConsumptionMapper.toResponse(any(FoodConsumption.class)))
                 .thenReturn(new FoodConsumptionResponse(1L, BigDecimal.ZERO, BigDecimal.ZERO, null));
 
-        foodConsumptionService.create(foodId, request);
+        foodConsumptionService.save(foodId, request);
 
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedCalculatedPhe));
 
@@ -87,14 +87,14 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_Create_WhenFoodNotFound_ThrowsExceptionAndSavesNothing() {
+    public void save_shouldThrowExceptionAndSaveNothing_whenFoodNotFound() {
         Long invalidFoodId = 999L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
 
         when(foodService.findByIdOrThrow(invalidFoodId))
                 .thenThrow(new FoodNotFoundException("Food not found"));
 
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.create(invalidFoodId, request))
+        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(invalidFoodId, request))
                 .isInstanceOf(FoodNotFoundException.class);
 
         verify(dailyIntakeService, never()).addAmount(any(), any());
@@ -102,7 +102,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_Create_WhenDailyIntakeFailsDueToNegativeConsumption_ThrowsExceptionAndSavesNothing() {
+    public void save_shouldThrowExceptionAndSaveNothing_whenDailyIntakeFailsDueToNegativeConsumption() {
         Long foodId = 1L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.valueOf(-100));
 
@@ -113,7 +113,7 @@ public class FoodConsumptionServiceTests {
         doThrow(new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero"))
                 .when(dailyIntakeService).addAmount(any(), any());
 
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.create(foodId, request))
+        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(foodId, request))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class)
                 .hasMessageContaining("Daily intake cannot be lower than zero");
 
@@ -121,7 +121,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_FindAllByDate_ReturnsPageOfFoodConsumptionResponses() {
+    public void findAllByDate_shouldReturnPageOfFoodConsumptionResponses() {
         Long userId = 1L;
         List<FoodConsumption> consumptionList = List.of(new FoodConsumption());
         Page<FoodConsumption> pageWithData = new PageImpl<>(consumptionList);
@@ -140,7 +140,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_FindAllByDate_ReturnsEmptyList() {
+    public void findAllByDate_shouldReturnsEmptyList() {
         Long userId = 1L;
 
         when(userService.getCurrentUser()).thenReturn(TestEntityFactory.user());
@@ -155,7 +155,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_Update_ReturnsFoodConsumptionResponse() {
+    public void update_shouldReturnFoodConsumptionResponse_whenFoodConsumptionExists() {
         Long id = 1L;
         BigDecimal foodPheContent = BigDecimal.valueOf(200);
 
@@ -198,7 +198,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_Update_WhenFoodConsumptionNotFound_ThrowsExceptionAndSavesNothing() {
+    public void update_shouldThrowExceptionAndSaveNothing_whenFoodConsumptionNotFound() {
         Long invalidId = 999L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
 
@@ -213,7 +213,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_Update_WhenDailyIntakeFailsDueToNegativeConsumption_ThrowsExceptionAndSavesNothing() {
+    public void update_shouldThrowExceptionAndSaveNothing_whenDailyIntakeFailsDueToNegativeConsumption() {
         Long id = 1L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.valueOf(-100));
 
@@ -237,7 +237,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_DeleteById_RemovesAmountFromDailyIntakeAndDeletesEntity() {
+    public void deleteById_shouldRemoveAmountFromDailyIntakeAndDeleteEntity() {
         Long id = 1L;
         BigDecimal currentPheAmount = BigDecimal.valueOf(20).setScale(4, RoundingMode.HALF_UP);
 
@@ -262,7 +262,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_DeleteById_WhenDailyIntakeFailsDueToNegativeConsumption_RemovesAmountFromDailyIntakeAndDeletesEntity() {
+    public void deleteById_shouldRemoveAmountFromDailyIntakeAndDeleteEntity_whenDailyIntakeFailsDueToNegativeConsumption() {
         Long id = 1L;
         User user = TestEntityFactory.user();
 
@@ -284,7 +284,7 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void FoodConsumptionService_DeleteById_WhenFoodConsumptionNotFound_ThrowsExceptionAndSavesNothing() {
+    public void deleteById_shouldThrowExceptionAndSaveNothing_whenFoodConsumptionNotFound() {
         Long invalidId = 999L;
 
         when(foodConsumptionRepository.findById(invalidId)).thenReturn(Optional.empty());

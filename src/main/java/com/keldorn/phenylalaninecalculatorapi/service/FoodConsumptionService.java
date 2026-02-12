@@ -50,7 +50,7 @@ public class FoodConsumptionService {
                 .map(foodConsumptionMapper::toResponse);
     }
 
-    public FoodConsumptionResponse create(Long foodId, FoodConsumptionRequest request) {
+    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request) {
         log.debug("Creating food consumption");
         Food food = foodService.findByIdOrThrow(foodId);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());

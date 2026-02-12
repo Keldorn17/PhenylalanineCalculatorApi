@@ -29,7 +29,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void DailyIntakeRepository_SaveDuplicateUserAndDate_ThrowsDataIntegrityViolation() {
+    public void save_shouldThrowDataIntegrityViolation_whenSavingDuplicateUserAndDate() {
         DailyIntake dailyIntake = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
         DailyIntake dailyIntake2 = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
 
@@ -39,7 +39,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void DailyIntakeRepository_FindByUserIdAndDate_ReturnDailyIntake() {
+    public void findByUserIdAndDate_shouldReturnDailyIntake() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
@@ -56,7 +56,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void DailyIntakeRepository_FindByUserIdAndDate_InvalidDate_ReturnEmptyOptional() {
+    public void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidDate() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
@@ -71,7 +71,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void DailyIntakeRepository_FindByUserIdAndDate_InvalidUser_ReturnEmptyOptional() {
+    public void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidUser() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
