@@ -14,9 +14,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,8 +37,8 @@ public class UserServiceTests {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private UserMapper userMapper;
+    @Spy
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @InjectMocks
     private UserService userService;
@@ -58,12 +60,14 @@ public class UserServiceTests {
 
     @Test
     public void getProfile_shouldReturnUserResponse_whenUserExists() {
-        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(TestEntityFactory.user()));
-        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse(1L, null, null, null, null));
+        User user = TestEntityFactory.user();
+        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
 
         UserResponse response = userService.getProfile();
 
-        Assertions.assertThat(response).isNotNull();
+        verify(userMapper).toResponse(user);
+
+        doAssertionsCheckOnResponse(response, user);
     }
 
     @Test
@@ -86,22 +90,26 @@ public class UserServiceTests {
     public void update_shouldReturnUserResponse() {
         UserRequest request = new UserRequest("New Email", BigDecimal.ONE, "UTC");
         User user = TestEntityFactory.user();
+        User expectedUser = TestEntityFactory.user();
+        expectedUser.setEmail(request.email());
+        expectedUser.setDailyLimit(request.dailyLimit());
+        expectedUser.setTimezone(request.timezone());
 
-        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmail(any(String.class))).thenReturn(false);
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.toResponse(any(User.class))).thenReturn(null);
 
-        userService.update(request);
+        UserResponse response = userService.update(request);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
+        verify(userMapper).toResponse(any(User.class));
         User savedUser = captor.getValue();
 
-        Assertions.assertThat(savedUser).isNotNull();
         Assertions.assertThat(savedUser.getEmail()).isEqualTo(request.email());
         Assertions.assertThat(savedUser.getDailyLimit()).isEqualByComparingTo(request.dailyLimit());
         Assertions.assertThat(savedUser.getTimezone()).isEqualTo(request.timezone());
+        doAssertionsCheckOnResponse(response, expectedUser);
     }
 
     @Test
@@ -141,28 +149,31 @@ public class UserServiceTests {
     public void update_shouldReturnUserResponseWithUTCTimezone_whenUserSetInvalidTimezone() {
         UserRequest request = new UserRequest(null, null, "Invalid Timezone");
         User user = TestEntityFactory.user();
+        User expectedUser = TestEntityFactory.user();
+        expectedUser.setTimezone("UTC");
 
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.toResponse(any(User.class))).thenReturn(null);
 
-        userService.update(request);
+        UserResponse response = userService.update(request);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
+        verify(userMapper).toResponse(any(User.class));
         User savedUser = captor.getValue();
 
-        Assertions.assertThat(savedUser).isNotNull();
-        Assertions.assertThat(savedUser.getTimezone()).isEqualTo("UTC");
+        Assertions.assertThat(savedUser.getTimezone()).isEqualTo(expectedUser.getTimezone());
+        doAssertionsCheckOnResponse(response, expectedUser);
     }
 
     @Test
     public void delete_whenUserExists() {
-        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(TestEntityFactory.user()));
+        User user = TestEntityFactory.user();
+        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
 
         userService.delete();
 
-        verify(userRepository).delete(any(User.class));
+        verify(userRepository).delete(user);
     }
 
     @Test
@@ -172,7 +183,7 @@ public class UserServiceTests {
         Assertions.assertThatThrownBy(() -> userService.delete())
                         .isInstanceOf(UserNotFoundException.class);
 
-        verify(userRepository, never()).delete(any(User.class));
+        verify(userRepository, never()).delete(any());
     }
 
     @Test
@@ -183,5 +194,13 @@ public class UserServiceTests {
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
 
         verify(userRepository, never()).delete(any(User.class));
+    }
+
+    private void doAssertionsCheckOnResponse(UserResponse response, User user) {
+        Assertions.assertThat(response.id()).isEqualTo(user.getUserId());
+        Assertions.assertThat(response.username()).isEqualTo(user.getUsername());
+        Assertions.assertThat(response.dailyLimit()).isEqualByComparingTo(user.getDailyLimit());
+        Assertions.assertThat(response.timezone()).isEqualTo(user.getTimezone());
+        Assertions.assertThat(response.email()).isEqualTo(user.getEmail());
     }
 }

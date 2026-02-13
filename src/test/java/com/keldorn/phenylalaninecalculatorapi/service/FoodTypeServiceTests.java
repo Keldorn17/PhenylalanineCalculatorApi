@@ -50,9 +50,7 @@ public class FoodTypeServiceTests {
 
         verify(foodTypeMapper).toResponse(foodType);
 
-        Assertions.assertThat(response.id()).isEqualTo(foodType.getId());
-        Assertions.assertThat(response.name()).isEqualTo(foodType.getName());
-        Assertions.assertThat(response.multiplier()).isEqualTo(foodType.getMultiplier());
+        doAssertionsCheckOnResponse(response, foodType);
     }
 
     @Test
@@ -76,9 +74,7 @@ public class FoodTypeServiceTests {
         verify(foodTypeMapper).toResponse(foodTypeList.getFirst());
 
         Assertions.assertThat(response).hasSize(1);
-        Assertions.assertThat(response.getContent().getFirst().id()).isEqualTo(foodType.getId());
-        Assertions.assertThat(response.getContent().getFirst().name()).isEqualTo(foodType.getName());
-        Assertions.assertThat(response.getContent().getFirst().multiplier()).isEqualTo(foodType.getMultiplier());
+        doAssertionsCheckOnResponse(response.getContent().getFirst(), foodType);
     }
 
     @Test
@@ -94,9 +90,7 @@ public class FoodTypeServiceTests {
         verify(foodTypeRepository).save(foodType);
         verify(foodTypeMapper).toResponse(foodType);
 
-        Assertions.assertThat(response.id()).isEqualTo(foodType.getId());
-        Assertions.assertThat(response.name()).isEqualTo(foodType.getName());
-        Assertions.assertThat(response.multiplier()).isEqualTo(foodType.getMultiplier());
+        doAssertionsCheckOnResponse(response, foodType);
     }
 
     @Test
@@ -119,9 +113,7 @@ public class FoodTypeServiceTests {
         Assertions.assertThat(savedEntity).isNotNull();
         Assertions.assertThat(savedEntity.getName()).isEqualTo(request.name());
         Assertions.assertThat(savedEntity.getMultiplier()).isEqualTo(request.multiplier());
-        Assertions.assertThat(response.id()).isEqualTo(foodType.getId());
-        Assertions.assertThat(response.name()).isEqualTo(request.name());
-        Assertions.assertThat(response.multiplier()).isEqualTo(request.multiplier());
+        doAssertionsCheckOnResponse(response, foodType);
     }
 
     @Test
@@ -157,5 +149,11 @@ public class FoodTypeServiceTests {
 
         verify(foodTypeRepository, never()).delete(any());
         verify(foodTypeRepository, never()).deleteById(any());
+    }
+
+    private void doAssertionsCheckOnResponse(FoodTypeResponse response, FoodType foodType) {
+        Assertions.assertThat(response.id()).isEqualTo(foodType.getId());
+        Assertions.assertThat(response.name()).isEqualTo(foodType.getName());
+        Assertions.assertThat(response.multiplier()).isEqualTo(foodType.getMultiplier());
     }
 }
