@@ -215,7 +215,7 @@ public class FoodServiceTests {
     @Test
     public void deleteById_shouldThrowExceptionAndSaveNothing_whenFoodNotFound() {
         when(foodRepository.findById(FOOD_ID))
-                .thenThrow(FoodNotFoundException.class);
+                .thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> foodService.deleteById(FOOD_ID))
                         .isInstanceOf(FoodNotFoundException.class);
