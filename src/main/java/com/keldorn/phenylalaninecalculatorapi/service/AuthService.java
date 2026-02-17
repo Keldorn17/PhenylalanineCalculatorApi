@@ -27,9 +27,9 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
+        manageAuth(request.username(), request.password());
         var user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        manageAuth(user.getUsername(), request.password());
         return getResponse(user);
     }
 
