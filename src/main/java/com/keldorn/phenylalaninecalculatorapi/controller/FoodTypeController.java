@@ -8,7 +8,6 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -62,13 +62,13 @@ public class FoodTypeController {
     )
     @ForbiddenApiResponse
     @GetMapping
-    public ResponseEntity<PageResponse<FoodTypeResponse>> findAll(
+    public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size
     ) {
         log.info("Get All: {}", ApiRoutes.FOOD_TYPE_PATH);
         var result = foodTypeService.findAll(page, size);
-        return ResponseEntity.ok(new PageResponse<>(result));
+        return ResponseEntity.ok(new PagedModel<>(result));
     }
 
     @Operation(
