@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -47,7 +46,6 @@ public class DailyIntakeController {
     @BadRequestApiResponse
     @ForbiddenApiResponse
     @NotFoundApiResponse
-    @ConflictApiResponse
     @GetMapping
     public ResponseEntity<DailyIntakeResponse> getDailyIntake(
             @Parameter(description = "Date of intake (ISO-8601)", example = "2026-01-01")
