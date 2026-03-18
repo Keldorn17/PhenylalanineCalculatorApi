@@ -4,22 +4,26 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceAccessDeniedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+
+import jakarta.transaction.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -35,8 +39,14 @@ public class FoodConsumptionService {
 
     private FoodConsumption findByIdOrThrow(Long id) {
         log.debug("Finding food consumption by id {}", id);
-        return foodConsumptionRepository.findById(id)
+        FoodConsumption consumption = foodConsumptionRepository.findById(id)
                 .orElseThrow(() -> new FoodConsumptionNotFoundException("Food consumption not found by id: " + id));
+
+        if (!consumption.getUser().getUserId().equals(userService.getCurrentUserId())) {
+            throw new ResourceAccessDeniedException("You do not have permission to access this resource");
+        }
+
+        return consumption;
     }
 
     public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size) {

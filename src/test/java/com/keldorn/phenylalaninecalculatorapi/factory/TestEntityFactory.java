@@ -1,10 +1,20 @@
 package com.keldorn.phenylalaninecalculatorapi.factory;
 
-import com.keldorn.phenylalaninecalculatorapi.domain.entity.*;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class TestEntityFactory {
 
@@ -16,8 +26,10 @@ public class TestEntityFactory {
     public static final String DEFAULT_FOOD_NAME = "TestFood";
     public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN;
     public static final Integer DEFAULT_INTEGER_VALUE = 10;
+    public static final Long DEFAULT_ID = 1L;
 
     public static final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
+    public static final LocalDateTime TEST_DATE_TIME = LocalDateTime.of(TEST_DATE, LocalTime.of(0, 0));
     public static final Instant START = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
             LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
     public static final Instant END = ZonedDateTime.of(LocalDate.of(2026, 1, 2),
@@ -69,5 +81,9 @@ public class TestEntityFactory {
                 .user(user)
                 .totalPhenylalanine(DEFAULT_BIG_DECIMAL_VALUE)
                 .build();
+    }
+
+    public static FoodConsumptionResponse foodConsumptionResponse() {
+        return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_BIG_DECIMAL_VALUE, DEFAULT_BIG_DECIMAL_VALUE, TEST_DATE_TIME);
     }
 }

@@ -1,23 +1,31 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceAccessDeniedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.*;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.DailyIntakeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodTypeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
+
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -45,6 +53,18 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
     }
 
+    @ExceptionHandler(ResourceAccessDeniedException.class)
+    public ResponseEntity<Object> handleForbidden(Exception ex) {
+        log.error("Forbidden: {}", ex.getMessage());
+        ErrorResponse response = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .statusCode(HttpStatus.FORBIDDEN)
+                .details("Resource access denied")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleInternalError(Exception ex) {
         return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR, ex);
@@ -53,14 +73,25 @@ public class ControllerAdvice {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Object> handleException(MethodArgumentTypeMismatchException ex) {
         log.error("Malformed data received: {}", ex.getMessage());
-
         ErrorResponse response = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .statusCode(HttpStatus.BAD_REQUEST)
                 .details("Malformed data received")
                 .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Object> handleException(MissingServletRequestParameterException ex) {
+        log.error("Missing require parameter: {}", ex.getMessage());
+        String missingParam = ex.getMessage().split("'")[1];
+        ErrorResponse response = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .statusCode(HttpStatus.BAD_REQUEST)
+                .details("Required parameter is missing: " + missingParam)
+                .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -69,16 +100,13 @@ public class ControllerAdvice {
         String details = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + " " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-
         log.warn("Validation failed: {}", details);
-
         ErrorResponse response = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .statusCode(HttpStatus.BAD_REQUEST)
                 .details(details)
                 .build();
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -89,14 +117,13 @@ public class ControllerAdvice {
         } else {
             log.warn("{} : {}", ex.getClass().getSimpleName(), ex.getMessage());
         }
-
         ErrorResponse response = ErrorResponse.builder()
                 .type(type)
                 .title(status.getReasonPhrase())
                 .statusCode(status)
                 .details(isError ? "An internal error occurred" : ex.getMessage())
                 .build();
-
         return ResponseEntity.status(status).body(response);
     }
+
 }
