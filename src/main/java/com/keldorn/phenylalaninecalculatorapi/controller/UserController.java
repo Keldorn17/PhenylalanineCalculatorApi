@@ -1,23 +1,32 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
-import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -38,7 +47,7 @@ public class UserController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @GetMapping
     public ResponseEntity<UserResponse> me() {
@@ -57,7 +66,7 @@ public class UserController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
@@ -75,7 +84,7 @@ public class UserController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @DeleteMapping
     public ResponseEntity<Void> deleteUser() {

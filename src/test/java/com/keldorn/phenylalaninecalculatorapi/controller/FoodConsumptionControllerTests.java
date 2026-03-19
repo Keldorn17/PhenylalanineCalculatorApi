@@ -9,7 +9,6 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceAccessDeniedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -133,18 +132,6 @@ public class FoodConsumptionControllerTests {
     }
 
     @Test
-    void postFoodConsumption_shouldReturn203_whenUserDoesNotOwnResource() {
-        Long id = TestEntityFactory.DEFAULT_ID;
-        FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
-        when(foodConsumptionService.save(id, request)).thenThrow(ResourceAccessDeniedException.class);
-        restTestClient.post()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
-                .body(request)
-                .exchange()
-                .expectStatus().isForbidden();
-    }
-
-    @Test
     void postFoodConsumption_shouldReturn404_whenFoodConsumptionNotFound() {
         when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 FoodConsumptionNotFoundException.class);
@@ -199,18 +186,6 @@ public class FoodConsumptionControllerTests {
     }
 
     @Test
-    void putFoodConsumption_shouldReturn203_whenUserDoesNotOwnResource() {
-        Long id = TestEntityFactory.DEFAULT_ID;
-        FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
-        when(foodConsumptionService.update(id, request)).thenThrow(ResourceAccessDeniedException.class);
-        restTestClient.put()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
-                .body(request)
-                .exchange()
-                .expectStatus().isForbidden();
-    }
-
-    @Test
     void putFoodConsumption_shouldReturn404_whenFoodConsumptionNotFound() {
         when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 FoodConsumptionNotFoundException.class);
@@ -238,16 +213,6 @@ public class FoodConsumptionControllerTests {
                 .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
                 .exchange()
                 .expectStatus().isNoContent();
-    }
-
-    @Test
-    void deleteById_shouldReturn403_whenUserDoesNotOwnResource() {
-        doThrow(ResourceAccessDeniedException.class)
-                .when(foodConsumptionService).deleteById(anyLong());
-        restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
-                .exchange()
-                .expectStatus().isForbidden();
     }
 
     @Test

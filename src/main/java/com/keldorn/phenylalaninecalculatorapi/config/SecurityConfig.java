@@ -1,12 +1,20 @@
 package com.keldorn.phenylalaninecalculatorapi.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.security.JwtAuthFilter;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,10 +34,12 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-            "/swagger-resources/**", "/api-docs/**", "/actuator/health", "/api/v1/auth/authenticate", "/api/v1/auth/register"};
+            "/swagger-resources/**", "/api-docs/**", "/actuator/health", "/api/v1/auth/authenticate",
+            "/api/v1/auth/register"};
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthFilter jwtAuthFilter) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthFilter jwtAuthFilter,
+            ObjectMapper objectMapper) {
         log.info("Initializing Spring Security filter chain,");
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
@@ -42,6 +52,19 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            ErrorResponse errorResponse = ErrorResponse.builder()
+                                    .type("Client Error")
+                                    .title("Unauthorized")
+                                    .details("Full authentication is required to access this resource")
+                                    .statusCode(HttpStatus.UNAUTHORIZED)
+                                    .build();
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            objectMapper.writeValue(response.getOutputStream(), errorResponse);
+                        })
+                )
                 .build();
     }
 
@@ -53,4 +76,5 @@ public class SecurityConfig {
     ) {
         return new JwtAuthFilter(jwtService, userDetailsService, resolver);
     }
+
 }

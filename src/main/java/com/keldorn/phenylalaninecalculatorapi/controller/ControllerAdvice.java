@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceAccessDeniedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
@@ -51,18 +50,6 @@ public class ControllerAdvice {
     @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
         return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
-    }
-
-    @ExceptionHandler(ResourceAccessDeniedException.class)
-    public ResponseEntity<Object> handleForbidden(Exception ex) {
-        log.error("Forbidden: {}", ex.getMessage());
-        ErrorResponse response = ErrorResponse.builder()
-                .type(CLIENT_ERROR)
-                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
-                .statusCode(HttpStatus.FORBIDDEN)
-                .details("Resource access denied")
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(Exception.class)

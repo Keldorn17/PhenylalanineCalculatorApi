@@ -1,28 +1,40 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
+
+import java.net.URI;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.web.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.web.PagedModel;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @Slf4j
 @RestController
@@ -43,7 +55,7 @@ public class FoodTypeController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @GetMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> findById(@PathVariable Long id) {
@@ -60,7 +72,7 @@ public class FoodTypeController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @GetMapping
     public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -81,8 +93,8 @@ public class FoodTypeController {
                     )
             }
     )
+    @UnauthorizedApiResponse
     @BadRequestApiResponse
-    @ForbiddenApiResponse
     @PostMapping
     public ResponseEntity<FoodTypeResponse> postFoodType(@Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Post Request: {}", ApiRoutes.FOOD_TYPE_PATH);
@@ -102,8 +114,8 @@ public class FoodTypeController {
                     )
             }
     )
+    @UnauthorizedApiResponse
     @BadRequestApiResponse
-    @ForbiddenApiResponse
     @PutMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> putFoodType(@PathVariable Long id, @Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Put Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
@@ -120,7 +132,7 @@ public class FoodTypeController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {

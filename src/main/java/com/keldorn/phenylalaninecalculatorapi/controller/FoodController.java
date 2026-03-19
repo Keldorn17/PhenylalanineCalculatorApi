@@ -1,8 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
@@ -10,20 +10,32 @@ import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
+
+import java.net.URI;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.web.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.web.PagedModel;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @Slf4j
 @RestController
@@ -44,7 +56,7 @@ public class FoodController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @GetMapping("/{id}")
     public ResponseEntity<FoodResponse> getById(@PathVariable Long id) {
@@ -61,7 +73,7 @@ public class FoodController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @GetMapping
     public ResponseEntity<PagedModel<FoodResponse>> getAll(
         @RequestParam(value = "page", defaultValue = "0") int page,
@@ -82,8 +94,8 @@ public class FoodController {
                     )
             }
     )
+    @UnauthorizedApiResponse
     @BadRequestApiResponse
-    @ForbiddenApiResponse
     @NotFoundApiResponse
     @PostMapping
     public ResponseEntity<FoodResponse> postFood(@Valid @RequestBody FoodRequest request) {
@@ -105,7 +117,7 @@ public class FoodController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @PatchMapping("/{id}")
     public ResponseEntity<FoodResponse> patchFood(@PathVariable Long id, @RequestBody FoodUpdateRequest request) {
@@ -123,7 +135,7 @@ public class FoodController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {

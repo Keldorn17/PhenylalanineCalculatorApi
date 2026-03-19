@@ -1,7 +1,0 @@
-package com.keldorn.phenylalaninecalculatorapi.exception;
-
-import lombok.experimental.StandardException;
-
-@StandardException
-public class ResourceAccessDeniedException extends RuntimeException {
-}

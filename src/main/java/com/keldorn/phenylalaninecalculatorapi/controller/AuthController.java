@@ -1,24 +1,35 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.*;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.AuthService;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -38,7 +49,6 @@ public class AuthController {
                     )
             }
     )
-    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
@@ -56,7 +66,6 @@ public class AuthController {
                     )
             }
     )
-    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PostMapping("/register")
@@ -75,7 +84,7 @@ public class AuthController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/password")
@@ -94,7 +103,7 @@ public class AuthController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/username")

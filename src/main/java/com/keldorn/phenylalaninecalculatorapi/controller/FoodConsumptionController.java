@@ -2,8 +2,8 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ForbiddenApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
@@ -57,8 +57,8 @@ public class FoodConsumptionController {
                     )
             }
     )
+    @UnauthorizedApiResponse
     @BadRequestApiResponse
-    @ForbiddenApiResponse
     @GetMapping
     public ResponseEntity<PagedModel<FoodConsumptionResponse>> getAllFoodConsumptionByDate(
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
@@ -81,8 +81,8 @@ public class FoodConsumptionController {
                     )
             }
     )
+    @UnauthorizedApiResponse
     @BadRequestApiResponse
-    @ForbiddenApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PostMapping("/{foodId}")
@@ -108,7 +108,7 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/{id}")
@@ -128,7 +128,7 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @ForbiddenApiResponse
+    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @DeleteMapping("/{id}")
