@@ -4,7 +4,6 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceAccessDeniedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
@@ -37,16 +36,10 @@ public class FoodConsumptionService {
     private final FoodService foodService;
     private final UserService userService;
 
-    private FoodConsumption findByIdOrThrow(Long id) {
+    private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);
-        FoodConsumption consumption = foodConsumptionRepository.findById(id)
+        return foodConsumptionRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new FoodConsumptionNotFoundException("Food consumption not found by id: " + id));
-
-        if (!consumption.getUser().getUserId().equals(userService.getCurrentUserId())) {
-            throw new ResourceAccessDeniedException("You do not have permission to access this resource");
-        }
-
-        return consumption;
     }
 
     public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size) {
@@ -79,8 +72,9 @@ public class FoodConsumptionService {
 
     public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request) {
         log.debug("Updating food consumption by id: {}", id);
-        FoodConsumption foodConsumption = findByIdOrThrow(id);
-        BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
+        FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
+        BigDecimal phenylalanineAmount =
+                calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
         LocalDate localDate = foodConsumption.getConsumedAt().atZone(userService.getCurrentUser()
                 .resolveZoneId()).toLocalDate();
         dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
@@ -91,7 +85,7 @@ public class FoodConsumptionService {
 
     public void deleteById(Long id) {
         log.debug("Deleting food consumption by id: {}", id);
-        FoodConsumption foodConsumption = findByIdOrThrow(id);
+        FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
         LocalDate localDate = foodConsumption.getConsumedAt().atZone(userService.getCurrentUser()
                 .resolveZoneId()).toLocalDate();
         dailyIntakeService.addAmount(localDate, foodConsumption.getPhenylalanineAmount().negate());
@@ -104,4 +98,5 @@ public class FoodConsumptionService {
                 .divide(BigDecimal.valueOf(1000), RoundingMode.HALF_UP)
                 .setScale(4, RoundingMode.HALF_UP);
     }
+
 }
