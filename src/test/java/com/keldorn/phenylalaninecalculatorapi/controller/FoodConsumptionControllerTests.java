@@ -69,11 +69,7 @@ public class FoodConsumptionControllerTests {
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.content()).hasSize(1);
-        Assertions.assertThat(response.content().getFirst().id()).isEqualTo(expectedResponse.id());
-        Assertions.assertThat(response.content().getFirst().amount()).isEqualByComparingTo(expectedResponse.amount());
-        Assertions.assertThat(response.content().getFirst().consumedAt()).isEqualTo(expectedResponse.consumedAt());
-        Assertions.assertThat(response.content().getFirst().phenylalanineAmount())
-                .isEqualByComparingTo(expectedResponse.phenylalanineAmount());
+        doAssertionsCheckOnResponse(response.content().getFirst(), expectedResponse);
     }
 
     @Test
@@ -113,12 +109,7 @@ public class FoodConsumptionControllerTests {
                 .expectBody(FoodConsumptionResponse.class)
                 .returnResult()
                 .getResponseBody();
-        Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
-        Assertions.assertThat(response.consumedAt()).isEqualTo(expectedResponse.consumedAt());
-        Assertions.assertThat(response.amount()).isEqualByComparingTo(expectedResponse.amount());
-        Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(
-                expectedResponse.phenylalanineAmount());
+        doAssertionsCheckOnResponse(response, expectedResponse);
     }
 
     @Test
@@ -157,8 +148,8 @@ public class FoodConsumptionControllerTests {
     void putFoodConsumption_shouldReturn200() {
         Long id = TestEntityFactory.DEFAULT_ID;
         FoodConsumptionRequest request = new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
-        FoodConsumptionResponse expectedResult = TestEntityFactory.foodConsumptionResponse();
-        when(foodConsumptionService.update(id, request)).thenReturn(expectedResult);
+        FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
+        when(foodConsumptionService.update(id, request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.put()
                 .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, id))
                 .body(request)
@@ -167,12 +158,7 @@ public class FoodConsumptionControllerTests {
                 .expectBody(FoodConsumptionResponse.class)
                 .returnResult()
                 .getResponseBody();
-        Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.id()).isEqualTo(expectedResult.id());
-        Assertions.assertThat(response.consumedAt()).isEqualTo(expectedResult.consumedAt());
-        Assertions.assertThat(response.amount()).isEqualByComparingTo(expectedResult.amount());
-        Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(
-                expectedResult.phenylalanineAmount());
+        doAssertionsCheckOnResponse(response, expectedResponse);
     }
 
     @Test
@@ -235,4 +221,12 @@ public class FoodConsumptionControllerTests {
                 .expectStatus().is4xxClientError();
     }
 
+    private void doAssertionsCheckOnResponse(FoodConsumptionResponse response, FoodConsumptionResponse expectedResponse) {
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
+        Assertions.assertThat(response.consumedAt()).isEqualTo(expectedResponse.consumedAt());
+        Assertions.assertThat(response.amount()).isEqualByComparingTo(expectedResponse.amount());
+        Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(
+                expectedResponse.phenylalanineAmount());
+    }
 }

@@ -1,0 +1,206 @@
+package com.keldorn.phenylalaninecalculatorapi.controller;
+
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
+import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
+import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
+
+import java.util.List;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.client.RestTestClient;
+
+@WebMvcTest(FoodController.class)
+public class FoodControllerTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private FoodService foodService;
+
+    private RestTestClient restTestClient;
+
+    @BeforeEach
+    void setUp() {
+        restTestClient = RestTestClient.bindTo(mockMvc).build();
+    }
+
+    @Test
+    void getById_shouldReturn200() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        FoodResponse expectedResponse = TestEntityFactory.foodResponse();
+        when(foodService.findById(id)).thenReturn(expectedResponse);
+        FoodResponse response = restTestClient.get()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(FoodResponse.class)
+                .returnResult()
+                .getResponseBody();
+        doAssertionsChecksOnResponse(response, expectedResponse);
+    }
+
+    @Test
+    void getById_shouldReturn404_whenFoodNotFound() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        when(foodService.findById(id)).thenThrow(FoodNotFoundException.class);
+        restTestClient.get()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void getAll_shouldReturn200() {
+        Page<FoodResponse> pageResponse = new PageImpl<>(List.of(TestEntityFactory.foodResponse()));
+        when(foodService.findAll(anyInt(), anyInt())).thenReturn(pageResponse);
+        TestPage<FoodResponse> response = restTestClient.get()
+                .uri(ApiRoutes.FOOD_PATH)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<TestPage<FoodResponse>>() {})
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        doAssertionsChecksOnResponse(response.content().getFirst(), pageResponse.getContent().getFirst());
+    }
+
+    @Test
+    void postFood_shouldReturn201() {
+        FoodRequest request = new FoodRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_ID
+        );
+        FoodResponse expectedResponse = TestEntityFactory.foodResponse();
+        when(foodService.save(request)).thenReturn(expectedResponse);
+        FoodResponse response = restTestClient.post()
+                .uri(ApiRoutes.FOOD_PATH)
+                .body(request)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(FoodResponse.class)
+                .returnResult()
+                .getResponseBody();
+        doAssertionsChecksOnResponse(response, expectedResponse);
+    }
+
+    @Test
+    void postFood_shouldReturn400_whenMissingRequiredInputIsPresent() {
+        FoodRequest request = new FoodRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                null,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_ID
+        );
+        restTestClient.post()
+                .uri(ApiRoutes.FOOD_PATH)
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void postFood_shouldReturn404_whenFoodNotFound() {
+        FoodRequest request = new FoodRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_ID
+        );
+        when(foodService.save(request)).thenThrow(FoodNotFoundException.class);
+        restTestClient.post()
+                .uri(ApiRoutes.FOOD_PATH)
+                .body(request)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void patchFood_shouldReturn200() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        FoodUpdateRequest request = new FoodUpdateRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_ID
+        );
+        FoodResponse expectedResponse = TestEntityFactory.foodResponse();
+        when(foodService.update(id, request)).thenReturn(expectedResponse);
+        FoodResponse response = restTestClient.patch()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .body(request)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(FoodResponse.class)
+                .returnResult()
+                .getResponseBody();
+        doAssertionsChecksOnResponse(response, expectedResponse);
+    }
+
+    @Test
+    void patchFood_shouldReturn404_whenFoodNotFound() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        FoodUpdateRequest request = new FoodUpdateRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_ID
+        );
+        when(foodService.update(id, request)).thenThrow(FoodNotFoundException.class);
+        restTestClient.patch()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .body(request)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void deleteById_shouldReturn204() {
+        restTestClient.delete()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, TestEntityFactory.DEFAULT_ID))
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void deleteById_shouldReturn404_whenFoodNotFound() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        doThrow(FoodNotFoundException.class).when(foodService).deleteById(id);
+        restTestClient.delete()
+                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    private void doAssertionsChecksOnResponse(FoodResponse response, FoodResponse expectedResponse) {
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
+        Assertions.assertThat(response.name()).isEqualTo(expectedResponse.name());
+        Assertions.assertThat(response.multiplier()).isEqualTo(expectedResponse.multiplier());
+        Assertions.assertThat(response.foodTypeName()).isEqualTo(expectedResponse.foodTypeName());
+        Assertions.assertThat(response.protein()).isEqualByComparingTo(expectedResponse.protein());
+        Assertions.assertThat(response.calories()).isEqualByComparingTo(expectedResponse.calories());
+        Assertions.assertThat(response.phenylalanine()).isEqualByComparingTo(expectedResponse.phenylalanine());
+    }
+
+}

@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 
 import java.math.BigDecimal;
@@ -84,6 +85,20 @@ public class TestEntityFactory {
     }
 
     public static FoodConsumptionResponse foodConsumptionResponse() {
-        return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_BIG_DECIMAL_VALUE, DEFAULT_BIG_DECIMAL_VALUE, TEST_DATE_TIME);
+        return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_BIG_DECIMAL_VALUE, DEFAULT_BIG_DECIMAL_VALUE,
+                TEST_DATE_TIME);
     }
+
+    public static FoodResponse foodResponse() {
+        return new FoodResponse(
+                DEFAULT_ID,
+                DEFAULT_FOOD_NAME,
+                DEFAULT_BIG_DECIMAL_VALUE,
+                DEFAULT_BIG_DECIMAL_VALUE,
+                DEFAULT_BIG_DECIMAL_VALUE,
+                DEFAULT_FOOD_TYPE_NAME,
+                DEFAULT_INTEGER_VALUE
+        );
+    }
+
 }
