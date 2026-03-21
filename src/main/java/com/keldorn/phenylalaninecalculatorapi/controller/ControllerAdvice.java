@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -57,7 +58,7 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR, ex);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<Object> handleException(MethodArgumentTypeMismatchException ex) {
         log.error("Malformed data received: {}", ex.getMessage());
         ErrorResponse response = ErrorResponse.builder()

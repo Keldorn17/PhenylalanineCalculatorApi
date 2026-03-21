@@ -16,32 +16,25 @@ import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 @WebMvcTest(FoodController.class)
+@AutoConfigureRestTestClient
 public class FoodControllerTests {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @MockitoBean
     private FoodService foodService;
 
+    @Autowired
     private RestTestClient restTestClient;
-
-    @BeforeEach
-    void setUp() {
-        restTestClient = RestTestClient.bindTo(mockMvc).build();
-    }
 
     @Test
     void getById_shouldReturn200() {

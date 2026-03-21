@@ -19,32 +19,25 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 @WebMvcTest(FoodConsumptionController.class)
+@AutoConfigureRestTestClient
 public class FoodConsumptionControllerTests {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @MockitoBean
     private FoodConsumptionService foodConsumptionService;
 
+    @Autowired
     private RestTestClient restTestClient;
-
-    @BeforeEach
-    public void setUp() {
-        restTestClient = RestTestClient.bindTo(mockMvc).build();
-    }
 
     @Test
     void getAllFoodConsumptionByDate_shouldReturn200() {
@@ -221,7 +214,8 @@ public class FoodConsumptionControllerTests {
                 .expectStatus().is4xxClientError();
     }
 
-    private void doAssertionsCheckOnResponse(FoodConsumptionResponse response, FoodConsumptionResponse expectedResponse) {
+    private void doAssertionsCheckOnResponse(FoodConsumptionResponse response,
+            FoodConsumptionResponse expectedResponse) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
         Assertions.assertThat(response.consumedAt()).isEqualTo(expectedResponse.consumedAt());
@@ -229,4 +223,5 @@ public class FoodConsumptionControllerTests {
         Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(
                 expectedResponse.phenylalanineAmount());
     }
+
 }
