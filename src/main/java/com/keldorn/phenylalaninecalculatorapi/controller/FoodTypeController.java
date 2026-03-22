@@ -56,6 +56,7 @@ public class FoodTypeController {
             }
     )
     @UnauthorizedApiResponse
+    @BadRequestApiResponse
     @NotFoundApiResponse
     @GetMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> findById(@PathVariable Long id) {
@@ -73,6 +74,7 @@ public class FoodTypeController {
             }
     )
     @UnauthorizedApiResponse
+    @BadRequestApiResponse
     @GetMapping
     public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -116,6 +118,7 @@ public class FoodTypeController {
     )
     @UnauthorizedApiResponse
     @BadRequestApiResponse
+    @NotFoundApiResponse
     @PutMapping("/{id}")
     public ResponseEntity<FoodTypeResponse> putFoodType(@PathVariable Long id, @Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Put Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
