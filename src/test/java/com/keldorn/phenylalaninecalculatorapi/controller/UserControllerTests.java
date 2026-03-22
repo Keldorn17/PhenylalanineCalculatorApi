@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
@@ -53,8 +53,8 @@ public class UserControllerTests {
     }
 
     @Test
-    void me_shouldReturn404_whenUserNotFound() {
-        when(userService.getProfile()).thenThrow(UserNotFoundException.class);
+    void me_shouldReturn404_whenResourceNotFound() {
+        when(userService.getProfile()).thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
@@ -112,13 +112,13 @@ public class UserControllerTests {
     }
 
     @Test
-    void updateUser_shouldReturn404_whenUserNotFound() {
+    void updateUser_shouldReturn404_whenResourceNotFound() {
         UserRequest request = new UserRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_TIMEZONE
         );
-        when(userService.update(request)).thenThrow(UserNotFoundException.class);
+        when(userService.update(request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.patch()
                 .uri(ApiRoutes.USER_PATH)
                 .body(request)
@@ -144,8 +144,8 @@ public class UserControllerTests {
     }
 
     @Test
-    void deleteUser_shouldReturn404_whenUserNotFound() {
-        doThrow(UserNotFoundException.class).when(userService).delete();
+    void deleteUser_shouldReturn404_whenResourceNotFound() {
+        doThrow(ResourceNotFoundException.class).when(userService).delete();
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()

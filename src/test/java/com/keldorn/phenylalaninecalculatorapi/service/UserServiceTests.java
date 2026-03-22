@@ -1,14 +1,24 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,13 +34,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
@@ -71,11 +74,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void getProfile_shouldThrowUserNotFoundException() {
+    public void getProfile_shouldThrowResourceNotFoundException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.getProfile())
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -113,11 +116,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void update_shouldThrowUserNotFoundException_whenUserNotFound() {
+    public void update_shouldThrowResourceNotFoundException_whenResourceNotFound() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -177,11 +180,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void delete_shouldThrowUserNotFoundException() {
+    public void delete_shouldThrowResourceNotFoundException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.delete())
-                        .isInstanceOf(UserNotFoundException.class);
+                        .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).delete(any());
     }

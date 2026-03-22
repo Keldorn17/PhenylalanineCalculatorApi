@@ -9,7 +9,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
 
@@ -56,9 +56,9 @@ public class FoodControllerTests {
     }
 
     @Test
-    void getById_shouldReturn404_whenFoodNotFound() {
+    void getById_shouldReturn404_whenResourceNotFound() {
         Long id = TestEntityFactory.DEFAULT_ID;
-        when(foodService.findById(id)).thenThrow(FoodNotFoundException.class);
+        when(foodService.findById(id)).thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_PATH)
@@ -121,14 +121,14 @@ public class FoodControllerTests {
     }
 
     @Test
-    void postFood_shouldReturn404_whenFoodNotFound() {
+    void postFood_shouldReturn404_whenResourceNotFound() {
         FoodRequest request = new FoodRequest(
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_ID
         );
-        when(foodService.save(request)).thenThrow(FoodNotFoundException.class);
+        when(foodService.save(request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.post()
                 .uri(ApiRoutes.FOOD_PATH)
                 .body(request)
@@ -163,7 +163,7 @@ public class FoodControllerTests {
     }
 
     @Test
-    void patchFood_shouldReturn404_whenFoodNotFound() {
+    void patchFood_shouldReturn404_whenResourceNotFound() {
         Long id = TestEntityFactory.DEFAULT_ID;
         FoodUpdateRequest request = new FoodUpdateRequest(
                 TestEntityFactory.DEFAULT_FOOD_NAME,
@@ -171,7 +171,7 @@ public class FoodControllerTests {
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_ID
         );
-        when(foodService.update(id, request)).thenThrow(FoodNotFoundException.class);
+        when(foodService.update(id, request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.patch()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_PATH)
@@ -196,9 +196,9 @@ public class FoodControllerTests {
     }
 
     @Test
-    void deleteById_shouldReturn404_whenFoodNotFound() {
+    void deleteById_shouldReturn404_whenResourceNotFound() {
         Long id = TestEntityFactory.DEFAULT_ID;
-        doThrow(FoodNotFoundException.class).when(foodService).deleteById(id);
+        doThrow(ResourceNotFoundException.class).when(foodService).deleteById(id);
         restTestClient.delete()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_PATH)

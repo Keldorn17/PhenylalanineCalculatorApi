@@ -1,13 +1,22 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.DailyIntakeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DailyIntakeServiceTests {
@@ -56,13 +60,13 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void findByDate_shouldThrowDailyIntakeNotFoundException() {
+    public void findByDate_shouldThrowResourceNotFoundException() {
         when(userService.getCurrentUserId()).thenReturn(USER_ID);
         when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
-                .isInstanceOf(DailyIntakeNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

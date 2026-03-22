@@ -3,15 +3,17 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.DailyIntakeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -25,7 +27,7 @@ public class DailyIntakeService {
     private DailyIntake findByDateOrThrow(LocalDate date) {
         log.debug("Getting daily intake by date");
         return dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
-                .orElseThrow(() -> new DailyIntakeNotFoundException("No daily intake information found at: " + date));
+                .orElseThrow(() -> new ResourceNotFoundException("No daily intake information found at: " + date));
     }
 
     /**

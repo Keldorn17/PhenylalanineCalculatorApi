@@ -1,12 +1,21 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodTypeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +28,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FoodTypeServiceTests {
@@ -54,11 +57,11 @@ public class FoodTypeServiceTests {
     }
 
     @Test
-    public void findById_shouldThrowException_whenFoodTypeNotFound() {
+    public void findById_shouldThrowException_whenResourceNotFound() {
         when(foodTypeRepository.findById(FOOD_TYPE_ID)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> foodTypeService.findById(FOOD_TYPE_ID))
-                .isInstanceOf(FoodTypeNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -117,13 +120,13 @@ public class FoodTypeServiceTests {
     }
 
     @Test
-    public void update_shouldThrowExceptionAndSaveNothing_whenFoodTypeNotFound() {
+    public void update_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodTypeRequest request = new FoodTypeRequest("Updated Name", 100);
 
         when(foodTypeRepository.findById(FOOD_TYPE_ID)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> foodTypeService.update(FOOD_TYPE_ID, request))
-                .isInstanceOf(FoodTypeNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(foodTypeRepository, never()).save(any());
     }
@@ -141,11 +144,11 @@ public class FoodTypeServiceTests {
     }
 
     @Test
-    public void delete_shouldThrowExceptionAndSaveNothing_whenFoodTypeNotFound() {
+    public void delete_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         when(foodTypeRepository.findById(FOOD_TYPE_ID)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> foodTypeService.deleteById(FOOD_TYPE_ID))
-                        .isInstanceOf(FoodTypeNotFoundException.class);
+                        .isInstanceOf(ResourceNotFoundException.class);
 
         verify(foodTypeRepository, never()).delete(any());
         verify(foodTypeRepository, never()).deleteById(any());

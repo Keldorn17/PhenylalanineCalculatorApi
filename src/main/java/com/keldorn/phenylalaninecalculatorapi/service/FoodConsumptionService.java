@@ -4,7 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
@@ -39,7 +39,7 @@ public class FoodConsumptionService {
     private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);
         return foodConsumptionRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new FoodConsumptionNotFoundException("Food consumption not found by id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Food consumption not found by id: " + id));
     }
 
     public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size) {

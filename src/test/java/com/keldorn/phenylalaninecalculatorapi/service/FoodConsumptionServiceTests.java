@@ -13,8 +13,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
@@ -89,12 +88,12 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void save_shouldThrowExceptionAndSaveNothing_whenFoodNotFound() {
+    public void save_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
         when(foodService.findByIdOrThrow(FOOD_CONSUMPTION_ID))
-                .thenThrow(FoodNotFoundException.class);
+                .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodConsumptionService.save(FOOD_CONSUMPTION_ID, request))
-                .isInstanceOf(FoodNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).save(any());
     }
@@ -184,13 +183,13 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void update_shouldThrowExceptionAndSaveNothing_whenFoodConsumptionNotFound() {
+    public void update_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID))
                 .thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(() -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request))
-                .isInstanceOf(FoodConsumptionNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).save(any());
     }
@@ -255,12 +254,12 @@ public class FoodConsumptionServiceTests {
     }
 
     @Test
-    public void deleteById_shouldThrowExceptionAndSaveNothing_whenFoodConsumptionNotFound() {
+    public void deleteById_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID)).thenReturn(
                 Optional.empty());
         Assertions.assertThatThrownBy(() -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID))
-                .isInstanceOf(FoodConsumptionNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).delete(any());
     }

@@ -5,11 +5,7 @@ import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCann
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.DailyIntakeNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodTypeNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.UserNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 
 import java.util.stream.Collectors;
@@ -20,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,9 +29,7 @@ public class ControllerAdvice {
     private final String CLIENT_ERROR = "Client Error";
     private final String INTERNAL_ERROR = "Internal Error";
 
-    @ExceptionHandler({UsernameNotFoundException.class, FoodTypeNotFoundException.class, UserNotFoundException.class,
-            FoodNotFoundException.class, DailyIntakeNotFoundException.class, FoodConsumptionNotFoundException.class
-    })
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleNotFound(Exception ex) {
         return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
     }

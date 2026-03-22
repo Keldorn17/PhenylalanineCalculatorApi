@@ -10,7 +10,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodConsumptionNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodConsumptionService;
 
@@ -124,9 +124,9 @@ public class FoodConsumptionControllerTests {
     }
 
     @Test
-    void postFoodConsumption_shouldReturn404_whenFoodConsumptionNotFound() {
+    void postFoodConsumption_shouldReturn404_whenResourceNotFound() {
         when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
-                FoodConsumptionNotFoundException.class);
+                ResourceNotFoundException.class);
         restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -189,9 +189,9 @@ public class FoodConsumptionControllerTests {
     }
 
     @Test
-    void putFoodConsumption_shouldReturn404_whenFoodConsumptionNotFound() {
+    void putFoodConsumption_shouldReturn404_whenResourceNotFound() {
         when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
-                FoodConsumptionNotFoundException.class);
+                ResourceNotFoundException.class);
         restTestClient.put()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -231,8 +231,8 @@ public class FoodConsumptionControllerTests {
     }
 
     @Test
-    void deleteById_shouldReturn404_whenFoodConsumptionNotFound() {
-        doThrow(FoodConsumptionNotFoundException.class)
+    void deleteById_shouldReturn404_whenResourceNotFound() {
+        doThrow(ResourceNotFoundException.class)
                 .when(foodConsumptionService).deleteById(anyLong());
         restTestClient.delete()
                 .uri(uriBuilder -> uriBuilder

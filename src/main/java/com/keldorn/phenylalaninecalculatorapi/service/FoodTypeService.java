@@ -3,11 +3,13 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodTypeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,7 @@ public class FoodTypeService {
     protected final FoodType findByIdOrThrow(Long id) {
         log.debug("Getting Food Type By Id: {}", id);
         return foodTypeRepository.findById(id)
-                .orElseThrow(() -> new FoodTypeNotFoundException("Food Type Not Found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Food Type Not Found."));
     }
 
     public FoodTypeResponse findById(Long id) {

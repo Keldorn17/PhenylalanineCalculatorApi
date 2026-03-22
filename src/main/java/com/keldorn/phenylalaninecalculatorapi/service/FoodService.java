@@ -6,17 +6,19 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.FoodNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
+
+import java.math.BigDecimal;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -31,7 +33,7 @@ public class FoodService {
     protected Food findByIdOrThrow(Long id) {
         log.debug("Getting Food By Id: {}", id);
         return foodRepository.findById(id)
-                .orElseThrow(() -> new FoodNotFoundException("Food Not Found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Food Not Found."));
     }
 
     private void addTypeToFood(Food food, FoodRequest request) {

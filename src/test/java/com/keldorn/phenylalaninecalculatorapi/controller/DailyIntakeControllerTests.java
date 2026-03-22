@@ -3,7 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.DailyIntakeNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.DailyIntakeService;
 
@@ -60,9 +60,9 @@ public class DailyIntakeControllerTests {
     }
 
     @Test
-    void getDailyIntake_shouldReturn404_whenDataNotFoundByDate() {
+    void getDailyIntake_shouldReturn404_whenResourceNotFound() {
         when(dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
-                .thenThrow(DailyIntakeNotFoundException.class);
+                .thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/v1/daily-intake")
