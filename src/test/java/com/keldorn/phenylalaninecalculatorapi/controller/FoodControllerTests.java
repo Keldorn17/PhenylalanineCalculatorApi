@@ -42,7 +42,11 @@ public class FoodControllerTests {
         FoodResponse expectedResponse = TestEntityFactory.foodResponse();
         when(foodService.findById(id)).thenReturn(expectedResponse);
         FoodResponse response = restTestClient.get()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(FoodResponse.class)
@@ -56,7 +60,11 @@ public class FoodControllerTests {
         Long id = TestEntityFactory.DEFAULT_ID;
         when(foodService.findById(id)).thenThrow(FoodNotFoundException.class);
         restTestClient.get()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -140,7 +148,11 @@ public class FoodControllerTests {
         FoodResponse expectedResponse = TestEntityFactory.foodResponse();
         when(foodService.update(id, request)).thenReturn(expectedResponse);
         FoodResponse response = restTestClient.patch()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -161,7 +173,11 @@ public class FoodControllerTests {
         );
         when(foodService.update(id, request)).thenThrow(FoodNotFoundException.class);
         restTestClient.patch()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isNotFound();
@@ -170,7 +186,11 @@ public class FoodControllerTests {
     @Test
     void deleteById_shouldReturn204() {
         restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -180,7 +200,11 @@ public class FoodControllerTests {
         Long id = TestEntityFactory.DEFAULT_ID;
         doThrow(FoodNotFoundException.class).when(foodService).deleteById(id);
         restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isNotFound();
     }

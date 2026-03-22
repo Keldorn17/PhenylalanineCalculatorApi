@@ -95,7 +95,11 @@ public class FoodConsumptionControllerTests {
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         when(foodConsumptionService.save(foodId, request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.post()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, foodId))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(foodId))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isCreated()
@@ -109,7 +113,11 @@ public class FoodConsumptionControllerTests {
     void postFoodConsumption_shouldReturn400_whenBodyContentIsNull() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(null);
         restTestClient.post()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -120,7 +128,11 @@ public class FoodConsumptionControllerTests {
         when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 FoodConsumptionNotFoundException.class);
         restTestClient.post()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().isNotFound();
@@ -131,7 +143,11 @@ public class FoodConsumptionControllerTests {
         when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 DailyIntakeCannotBeLowerThanZeroException.class);
         restTestClient.post()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().is4xxClientError();
@@ -144,7 +160,11 @@ public class FoodConsumptionControllerTests {
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         when(foodConsumptionService.update(id, request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.put()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, id))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -158,7 +178,11 @@ public class FoodConsumptionControllerTests {
     void putFoodConsumption_shouldReturn400_whenBodyContentIsNull() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(null);
         restTestClient.put()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -169,7 +193,11 @@ public class FoodConsumptionControllerTests {
         when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 FoodConsumptionNotFoundException.class);
         restTestClient.put()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().isNotFound();
@@ -180,7 +208,11 @@ public class FoodConsumptionControllerTests {
         when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 DailyIntakeCannotBeLowerThanZeroException.class);
         restTestClient.put()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().is4xxClientError();
@@ -189,7 +221,11 @@ public class FoodConsumptionControllerTests {
     @Test
     void deleteById_shouldReturn204() {
         restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -199,7 +235,11 @@ public class FoodConsumptionControllerTests {
         doThrow(FoodConsumptionNotFoundException.class)
                 .when(foodConsumptionService).deleteById(anyLong());
         restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -209,7 +249,11 @@ public class FoodConsumptionControllerTests {
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(foodConsumptionService).deleteById(anyLong());
         restTestClient.delete()
-                .uri(String.format("%s/%d", ApiRoutes.FOOD_CONSUMPTION_PATH, TestEntityFactory.DEFAULT_ID))
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
+                        .build()
+                )
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
