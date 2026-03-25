@@ -5,3 +5,12 @@ services:
       - '3000:3000'
       - '4317'
       - '4318'
+  mysql:
+    image: 'mysql:9.6.0'
+    environment:
+      - 'MYSQL_DATABASE=${MYSQL_DB}'
+      - 'MYSQL_USER=${MYSQL_USER}'
+      - 'MYSQL_PASSWORD=${MYSQL_PASS}'
+      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}'
+    ports:
+      - '${EXTERNAL_MYSQL_PORT:-3306}:3306'
