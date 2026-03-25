@@ -1,5 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
@@ -49,6 +50,7 @@ public class AuthController {
                     )
             }
     )
+    @BadRequestApiResponse
     @NotFoundApiResponse
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
@@ -66,7 +68,7 @@ public class AuthController {
                     )
             }
     )
-    @NotFoundApiResponse
+    @BadRequestApiResponse
     @ConflictApiResponse
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRegisterRequest request) {
@@ -85,6 +87,7 @@ public class AuthController {
             }
     )
     @UnauthorizedApiResponse
+    @BadRequestApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/password")
@@ -104,6 +107,7 @@ public class AuthController {
             }
     )
     @UnauthorizedApiResponse
+    @BadRequestApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/username")
