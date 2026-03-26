@@ -3,7 +3,7 @@
 ## How to Run the Project
 
 ### Required Software
-- **Java 21** (preferably GraalVM)
+- **Java 25** (preferably GraalVM)
 - **Maven** (https://maven.apache.org/download.cgi)
 - **Docker** (https://www.docker.com/)
 - **Docker Compose** (https://docs.docker.com/compose/)
