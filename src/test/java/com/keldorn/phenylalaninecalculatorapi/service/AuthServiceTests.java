@@ -1,13 +1,27 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.*;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
+
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTests {
@@ -58,13 +67,13 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void authenticate_shouldThrow_whenUsernameNotFound() {
+    public void authenticate_shouldThrow_whenDeletedUserTokenReceived() {
         AuthRequest request = new AuthRequest("Test", null);
 
         when(userRepository.findByUsername(request.username())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> authService.authenticate(request))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(DeletedUserTokenReceivedException.class);
 
         verify(jwtService, never()).generateToken(any());
     }

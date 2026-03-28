@@ -2,7 +2,6 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
@@ -51,7 +50,7 @@ public class AuthController {
             }
     )
     @BadRequestApiResponse
-    @NotFoundApiResponse
+    @UnauthorizedApiResponse
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
         log.info("Authenticate POST {}", ApiRoutes.AUTH_PATH);
@@ -68,8 +67,8 @@ public class AuthController {
                     )
             }
     )
-    @BadRequestApiResponse
     @ConflictApiResponse
+    @BadRequestApiResponse
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRegisterRequest request) {
         log.info("Register POST {}", ApiRoutes.AUTH_PATH);
@@ -86,10 +85,9 @@ public class AuthController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
-    @NotFoundApiResponse
     @ConflictApiResponse
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     @PutMapping("/password")
     public ResponseEntity<AuthResponse> changePassword(@Valid @RequestBody AuthPasswordChangeRequest request) {
         log.info("Password Change Request {}", ApiRoutes.AUTH_PATH);
@@ -106,10 +104,9 @@ public class AuthController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
-    @NotFoundApiResponse
     @ConflictApiResponse
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     @PutMapping("/username")
     public ResponseEntity<AuthResponse> changeUsername(@Valid @RequestBody AuthUsernameChangeRequest request) {
         log.info("Username Change Request {}", ApiRoutes.AUTH_PATH);

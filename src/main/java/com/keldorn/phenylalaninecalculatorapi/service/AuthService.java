@@ -9,7 +9,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class AuthService {
         log.debug("Authenticating User.");
         manageAuth(request.username(), request.password());
         var user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new DeletedUserTokenReceivedException("Unauthorized"));
         return getResponse(user);
     }
 
@@ -62,7 +62,7 @@ public class AuthService {
         }
         var user = userService.getCurrentUser();
         if (checkIfTwoPasswordNotMatch(request.oldPassword(), user.getPassword())) {
-            throw new PasswordMismatchException("Invalid password passed as old password.");
+            throw new PasswordMismatchException("Bad Credentials.");
         }
         user.setPassword(encodePassword(request.password()));
         userRepository.save(user);
@@ -75,7 +75,7 @@ public class AuthService {
         isUsernameTakenAndThrow(request.username());
         var user = userService.getCurrentUser();
         if (checkIfTwoPasswordNotMatch(request.password(), user.getPassword())) {
-            throw new PasswordMismatchException("Invalid password passed.");
+            throw new PasswordMismatchException("Bad Credentials");
         }
         user.setUsername(request.username());
         userRepository.save(user);

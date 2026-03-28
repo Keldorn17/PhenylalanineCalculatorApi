@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenExc
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 
 import java.util.stream.Collectors;
@@ -41,7 +42,8 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.CONFLICT, CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class})
+    @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class,
+            DeletedUserTokenReceivedException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
         return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
     }
@@ -52,7 +54,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<Object> handleException(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<Object> handleException(Exception ex) {
         log.error("Malformed data received: {}", ex.getMessage());
         ErrorResponse response = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -102,9 +104,26 @@ public class ControllerAdvice {
                 .type(type)
                 .title(status.getReasonPhrase())
                 .statusCode(status)
-                .details(isError ? "An internal error occurred" : ex.getMessage())
+                .details(getUserFriendlyMessage(ex, status))
                 .build();
         return ResponseEntity.status(status).body(response);
+    }
+
+    private String getUserFriendlyMessage(Exception ex, HttpStatus status) {
+        if (status.is5xxServerError()) {
+            return "An internal server error occurred. Please try again later.";
+        }
+        return switch (ex.getClass().getSimpleName()) {
+            case "EmailIsTakenException" -> "This email address is already in use.";
+            case "UsernameIsTakenException" -> "This username is already taken.";
+            case "PasswordMismatchException" -> "The password provided does not match our records.";
+            case "DeletedUserTokenReceivedException" -> "This account no longer exists.";
+            case "InvalidJwtTokenReceivedException", "BadCredentialsException" ->
+                    "Invalid or expired authentication token or bad credentials";
+            case "ResourceNotFoundException" -> "The requested resource could not be found.";
+            case "DailyIntakeCannotBeLowerThanZeroException" -> "Daily intake values must be zero or greater.";
+            default -> "Invalid request parameters.";
+        };
     }
 
 }

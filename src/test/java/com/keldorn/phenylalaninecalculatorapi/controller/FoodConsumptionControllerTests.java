@@ -26,6 +26,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -150,7 +151,7 @@ public class FoodConsumptionControllerTests {
                 )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -215,7 +216,7 @@ public class FoodConsumptionControllerTests {
                 )
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -255,7 +256,7 @@ public class FoodConsumptionControllerTests {
                         .build()
                 )
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     private void doAssertionsCheckOnResponse(FoodConsumptionResponse response,

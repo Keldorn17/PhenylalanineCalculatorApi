@@ -4,7 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
@@ -32,7 +32,7 @@ public class UserService {
         }
         String username = authentication.getName();
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Authenticated User Not Found: " + username));
+                .orElseThrow(() -> new DeletedUserTokenReceivedException("Unauthorized"));
     }
 
     protected final Long getCurrentUserId() {

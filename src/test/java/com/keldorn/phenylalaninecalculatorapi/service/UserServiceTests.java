@@ -9,7 +9,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
@@ -74,11 +74,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void getProfile_shouldThrowResourceNotFoundException() {
+    public void getProfile_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.getProfile())
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(DeletedUserTokenReceivedException.class);
     }
 
     @Test
@@ -116,11 +116,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void update_shouldThrowResourceNotFoundException_whenResourceNotFound() {
+    public void update_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(DeletedUserTokenReceivedException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -180,11 +180,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void delete_shouldThrowResourceNotFoundException() {
+    public void delete_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> userService.delete())
-                        .isInstanceOf(ResourceNotFoundException.class);
+                        .isInstanceOf(DeletedUserTokenReceivedException.class);
 
         verify(userRepository, never()).delete(any());
     }
