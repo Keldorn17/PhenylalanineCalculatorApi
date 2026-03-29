@@ -2,6 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.Mockito.when;
 
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
@@ -14,6 +15,7 @@ import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTaken
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.AuthService;
+import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureRestTestClient
-public class AuthControllerTests {
+public class AuthControllerTests extends RestTestUtils {
 
     @MockitoBean
     private AuthService authService;
@@ -40,11 +42,7 @@ public class AuthControllerTests {
         AuthRequest request = new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.authenticate(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("authenticate")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -59,11 +57,7 @@ public class AuthControllerTests {
     void authenticate_shouldReturn400_whenRequiredDataIsMissing() {
         AuthRequest request = new AuthRequest(null, null);
         restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("authenticate")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -74,11 +68,7 @@ public class AuthControllerTests {
         AuthRequest request = new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.authenticate(request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("authenticate")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                 .body(request)
                 .exchange()
                 .expectStatus().isNotFound();
@@ -95,11 +85,7 @@ public class AuthControllerTests {
         );
         when(authService.register(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("register")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -114,11 +100,7 @@ public class AuthControllerTests {
     void register_shouldReturn400_whenRequiredDataIsMissing() {
         AuthRegisterRequest request = new AuthRegisterRequest(null, null, null, null);
         restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("register")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -134,11 +116,7 @@ public class AuthControllerTests {
         );
         when(authService.register(request)).thenThrow(EmailIsTakenException.class);
         restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("register")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);
@@ -154,11 +132,7 @@ public class AuthControllerTests {
         );
         when(authService.register(request)).thenThrow(UsernameIsTakenException.class);
         restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("register")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);
@@ -171,11 +145,7 @@ public class AuthControllerTests {
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("password")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -190,11 +160,7 @@ public class AuthControllerTests {
     void changePassword_shouldReturn400_whenRequiredDataIsMissing() {
         AuthPasswordChangeRequest request = new AuthPasswordChangeRequest(null, null);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("password")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -206,11 +172,7 @@ public class AuthControllerTests {
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("password")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .body(request)
                 .exchange()
                 .expectStatus().isNotFound();
@@ -222,11 +184,7 @@ public class AuthControllerTests {
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenThrow(PasswordMismatchException.class);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("password")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);
@@ -239,11 +197,7 @@ public class AuthControllerTests {
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("username")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -259,11 +213,7 @@ public class AuthControllerTests {
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(null, null);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("username")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .body(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -275,11 +225,7 @@ public class AuthControllerTests {
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenThrow(ResourceNotFoundException.class);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("username")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .body(request)
                 .exchange()
                 .expectStatus().isNotFound();
@@ -291,11 +237,7 @@ public class AuthControllerTests {
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenThrow(PasswordMismatchException.class);
         restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("username")
-                        .build()
-                )
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);

@@ -1,5 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
@@ -27,40 +28,37 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    private final String CLIENT_ERROR = "Client Error";
-    private final String INTERNAL_ERROR = "Internal Error";
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleNotFound(Exception ex) {
-        return buildAndLog(HttpStatus.NOT_FOUND, CLIENT_ERROR, ex);
+        return buildAndLog(HttpStatus.NOT_FOUND, ApiResponses.CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class,
             DailyIntakeCannotBeLowerThanZeroException.class
     })
     public ResponseEntity<Object> handleConflict(Exception ex) {
-        return buildAndLog(HttpStatus.CONFLICT, CLIENT_ERROR, ex);
+        return buildAndLog(HttpStatus.CONFLICT, ApiResponses.CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class,
             DeletedUserTokenReceivedException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
-        return buildAndLog(HttpStatus.UNAUTHORIZED, CLIENT_ERROR, ex);
+        return buildAndLog(HttpStatus.UNAUTHORIZED, ApiResponses.CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleInternalError(Exception ex) {
-        return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR, ex);
+        return buildAndLog(HttpStatus.INTERNAL_SERVER_ERROR, ApiResponses.INTERNAL_ERROR, ex);
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<Object> handleException(Exception ex) {
         log.error("Malformed data received: {}", ex.getMessage());
         ErrorResponse response = ErrorResponse.builder()
-                .type(CLIENT_ERROR)
+                .type(ApiResponses.CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .statusCode(HttpStatus.BAD_REQUEST)
-                .details("Malformed data received")
+                .details(ApiResponses.MALFORMED_RESPONSE)
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -70,10 +68,10 @@ public class ControllerAdvice {
         log.error("Missing require parameter: {}", ex.getMessage());
         String missingParam = ex.getMessage().split("'")[1];
         ErrorResponse response = ErrorResponse.builder()
-                .type(CLIENT_ERROR)
+                .type(ApiResponses.CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .statusCode(HttpStatus.BAD_REQUEST)
-                .details("Required parameter is missing: " + missingParam)
+                .details(ApiResponses.REQUIRED_MISSING_RESPONSE.formatted(missingParam))
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -85,7 +83,7 @@ public class ControllerAdvice {
                 .collect(Collectors.joining(", "));
         log.warn("Validation failed: {}", details);
         ErrorResponse response = ErrorResponse.builder()
-                .type(CLIENT_ERROR)
+                .type(ApiResponses.CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .statusCode(HttpStatus.BAD_REQUEST)
                 .details(details)
@@ -111,18 +109,17 @@ public class ControllerAdvice {
 
     private String getUserFriendlyMessage(Exception ex, HttpStatus status) {
         if (status.is5xxServerError()) {
-            return "An internal server error occurred. Please try again later.";
+            return ApiResponses.INTERNAL_RESPONSE;
         }
         return switch (ex.getClass().getSimpleName()) {
-            case "EmailIsTakenException" -> "This email address is already in use.";
-            case "UsernameIsTakenException" -> "This username is already taken.";
-            case "PasswordMismatchException" -> "The password provided does not match our records.";
-            case "DeletedUserTokenReceivedException" -> "This account no longer exists.";
-            case "InvalidJwtTokenReceivedException", "BadCredentialsException" ->
-                    "Invalid or expired authentication token or bad credentials";
-            case "ResourceNotFoundException" -> "The requested resource could not be found.";
-            case "DailyIntakeCannotBeLowerThanZeroException" -> "Daily intake values must be zero or greater.";
-            default -> "Invalid request parameters.";
+            case "EmailIsTakenException" -> ApiResponses.EMAIL_IS_TAKEN_RESPONSE;
+            case "UsernameIsTakenException" -> ApiResponses.USERNAME_IS_TAKEN_RESPONSE;
+            case "PasswordMismatchException" -> ApiResponses.PASSWORD_MISMATCH_RESPONSE;
+            case "DeletedUserTokenReceivedException" -> ApiResponses.DELETED_ACCOUNT_RESPONSE;
+            case "InvalidJwtTokenReceivedException", "BadCredentialsException" -> ApiResponses.UNAUTHORIZED_RESPONSE;
+            case "ResourceNotFoundException" -> ApiResponses.RESOURCE_NOT_FOUND_RESPONSE;
+            case "DailyIntakeCannotBeLowerThanZeroException" -> ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE;
+            default -> ApiResponses.DEFAULT_RESPONSE;
         };
     }
 

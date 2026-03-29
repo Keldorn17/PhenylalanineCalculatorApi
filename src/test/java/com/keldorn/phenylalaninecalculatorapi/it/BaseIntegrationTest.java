@@ -1,25 +1,25 @@
 package com.keldorn.phenylalaninecalculatorapi.it;
 
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
+import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
 
-import java.util.function.Consumer;
-
+import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.mysql.MySQLContainer;
 
-@DirtyTest
 @AutoConfigureRestTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public abstract class BaseIntegrationTest {
+public abstract class BaseIntegrationTest extends RestTestUtils {
 
     @Autowired
     private RestTestClient restTestClient;
@@ -43,19 +43,14 @@ public abstract class BaseIntegrationTest {
     }
 
     protected AuthResponse registerTestUser() {
-        AuthRegisterRequest request = new AuthRegisterRequest(
-                TestEntityFactory.DEFAULT_EMAIL,
-                TestEntityFactory.DEFAULT_USERNAME,
-                TestEntityFactory.DEFAULT_PASSWORD,
-                TestEntityFactory.DEFAULT_TIMEZONE
-        );
         return restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.AUTH_PATH)
-                        .pathSegment("register")
-                        .build()
-                )
-                .body(request)
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
+                .body(new AuthRegisterRequest(
+                        TestEntityFactory.DEFAULT_EMAIL,
+                        TestEntityFactory.DEFAULT_USERNAME,
+                        TestEntityFactory.DEFAULT_PASSWORD,
+                        TestEntityFactory.DEFAULT_TIMEZONE
+                ))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
@@ -63,8 +58,17 @@ public abstract class BaseIntegrationTest {
                 .getResponseBody();
     }
 
-    protected Consumer<HttpHeaders> authorizationHeader(String token) {
-        return httpHeaders -> httpHeaders.add("Authorization", "Bearer " + token);
+    private void doAssertionChecksOnResponse(ErrorResponse response, ErrorResponse expectedResponse) {
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getType()).isEqualTo(expectedResponse.getType());
+        Assertions.assertThat(response.getTitle()).isEqualTo(expectedResponse.getTitle());
+        Assertions.assertThat(response.getDetails()).contains(expectedResponse.getDetails());
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedResponse.getStatusCode());
     }
 
+
+    protected void doAssertionChecksOnResponse(RestTestClient.ResponseSpec responseSpec, ErrorResponse expectedResponse) {
+        ErrorResponse response = responseSpec.expectBody(ErrorResponse.class).returnResult().getResponseBody();
+        doAssertionChecksOnResponse(response, expectedResponse);
+    }
 }

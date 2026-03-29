@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.security.JwtAuthFilter;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
@@ -53,11 +54,11 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> {
+                        .authenticationEntryPoint((_, response, _) -> {
                             ErrorResponse errorResponse = ErrorResponse.builder()
-                                    .type("Client Error")
-                                    .title("Unauthorized")
-                                    .details("Full authentication is required to access this resource")
+                                    .type(ApiResponses.CLIENT_ERROR)
+                                    .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                                    .details(ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE)
                                     .statusCode(HttpStatus.UNAUTHORIZED)
                                     .build();
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
