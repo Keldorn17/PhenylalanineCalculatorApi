@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FoodTypeService {
 
-    private final FoodTypeRepository foodTypeRepository;
     private final FoodTypeMapper foodTypeMapper;
+    private final FoodTypeRepository foodTypeRepository;
 
     protected final FoodType findByIdOrThrow(Long id) {
         log.debug("Getting Food Type By Id: {}", id);
@@ -59,4 +59,5 @@ public class FoodTypeService {
         log.debug("Deleting Food Type By Id: {}", id);
         foodTypeRepository.delete(findByIdOrThrow(id));
     }
+
 }

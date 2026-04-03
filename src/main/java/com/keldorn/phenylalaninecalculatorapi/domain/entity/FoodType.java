@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +16,8 @@ import lombok.NoArgsConstructor;
 public class FoodType {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "food_type_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -24,4 +25,5 @@ public class FoodType {
 
     @Column(name = "multiplier", nullable = false)
     private Integer multiplier;
+
 }

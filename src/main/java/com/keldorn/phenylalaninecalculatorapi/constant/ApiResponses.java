@@ -16,5 +16,7 @@ public final class ApiResponses {
     public static final String DEFAULT_RESPONSE = "Invalid request parameters.";
     public static final String MALFORMED_RESPONSE = "Malformed data received";
     public static final String REQUIRED_MISSING_RESPONSE = "Required parameter is missing: %s";
-    public static final String AUTHENTICATION_REQUIRED_RESPONSE = "Full authentication is required to access this resource";
+    public static final String AUTHENTICATION_REQUIRED_RESPONSE =
+            "Full authentication is required to access this resource";
+
 }

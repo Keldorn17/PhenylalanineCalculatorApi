@@ -57,9 +57,9 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
     @GetMapping
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<PagedModel<FoodConsumptionResponse>> getAllFoodConsumptionByDate(
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
             @RequestParam LocalDate date,
@@ -81,10 +81,10 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
-    @NotFoundApiResponse
     @ConflictApiResponse
+    @NotFoundApiResponse
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     @PostMapping("/{foodId}")
     public ResponseEntity<FoodConsumptionResponse> postFoodConsumption(
             @Parameter(description = "ID of the food being consumed", example = "42")
@@ -108,12 +108,12 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
     @PutMapping("/{id}")
+    @UnauthorizedApiResponse
     public ResponseEntity<FoodConsumptionResponse> putFoodConsumption(@PathVariable Long id,
-                                                                      @Valid @RequestBody FoodConsumptionRequest request) {
+            @Valid @RequestBody FoodConsumptionRequest request) {
         log.info("Put request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
         return ResponseEntity.ok(foodConsumptionService.update(id, request));
     }
@@ -128,13 +128,14 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @UnauthorizedApiResponse
     @NotFoundApiResponse
     @ConflictApiResponse
+    @UnauthorizedApiResponse
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         log.info("Delete request for id: {}, {}", id, ApiRoutes.FOOD_CONSUMPTION_PATH);
         foodConsumptionService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

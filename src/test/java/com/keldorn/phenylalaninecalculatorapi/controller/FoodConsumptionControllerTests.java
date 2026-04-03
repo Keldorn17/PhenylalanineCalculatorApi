@@ -30,8 +30,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-@WebMvcTest(FoodConsumptionController.class)
 @AutoConfigureRestTestClient
+@WebMvcTest(FoodConsumptionController.class)
 public class FoodConsumptionControllerTests {
 
     @MockitoBean

@@ -25,11 +25,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final JwtService jwtService;
+    private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
 
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
@@ -111,4 +111,5 @@ public class AuthService {
             throw new UsernameIsTakenException("Username is taken.");
         }
     }
+
 }

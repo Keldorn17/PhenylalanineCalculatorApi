@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -20,14 +21,12 @@ public class JwtServiceTests {
     public void shouldExtractUsername_whenTokenSignedWithSameKey() {
         String token = jwtServiceA.generateToken(TEST_USERNAME);
         String username = jwtServiceA.extractUsername(token);
-
         Assertions.assertThat(username).isEqualTo(TEST_USERNAME);
     }
 
     @Test
     public void shouldThrow_whenTokenMalformed() {
         String token = "Invalid Token";
-
         Assertions.assertThatThrownBy(() -> jwtServiceA.extractUsername(token))
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
     }
@@ -39,4 +38,5 @@ public class JwtServiceTests {
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
 
     }
+
 }

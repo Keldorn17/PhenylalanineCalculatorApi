@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DailyIntakeService {
 
-    private final DailyIntakeRepository dailyIntakeRepository;
-    private final DailyIntakeMapper dailyIntakeMapper;
     private final UserService userService;
+    private final DailyIntakeMapper dailyIntakeMapper;
+    private final DailyIntakeRepository dailyIntakeRepository;
 
     private DailyIntake findByDateOrThrow(LocalDate date) {
         log.debug("Getting daily intake by date");
@@ -44,7 +44,6 @@ public class DailyIntakeService {
      */
     protected final void addAmount(LocalDate date, BigDecimal amount) {
         log.debug("Adding amount for daily intake");
-
         DailyIntake dailyIntake = dailyIntakeRepository
                 .findByUserIdAndDate(userService.getCurrentUserId(), date)
                 .orElseGet(() -> DailyIntake.builder()
@@ -52,12 +51,10 @@ public class DailyIntakeService {
                         .date(date)
                         .totalPhenylalanine(BigDecimal.ZERO)
                         .build());
-
         BigDecimal updated = dailyIntake.getTotalPhenylalanine().add(amount);
         if (updated.compareTo(BigDecimal.ZERO) < 0) {
             throw new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero");
         }
-
         dailyIntake.setTotalPhenylalanine(updated);
         dailyIntakeRepository.save(dailyIntake);
     }
@@ -66,4 +63,5 @@ public class DailyIntakeService {
         log.debug("Sending response for findByDate");
         return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
     }
+
 }

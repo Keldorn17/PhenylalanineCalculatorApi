@@ -26,8 +26,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-@WebMvcTest(FoodController.class)
 @AutoConfigureRestTestClient
+@WebMvcTest(FoodController.class)
 public class FoodControllerTests {
 
     @MockitoBean

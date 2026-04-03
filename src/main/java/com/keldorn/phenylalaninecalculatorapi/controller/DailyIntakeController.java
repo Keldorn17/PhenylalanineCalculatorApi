@@ -46,10 +46,10 @@ public class DailyIntakeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
-    @NotFoundApiResponse
     @GetMapping
+    @NotFoundApiResponse
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<DailyIntakeResponse> getDailyIntake(
             @Parameter(description = "Date of intake (ISO-8601)", example = "2026-01-01")
             @RequestParam LocalDate date
@@ -57,4 +57,5 @@ public class DailyIntakeController {
         log.info("Get request: {}", ApiRoutes.DAILY_INTAKE_PATH);
         return ResponseEntity.ok(dailyIntakeService.findByDate(date));
     }
+
 }

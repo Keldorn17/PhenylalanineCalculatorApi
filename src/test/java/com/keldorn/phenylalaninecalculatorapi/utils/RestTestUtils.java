@@ -12,14 +12,11 @@ public abstract class RestTestUtils {
         return httpHeaders -> httpHeaders.setBearerAuth(token);
     }
 
-    protected Consumer<HttpHeaders> noAuth() {
-        return _ -> {};
-    }
-
     protected URI path(String base, String... segments) {
         return UriComponentsBuilder.fromUriString(base)
                 .pathSegment(segments)
                 .build()
                 .toUri();
     }
+
 }

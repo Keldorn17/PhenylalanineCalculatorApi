@@ -30,11 +30,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FoodConsumptionService {
 
-    private final FoodConsumptionMapper foodConsumptionMapper;
-    private final FoodConsumptionRepository foodConsumptionRepository;
-    private final DailyIntakeService dailyIntakeService;
     private final FoodService foodService;
     private final UserService userService;
+    private final DailyIntakeService dailyIntakeService;
+    private final FoodConsumptionMapper foodConsumptionMapper;
+    private final FoodConsumptionRepository foodConsumptionRepository;
 
     private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);

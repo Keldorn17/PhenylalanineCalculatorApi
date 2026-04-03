@@ -1,16 +1,20 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
+
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -19,7 +23,7 @@ public class JwtService {
     private final SecretKey signingKey;
 
     public JwtService(@Value("${jwt.secret.string}") String secretString) {
-        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));;
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));
     }
 
     public String generateToken(String username) {
@@ -47,4 +51,5 @@ public class JwtService {
             throw new InvalidJwtTokenReceivedException("Invalid token received");
         }
     }
+
 }

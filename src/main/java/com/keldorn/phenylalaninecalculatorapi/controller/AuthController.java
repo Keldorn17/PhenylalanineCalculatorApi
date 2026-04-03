@@ -113,4 +113,5 @@ public class AuthController {
         log.info("Username Change Request {}", ApiRoutes.AUTH_PATH);
         return ResponseEntity.ok(authService.changeUsername(request));
     }
+
 }

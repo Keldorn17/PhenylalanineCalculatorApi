@@ -2,11 +2,12 @@ package com.keldorn.phenylalaninecalculatorapi.mapper;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface FoodConsumptionMapper {
@@ -18,11 +19,10 @@ public interface FoodConsumptionMapper {
         if (foodConsumption.getConsumedAt() == null) {
             return null;
         }
-
         ZoneId userZone = foodConsumption.getUser().resolveZoneId();
-
         return foodConsumption.getConsumedAt()
                 .atZone(userZone)
                 .toLocalDateTime();
     }
+
 }

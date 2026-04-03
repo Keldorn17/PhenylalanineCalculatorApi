@@ -55,10 +55,10 @@ public class FoodTypeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
     @NotFoundApiResponse
+    @BadRequestApiResponse
     @GetMapping("/{id}")
+    @UnauthorizedApiResponse
     public ResponseEntity<FoodTypeResponse> findById(@PathVariable Long id) {
         log.info("Get Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
         return ResponseEntity.ok(foodTypeService.findById(id));
@@ -73,9 +73,9 @@ public class FoodTypeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
     @GetMapping
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size
@@ -95,9 +95,9 @@ public class FoodTypeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
     @PostMapping
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<FoodTypeResponse> postFoodType(@Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Post Request: {}", ApiRoutes.FOOD_TYPE_PATH);
         var response = foodTypeService.save(foodTypeRequest);
@@ -116,11 +116,12 @@ public class FoodTypeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
     @NotFoundApiResponse
+    @BadRequestApiResponse
     @PutMapping("/{id}")
-    public ResponseEntity<FoodTypeResponse> putFoodType(@PathVariable Long id, @Valid @RequestBody FoodTypeRequest foodTypeRequest) {
+    @UnauthorizedApiResponse
+    public ResponseEntity<FoodTypeResponse> putFoodType(@PathVariable Long id,
+            @Valid @RequestBody FoodTypeRequest foodTypeRequest) {
         log.info("Put Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
         return ResponseEntity.ok(foodTypeService.update(id, foodTypeRequest));
     }
@@ -135,12 +136,13 @@ public class FoodTypeController {
                     )
             }
     )
-    @UnauthorizedApiResponse
     @NotFoundApiResponse
+    @UnauthorizedApiResponse
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         log.info("Delete Request to {}: {}", id, ApiRoutes.FOOD_TYPE_PATH);
         foodTypeService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

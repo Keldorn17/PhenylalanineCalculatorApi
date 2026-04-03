@@ -12,4 +12,5 @@ public final class SwaggerDescriptions {
     public static final String SUCCESS_UPDATE = "Successful update";
     public static final String SUCCESS_CREATE = "Successful creation";
     public static final String SUCCESS_DELETE = "Successful deletion";
+
 }

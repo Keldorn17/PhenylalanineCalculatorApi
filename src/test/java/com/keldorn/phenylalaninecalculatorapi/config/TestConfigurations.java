@@ -14,4 +14,5 @@ public class TestConfigurations {
     public MySQLContainer mySQLContainer() {
         return new MySQLContainer(DockerImageName.parse("mysql:8.0"));
     }
+
 }

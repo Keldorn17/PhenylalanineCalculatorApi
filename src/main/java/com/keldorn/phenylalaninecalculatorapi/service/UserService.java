@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     protected final User getCurrentUser() {
         log.debug("Getting current user from SecurityContextHolder");
@@ -55,13 +55,16 @@ public class UserService {
     public UserResponse update(UserRequest request) {
         var user = getCurrentUser();
         log.debug("Updating user information for: {}", user.getUserId());
-
         if (request.email() != null) {
             isEmailTakenAndThrow(request.email());
             user.setEmail(request.email());
         }
-        if (request.dailyLimit() != null) user.setDailyLimit(request.dailyLimit());
-        if (request.timezone() != null) user.setTimezone(request.timezone());
+        if (request.dailyLimit() != null) {
+            user.setDailyLimit(request.dailyLimit());
+        }
+        if (request.timezone() != null) {
+            user.setTimezone(request.timezone());
+        }
         return userMapper.toResponse(userRepository.save(user));
     }
 
@@ -70,4 +73,5 @@ public class UserService {
         log.debug("Deleting user for: {}", user.getUserId());
         userRepository.delete(user);
     }
+
 }

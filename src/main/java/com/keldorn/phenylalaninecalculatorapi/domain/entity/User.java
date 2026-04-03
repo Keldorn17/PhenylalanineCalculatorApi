@@ -1,17 +1,31 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
-import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
 @Entity
@@ -24,8 +38,8 @@ public class User implements UserDetails {
     private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @Column(name = "username", unique = true, nullable = false)
@@ -40,8 +54,8 @@ public class User implements UserDetails {
     @Column(name = "timezone", nullable = false)
     private String timezone = "UTC";
 
-    @Column(name = "role", nullable = false)
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "role", nullable = false)
     private Role role;
 
     @Column(name = "daily_limit")
@@ -73,14 +87,22 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    @Override
     @NonNull
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public boolean isAccountNonExpired() {return true;}
+
+    @Override
+    public boolean isAccountNonLocked() {return true;}
+
+    @Override
+    public boolean isCredentialsNonExpired() {return true;}
+
+    @Override
+    public boolean isEnabled() {return true;}
+
 }

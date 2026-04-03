@@ -40,6 +40,7 @@ public class UserServiceTests {
 
     @Mock
     private UserRepository userRepository;
+
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
@@ -49,8 +50,8 @@ public class UserServiceTests {
     @BeforeEach
     public void setUp() {
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(TestEntityFactory.DEFAULT_USERNAME, null, Collections.emptyList());
-
+                new UsernamePasswordAuthenticationToken(TestEntityFactory.DEFAULT_USERNAME, null,
+                        Collections.emptyList());
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
@@ -65,18 +66,14 @@ public class UserServiceTests {
     public void getProfile_shouldReturnUserResponse_whenUserExists() {
         User user = TestEntityFactory.user();
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
-
         UserResponse response = userService.getProfile();
-
         verify(userMapper).toResponse(user);
-
         doAssertionsCheckOnResponse(response, user);
     }
 
     @Test
     public void getProfile_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
-
         Assertions.assertThatThrownBy(() -> userService.getProfile())
                 .isInstanceOf(DeletedUserTokenReceivedException.class);
     }
@@ -84,7 +81,6 @@ public class UserServiceTests {
     @Test
     public void getProfile_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
-
         Assertions.assertThatThrownBy(() -> userService.getProfile())
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
     }
@@ -97,18 +93,14 @@ public class UserServiceTests {
         expectedUser.setEmail(request.email());
         expectedUser.setDailyLimit(request.dailyLimit());
         expectedUser.setTimezone(request.timezone());
-
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
-
         UserResponse response = userService.update(request);
-
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         verify(userMapper).toResponse(any(User.class));
         User savedUser = captor.getValue();
-
         Assertions.assertThat(savedUser.getEmail()).isEqualTo(request.email());
         Assertions.assertThat(savedUser.getDailyLimit()).isEqualByComparingTo(request.dailyLimit());
         Assertions.assertThat(savedUser.getTimezone()).isEqualTo(request.timezone());
@@ -118,33 +110,26 @@ public class UserServiceTests {
     @Test
     public void update_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
-
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
                 .isInstanceOf(DeletedUserTokenReceivedException.class);
-
         verify(userRepository, never()).save(any());
     }
 
     @Test
     public void update_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
-
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest(null, null, null)))
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
-
         verify(userRepository, never()).save(any());
     }
 
     @Test
     public void update_shouldThrowEmailIsTakenException_whenEmailIsTaken() {
         User user = TestEntityFactory.user();
-
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         when(userRepository.existsByEmail(any(String.class))).thenReturn(true);
-
         Assertions.assertThatThrownBy(() -> userService.update(new UserRequest("testEmail", null, null)))
                 .isInstanceOf(EmailIsTakenException.class);
-
         verify(userRepository, never()).save(any());
     }
 
@@ -154,17 +139,13 @@ public class UserServiceTests {
         User user = TestEntityFactory.user();
         User expectedUser = TestEntityFactory.user();
         expectedUser.setTimezone("UTC");
-
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
-
         UserResponse response = userService.update(request);
-
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         verify(userMapper).toResponse(any(User.class));
         User savedUser = captor.getValue();
-
         Assertions.assertThat(savedUser.getTimezone()).isEqualTo(expectedUser.getTimezone());
         doAssertionsCheckOnResponse(response, expectedUser);
     }
@@ -173,29 +154,23 @@ public class UserServiceTests {
     public void delete_whenUserExists() {
         User user = TestEntityFactory.user();
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
-
         userService.delete();
-
         verify(userRepository).delete(user);
     }
 
     @Test
     public void delete_shouldThrowDeletedUserTokenReceivedException() {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
-
         Assertions.assertThatThrownBy(() -> userService.delete())
-                        .isInstanceOf(DeletedUserTokenReceivedException.class);
-
+                .isInstanceOf(DeletedUserTokenReceivedException.class);
         verify(userRepository, never()).delete(any());
     }
 
     @Test
     public void delete_shouldThrowInvalidJwtTokenReceivedException_whenAuthenticationMissing() {
         SecurityContextHolder.clearContext();
-
         Assertions.assertThatThrownBy(() -> userService.delete())
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
-
         verify(userRepository, never()).delete(any(User.class));
     }
 
@@ -206,4 +181,5 @@ public class UserServiceTests {
         Assertions.assertThat(response.timezone()).isEqualTo(user.getTimezone());
         Assertions.assertThat(response.email()).isEqualTo(user.getEmail());
     }
+
 }

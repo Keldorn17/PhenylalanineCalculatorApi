@@ -66,9 +66,10 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedResponse.getStatusCode());
     }
 
-
-    protected void doAssertionChecksOnResponse(RestTestClient.ResponseSpec responseSpec, ErrorResponse expectedResponse) {
+    protected void doAssertionChecksOnResponse(RestTestClient.ResponseSpec responseSpec,
+            ErrorResponse expectedResponse) {
         ErrorResponse response = responseSpec.expectBody(ErrorResponse.class).returnResult().getResponseBody();
         doAssertionChecksOnResponse(response, expectedResponse);
     }
+
 }

@@ -3,8 +3,9 @@ package com.keldorn.phenylalaninecalculatorapi.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
-import io.swagger.v3.core.jackson.ModelResolver;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import io.swagger.v3.core.jackson.ModelResolver;
 
 @Configuration
 @RequiredArgsConstructor
@@ -55,4 +58,5 @@ public class ApplicationConfig {
     public ModelResolver modelResolver(ObjectMapper objectMapper) {
         return new ModelResolver(objectMapper);
     }
+
 }

@@ -17,8 +17,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-@WebMvcTest(DailyIntakeController.class)
 @AutoConfigureRestTestClient
+@WebMvcTest(DailyIntakeController.class)
 public class DailyIntakeControllerTests {
 
     @MockitoBean

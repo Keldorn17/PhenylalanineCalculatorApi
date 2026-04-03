@@ -26,8 +26,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-@WebMvcTest(AuthController.class)
 @AutoConfigureRestTestClient
+@WebMvcTest(AuthController.class)
 public class AuthControllerTests extends RestTestUtils {
 
     @MockitoBean
@@ -242,4 +242,5 @@ public class AuthControllerTests extends RestTestUtils {
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
+
 }

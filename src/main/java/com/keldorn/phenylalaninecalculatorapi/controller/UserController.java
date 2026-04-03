@@ -48,9 +48,9 @@ public class UserController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @NotFoundApiResponse
     @GetMapping
+    @NotFoundApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<UserResponse> me() {
         log.info("Get Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.getProfile());
@@ -67,10 +67,10 @@ public class UserController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @BadRequestApiResponse
-    @NotFoundApiResponse
     @PatchMapping
+    @NotFoundApiResponse
+    @BadRequestApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
         log.info("Patch Request: {}", ApiRoutes.USER_PATH);
         return ResponseEntity.ok(userService.update(userRequest));
@@ -86,12 +86,13 @@ public class UserController {
                     )
             }
     )
-    @UnauthorizedApiResponse
-    @NotFoundApiResponse
     @DeleteMapping
+    @NotFoundApiResponse
+    @UnauthorizedApiResponse
     public ResponseEntity<Void> deleteUser() {
         log.info("Delete Request: {}", ApiRoutes.USER_PATH);
         userService.delete();
         return ResponseEntity.noContent().build();
     }
+
 }

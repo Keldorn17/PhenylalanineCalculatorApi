@@ -25,9 +25,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FoodService {
 
-    private final FoodRepository foodRepository;
     private final FoodMapper foodMapper;
     private final UserService userService;
+    private final FoodRepository foodRepository;
     private final FoodTypeService foodTypeService;
 
     protected Food findByIdOrThrow(Long id) {
@@ -80,9 +80,15 @@ public class FoodService {
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = findByIdOrThrow(id);
-        if (request.name() != null) food.setName(request.name());
-        if (request.protein() != null) food.setProtein(request.protein());
-        if (request.calories() != null) food.setCalories(request.calories());
+        if (request.name() != null) {
+            food.setName(request.name());
+        }
+        if (request.protein() != null) {
+            food.setProtein(request.protein());
+        }
+        if (request.calories() != null) {
+            food.setCalories(request.calories());
+        }
         if (request.foodTypeId() != null) {
             FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
             food.setFoodType(foodType);
@@ -95,4 +101,5 @@ public class FoodService {
         log.debug("Deleting Food By Id: {}", id);
         foodRepository.delete(findByIdOrThrow(id));
     }
+
 }
