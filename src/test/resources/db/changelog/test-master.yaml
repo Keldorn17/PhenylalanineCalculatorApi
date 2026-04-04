@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      author: Patai Zoltán
+      file: schema-changelog.sql
+      relativeToChangelogFile: true
+  - include:
+      author: Patai Zoltán
+      file: data-changelog.sql
+      relativeToChangelogFile: true
+  - include:
+      author: Patai Zoltán
+      file: test-changelog.sql
+      relativeToChangelogFile: true

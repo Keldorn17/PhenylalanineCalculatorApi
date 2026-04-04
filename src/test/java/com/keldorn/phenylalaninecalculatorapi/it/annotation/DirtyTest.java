@@ -14,8 +14,8 @@ import org.springframework.test.context.jdbc.Sql;
  * to avoid full Spring reload and test container restart.
  */
 @Documented
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Sql(scripts = "/sql/cleanup-db.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/sql/cleanup-db.sql", "/db/changelog/test-changelog.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public @interface DirtyTest {
 }

@@ -1,8 +1,9 @@
 package com.keldorn.phenylalaninecalculatorapi.it;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -12,6 +13,7 @@ import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -42,20 +44,26 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         registry.add("spring.liquibase.enabled", () -> "true");
     }
 
-    protected AuthResponse registerTestUser() {
-        return restTestClient.post()
-                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
-                .body(new AuthRegisterRequest(
-                        TestEntityFactory.DEFAULT_EMAIL,
-                        TestEntityFactory.DEFAULT_USERNAME,
-                        TestEntityFactory.DEFAULT_PASSWORD,
-                        TestEntityFactory.DEFAULT_TIMEZONE
-                ))
+    protected String getTestUserToken() {
+        AuthResponse response = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
+                .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        return response.token();
+    }
+
+    protected static ErrorResponse error(HttpStatus status, String details) {
+        return new ErrorResponse(
+                ApiResponses.CLIENT_ERROR,
+                status.getReasonPhrase(),
+                details,
+                status
+        );
     }
 
     private void doAssertionChecksOnResponse(ErrorResponse response, ErrorResponse expectedResponse) {

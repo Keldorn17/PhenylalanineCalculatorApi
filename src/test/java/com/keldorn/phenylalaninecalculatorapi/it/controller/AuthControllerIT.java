@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-@DirtyTest
 public class AuthControllerIT extends BaseIntegrationTest {
 
     @Autowired
@@ -40,18 +39,21 @@ public class AuthControllerIT extends BaseIntegrationTest {
 
     private static final String NOT_TAKEN_EMAIL = "not_taken_email@gmail.com";
     private static final String NOT_TAKEN_USERNAME = "not taken username";
-    private static final String NEW_PASSWORD = "new password";
     private static final String INVALID_PASSWORD = "invalid password";
+    private static final String TEST_REGISTER_EMAIL = "test@test.com";
+    private static final String TEST_REGISTER_USERNAME = "test";
+    private static final String NEW_PASSWORD = "new password";
     private static final String NEW_USERNAME = "new username";
 
     @Test
     void testRegistration_shouldReturn200_whenSuccessfulRegistration() {
         AuthResponse response = registerTestUser();
-        doAssertionChecksOnResponse(response);
+        doAssertionChecksOnResponse(response, TEST_REGISTER_USERNAME);
     }
 
-    @ParameterizedTest(name = "{index} - {0}")
+    @DirtyTest
     @MethodSource("getRegistrationTestCases")
+    @ParameterizedTest(name = "{index} - {0}")
     void testRegistration(String description,
             AuthRegisterRequest request,
             HttpStatus expectedStatus,
@@ -64,19 +66,18 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
             AuthResponse response = responseSpec.expectBody(AuthResponse.class).returnResult().getResponseBody();
-            doAssertionChecksOnResponse(response);
+            doAssertionChecksOnResponse(response, TEST_REGISTER_USERNAME);
             return;
         }
         doAssertionChecksOnResponse(responseSpec, expectedResponse);
     }
 
-    @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("getAuthenticateTestCases")
+    @ParameterizedTest(name = "{index} - {0}")
     void testAuthenticate(String description,
             AuthRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        registerTestUser();
         var responseSpec = restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                 .body(request)
@@ -90,13 +91,14 @@ public class AuthControllerIT extends BaseIntegrationTest {
         doAssertionChecksOnResponse(responseSpec, expectedResponse);
     }
 
+    @DirtyTest
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("getChangePasswordTestCases")
     void testChangePassword(String description,
             AuthPasswordChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = registerTestUser().token();
+        String token = getTestUserToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .headers(withBearer(token))
@@ -130,11 +132,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
     }
 
     @Test
+    @DirtyTest
     void testChangePassword_shouldReturn401FromSecurityLayer_whenZombieTokenReceived() {
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, NEW_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = registerTestUser().token();
+        String token = getTestUserToken();
         userRepository.deleteAll();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
@@ -145,13 +148,14 @@ public class AuthControllerIT extends BaseIntegrationTest {
         doAssertionChecksOnResponse(responseSpec, expectedResponse);
     }
 
+    @DirtyTest
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("getChangeUsernameTestCases")
     void testChangeUsername(String description,
             AuthUsernameChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = registerTestUser().token();
+        String token = getTestUserToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .headers(withBearer(token))
@@ -185,11 +189,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
     }
 
     @Test
+    @DirtyTest
     void testChangeUsername_shouldReturn401FromSecurityLayer_whenZombieTokenReceived() {
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(NEW_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = registerTestUser().token();
+        String token = getTestUserToken();
         userRepository.deleteAll();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
@@ -366,13 +371,20 @@ public class AuthControllerIT extends BaseIntegrationTest {
         Assertions.assertThat(username).isEqualTo(registeredUsername);
     }
 
-    private static ErrorResponse error(HttpStatus status, String details) {
-        return new ErrorResponse(
-                ApiResponses.CLIENT_ERROR,
-                status.getReasonPhrase(),
-                details,
-                status
-        );
+    private AuthResponse registerTestUser() {
+        return restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
+                .body(new AuthRegisterRequest(
+                        TEST_REGISTER_EMAIL,
+                        TEST_REGISTER_USERNAME,
+                        TestEntityFactory.DEFAULT_PASSWORD,
+                        TestEntityFactory.DEFAULT_TIMEZONE
+                ))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
     }
 
 }
