@@ -155,10 +155,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, NEW_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
         String token = getAuthToken();
-        dailyIntakeRepository.deleteAll();
-        foodConsumptionRepository.deleteAll();
-        foodRepository.deleteAll();
-        userRepository.deleteAll();
+        wipeDatabase();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .headers(withBearer(token))
@@ -214,10 +211,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 new AuthUsernameChangeRequest(NEW_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
         String token = getAuthToken();
-        dailyIntakeRepository.deleteAll();
-        foodConsumptionRepository.deleteAll();
-        foodRepository.deleteAll();
-        userRepository.deleteAll();
+        wipeDatabase();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .headers(withBearer(token))
@@ -412,6 +406,13 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody();
+    }
+
+    private void wipeDatabase() {
+        dailyIntakeRepository.deleteAll();
+        foodConsumptionRepository.deleteAll();
+        foodRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
 }
