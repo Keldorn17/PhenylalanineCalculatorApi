@@ -19,4 +19,7 @@ public final class ApiResponses {
     public static final String AUTHENTICATION_REQUIRED_RESPONSE =
             "Full authentication is required to access this resource";
 
+    public static final String REQUIRED_MISSING_REQUEST_RESPONSE = "%s must not be null";
+    public static final String MALFORMED_EMAIL_RESPONSE = "email must be a well-formed email address";
+
 }

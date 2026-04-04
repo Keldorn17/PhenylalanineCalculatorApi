@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,8 +27,8 @@ public class TestEntityFactory {
     public static final String DEFAULT_PASSWORD = "testPassword";
     public static final String DEFAULT_TIMEZONE = "UTC";
     public static final String DEFAULT_FOOD_TYPE_NAME = "testFoodType";
-    public static final String DEFAULT_FOOD_NAME = "TestFood";
-    public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN;
+    public static final String DEFAULT_FOOD_NAME = "testFood";
+    public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN.setScale(4, RoundingMode.HALF_UP);
     public static final Integer DEFAULT_INTEGER_VALUE = 10;
     public static final Long DEFAULT_ID = 1L;
 

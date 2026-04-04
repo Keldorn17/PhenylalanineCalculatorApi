@@ -12,6 +12,9 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.it.BaseIntegrationTest;
 import com.keldorn.phenylalaninecalculatorapi.it.annotation.DirtyTest;
+import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 
@@ -29,10 +32,16 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 public class AuthControllerIT extends BaseIntegrationTest {
 
     @Autowired
-    private RestTestClient restTestClient;
+    private UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private FoodRepository foodRepository;
+
+    @Autowired
+    private FoodConsumptionRepository foodConsumptionRepository;
+
+    @Autowired
+    private DailyIntakeRepository dailyIntakeRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -45,10 +54,21 @@ public class AuthControllerIT extends BaseIntegrationTest {
     private static final String NEW_PASSWORD = "new password";
     private static final String NEW_USERNAME = "new username";
 
+    private static final String MISSING_USERNAME_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("username");
+    private static final String MISSING_PASSWORD_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("password");
+    private static final String MISSING_OLD_PASSWORD_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("oldPassword");
+    private static final String MISSING_EMAIL_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("email");
+    private static final String MISSING_TIMEZONE_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("timezone");
+
     @Test
     void testRegistration_shouldReturn200_whenSuccessfulRegistration() {
         AuthResponse response = registerTestUser();
-        doAssertionChecksOnResponse(response, TEST_REGISTER_USERNAME);
+        verifySuccess(response, TEST_REGISTER_USERNAME);
     }
 
     @DirtyTest
@@ -65,11 +85,10 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            AuthResponse response = responseSpec.expectBody(AuthResponse.class).returnResult().getResponseBody();
-            doAssertionChecksOnResponse(response, TEST_REGISTER_USERNAME);
+            verifySuccess(responseSpec, TEST_REGISTER_USERNAME);
             return;
         }
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @MethodSource("getAuthenticateTestCases")
@@ -84,11 +103,10 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            AuthResponse response = responseSpec.expectBody(AuthResponse.class).returnResult().getResponseBody();
-            doAssertionChecksOnResponse(response);
+            verifySuccess(responseSpec);
             return;
         }
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -98,7 +116,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
             AuthPasswordChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = getTestUserToken();
+        String token = getAuthToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .headers(withBearer(token))
@@ -106,8 +124,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            AuthResponse response = responseSpec.expectBody(AuthResponse.class).returnResult().getResponseBody();
-            doAssertionChecksOnResponse(response);
+            verifySuccess(responseSpec);
             restTestClient.post()
                     .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                     .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, request.password()))
@@ -115,7 +132,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                     .expectStatus().isOk();
             return;
         }
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @Test
@@ -128,7 +145,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @Test
@@ -137,7 +154,10 @@ public class AuthControllerIT extends BaseIntegrationTest {
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, NEW_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = getTestUserToken();
+        String token = getAuthToken();
+        dailyIntakeRepository.deleteAll();
+        foodConsumptionRepository.deleteAll();
+        foodRepository.deleteAll();
         userRepository.deleteAll();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
@@ -145,7 +165,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -155,7 +175,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
             AuthUsernameChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = getTestUserToken();
+        String token = getAuthToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .headers(withBearer(token))
@@ -163,8 +183,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            AuthResponse response = responseSpec.expectBody(AuthResponse.class).returnResult().getResponseBody();
-            doAssertionChecksOnResponse(response, request.username());
+            verifySuccess(responseSpec, request.username());
             restTestClient.post()
                     .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                     .body(new AuthRequest(request.username(), request.password()))
@@ -172,7 +191,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                     .expectStatus().isOk();
             return;
         }
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @Test
@@ -185,7 +204,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     @Test
@@ -194,7 +213,10 @@ public class AuthControllerIT extends BaseIntegrationTest {
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(NEW_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = getTestUserToken();
+        String token = getAuthToken();
+        dailyIntakeRepository.deleteAll();
+        foodConsumptionRepository.deleteAll();
+        foodRepository.deleteAll();
         userRepository.deleteAll();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
@@ -202,7 +224,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        doAssertionChecksOnResponse(responseSpec, expectedResponse);
+        verifyError(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> getRegistrationTestCases() {
@@ -214,7 +236,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_TIMEZONE
                         ),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "email")
+                        error(HttpStatus.BAD_REQUEST, MISSING_EMAIL_RESPONSE)
                 ),
                 Arguments.of("Username is missing from request",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
@@ -223,7 +245,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_TIMEZONE
                         ),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "username")
+                        error(HttpStatus.BAD_REQUEST, MISSING_USERNAME_RESPONSE)
                 ),
                 Arguments.of("Password is missing from request",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
@@ -232,7 +254,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_TIMEZONE
                         ),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "password")
+                        error(HttpStatus.BAD_REQUEST, MISSING_PASSWORD_RESPONSE)
                 ),
                 Arguments.of("Timezone is missing from request",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
@@ -241,7 +263,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                                 null
                         ),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "timezone")
+                        error(HttpStatus.BAD_REQUEST, MISSING_TIMEZONE_RESPONSE)
                 ),
                 Arguments.of("Invalid email provided",
                         new AuthRegisterRequest("invalid email",
@@ -250,7 +272,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_TIMEZONE
                         ),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "email")
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.MALFORMED_EMAIL_RESPONSE)
                 ),
                 Arguments.of("Email is taken",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
@@ -283,12 +305,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Username is missing from request",
                         new AuthRequest(null, TestEntityFactory.DEFAULT_PASSWORD),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "username")
+                        error(HttpStatus.BAD_REQUEST, MISSING_USERNAME_RESPONSE)
                 ),
                 Arguments.of("Password is missing from request",
                         new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, null),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "password")
+                        error(HttpStatus.BAD_REQUEST, MISSING_PASSWORD_RESPONSE)
                 ),
                 Arguments.of("Unknown credentials received",
                         new AuthRequest("unknown user", TestEntityFactory.DEFAULT_PASSWORD),
@@ -308,12 +330,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Old password is missing from request",
                         new AuthPasswordChangeRequest(null, NEW_PASSWORD),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "oldPassword")
+                        error(HttpStatus.BAD_REQUEST, MISSING_OLD_PASSWORD_RESPONSE)
                 ),
                 Arguments.of("Password is missing from request",
                         new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, null),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "password")
+                        error(HttpStatus.BAD_REQUEST, MISSING_PASSWORD_RESPONSE)
                 ),
                 Arguments.of("Both password are the same",
                         new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD,
@@ -339,12 +361,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Username is missing from request",
                         new AuthUsernameChangeRequest(null, TestEntityFactory.DEFAULT_PASSWORD),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "username")
+                        error(HttpStatus.BAD_REQUEST, MISSING_USERNAME_RESPONSE)
                 ),
                 Arguments.of("Password is missing from request",
                         new AuthUsernameChangeRequest(NEW_USERNAME, null),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, "password")
+                        error(HttpStatus.BAD_REQUEST, MISSING_PASSWORD_RESPONSE)
                 ),
                 Arguments.of("Changing to taken username",
                         new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME,
@@ -360,15 +382,20 @@ public class AuthControllerIT extends BaseIntegrationTest {
         );
     }
 
-    private void doAssertionChecksOnResponse(AuthResponse response) {
-        doAssertionChecksOnResponse(response, TestEntityFactory.DEFAULT_USERNAME);
-    }
-
-    private void doAssertionChecksOnResponse(AuthResponse response, String registeredUsername) {
+    private void verifySuccess(AuthResponse response, String registeredUsername) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.token()).isNotEmpty();
         String username = jwtService.extractUsername(response.token());
         Assertions.assertThat(username).isEqualTo(registeredUsername);
+    }
+
+    private void verifySuccess(RestTestClient.ResponseSpec spec, String registeredUsername) {
+        spec.expectBody(AuthResponse.class)
+                .value(actual -> verifySuccess(actual, registeredUsername));
+    }
+
+    private void verifySuccess(RestTestClient.ResponseSpec spec) {
+        verifySuccess(spec, TestEntityFactory.DEFAULT_USERNAME);
     }
 
     private AuthResponse registerTestUser() {

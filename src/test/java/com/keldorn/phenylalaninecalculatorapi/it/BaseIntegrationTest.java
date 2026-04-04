@@ -24,7 +24,9 @@ import org.testcontainers.mysql.MySQLContainer;
 public abstract class BaseIntegrationTest extends RestTestUtils {
 
     @Autowired
-    private RestTestClient restTestClient;
+    protected RestTestClient restTestClient;
+
+    private String cachedToken;
 
     static final MySQLContainer mysql = new MySQLContainer("mysql:9.6.0")
             .withDatabaseName("phenylalanine")
@@ -44,17 +46,21 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         registry.add("spring.liquibase.enabled", () -> "true");
     }
 
-    protected String getTestUserToken() {
-        AuthResponse response = restTestClient.post()
-                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
-                .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody();
-        Assertions.assertThat(response).isNotNull();
-        return response.token();
+    protected String getAuthToken() {
+        if (cachedToken == null) {
+            AuthResponse response = restTestClient.post()
+                    .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
+                    .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody(AuthResponse.class)
+                    .returnResult()
+                    .getResponseBody();
+
+            Assertions.assertThat(response).isNotNull();
+            cachedToken = response.token();
+        }
+        return cachedToken;
     }
 
     protected static ErrorResponse error(HttpStatus status, String details) {
@@ -66,18 +72,9 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         );
     }
 
-    private void doAssertionChecksOnResponse(ErrorResponse response, ErrorResponse expectedResponse) {
-        Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.getType()).isEqualTo(expectedResponse.getType());
-        Assertions.assertThat(response.getTitle()).isEqualTo(expectedResponse.getTitle());
-        Assertions.assertThat(response.getDetails()).contains(expectedResponse.getDetails());
-        Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedResponse.getStatusCode());
-    }
-
-    protected void doAssertionChecksOnResponse(RestTestClient.ResponseSpec responseSpec,
-            ErrorResponse expectedResponse) {
-        ErrorResponse response = responseSpec.expectBody(ErrorResponse.class).returnResult().getResponseBody();
-        doAssertionChecksOnResponse(response, expectedResponse);
+    protected void verifyError(RestTestClient.ResponseSpec spec, ErrorResponse expected) {
+        spec.expectBody(ErrorResponse.class)
+                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
     }
 
 }
