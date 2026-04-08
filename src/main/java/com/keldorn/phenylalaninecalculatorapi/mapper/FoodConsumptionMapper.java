@@ -3,26 +3,23 @@ package com.keldorn.phenylalaninecalculatorapi.mapper;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface FoodConsumptionMapper {
 
-    @Mapping(target = "consumedAt", expression = "java(mapToLocalDateTime(foodConsumption))")
-    FoodConsumptionResponse toResponse(FoodConsumption foodConsumption);
+    FoodConsumptionResponse toResponse(FoodConsumption foodConsumption, @Context ZoneId timezone);
 
-    default LocalDateTime mapToLocalDateTime(FoodConsumption foodConsumption) {
-        if (foodConsumption.getConsumedAt() == null) {
+    default LocalDateTime mapInstantToLocalDateTime(Instant consumedAt, @Context ZoneId timezone) {
+        if (consumedAt == null) {
             return null;
         }
-        ZoneId userZone = foodConsumption.getUser().resolveZoneId();
-        return foodConsumption.getConsumedAt()
-                .atZone(userZone)
-                .toLocalDateTime();
+        return consumedAt.atZone(timezone).toLocalDateTime();
     }
 
 }

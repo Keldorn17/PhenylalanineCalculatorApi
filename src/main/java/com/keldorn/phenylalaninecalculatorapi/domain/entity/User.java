@@ -3,10 +3,8 @@ package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
 
 import java.math.BigDecimal;
-import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,8 +33,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "users")
 public class User implements UserDetails {
 
-    private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
-
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,9 +47,6 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "timezone", nullable = false)
-    private String timezone = "UTC";
-
     @Enumerated(value = EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
@@ -61,48 +54,10 @@ public class User implements UserDetails {
     @Column(name = "daily_limit")
     private BigDecimal dailyLimit;
 
-    public void setTimezone(String timezone) {
-        if (isNotValidTimezone(timezone)) {
-            this.timezone = "UTC";
-        } else {
-            this.timezone = timezone;
-        }
-    }
-
-    public ZoneId resolveZoneId() {
-        if (isNotValidTimezone(this.timezone)) {
-            return ZoneId.of("UTC");
-        }
-        return ZoneId.of(this.timezone);
-    }
-
-    private boolean isNotValidTimezone(String timezoneId) {
-        return timezoneId == null || timezoneId.isEmpty() || !AVAILABLE_ZONE_IDS.contains(timezoneId);
-    }
-
-    public User(String username, String email, String password, Role role) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
     @NonNull
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
-    @Override
-    public boolean isAccountNonExpired() {return true;}
-
-    @Override
-    public boolean isAccountNonLocked() {return true;}
-
-    @Override
-    public boolean isCredentialsNonExpired() {return true;}
-
-    @Override
-    public boolean isEnabled() {return true;}
 
 }

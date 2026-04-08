@@ -66,9 +66,6 @@ public class UserService {
         if (request.dailyLimit() != null) {
             user.setDailyLimit(request.dailyLimit());
         }
-        if (request.timezone() != null) {
-            user.setTimezone(request.timezone());
-        }
         return userMapper.toResponse(userRepository.save(user));
     }
 

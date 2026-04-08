@@ -66,8 +66,7 @@ public class UserControllerTests {
         UserResponse expectedResponse = TestEntityFactory.userResponse();
         UserRequest request = new UserRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE
         );
         when(userService.update(request)).thenReturn(expectedResponse);
         UserResponse response = restTestClient.patch()
@@ -86,8 +85,7 @@ public class UserControllerTests {
     void updateUser_shouldReturn400_whenEmailValidationFails() {
         UserRequest request = new UserRequest(
                 "Invalid Email",
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE
         );
         restTestClient.patch()
                 .uri(ApiRoutes.USER_PATH)
@@ -100,8 +98,7 @@ public class UserControllerTests {
     void updateUser_shouldReturn401_whenUserUnauthorized() {
         UserRequest request = new UserRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE
         );
         when(userService.update(request)).thenThrow(InvalidJwtTokenReceivedException.class);
         restTestClient.patch()
@@ -115,8 +112,7 @@ public class UserControllerTests {
     void updateUser_shouldReturn401_whenZombieUser() {
         UserRequest request = new UserRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE
         );
         when(userService.update(request)).thenThrow(DeletedUserTokenReceivedException.class);
         restTestClient.patch()
@@ -157,7 +153,6 @@ public class UserControllerTests {
         Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
         Assertions.assertThat(response.email()).isEqualTo(expectedResponse.email());
         Assertions.assertThat(response.username()).isEqualTo(expectedResponse.username());
-        Assertions.assertThat(response.timezone()).isEqualTo(expectedResponse.timezone());
         Assertions.assertThat(response.dailyLimit()).isEqualByComparingTo(expectedResponse.dailyLimit());
     }
 

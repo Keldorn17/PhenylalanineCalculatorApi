@@ -48,8 +48,6 @@ public class AuthControllerIT extends BaseIntegrationTest {
 
     private static final String MISSING_EMAIL_RESPONSE =
             ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("email");
-    private static final String MISSING_TIMEZONE_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("timezone");
     private static final String MISSING_USERNAME_RESPONSE =
             ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("username");
     private static final String MISSING_PASSWORD_RESPONSE =
@@ -218,8 +216,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Email is missing from request",
                         new AuthRegisterRequest(null,
                                 TestEntityFactory.DEFAULT_USERNAME,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                TestEntityFactory.DEFAULT_PASSWORD
                         ),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, MISSING_EMAIL_RESPONSE)
@@ -227,8 +224,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Username is missing from request",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
                                 null,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                TestEntityFactory.DEFAULT_PASSWORD
                         ),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, MISSING_USERNAME_RESPONSE)
@@ -236,26 +232,15 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Password is missing from request",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
                                 TestEntityFactory.DEFAULT_USERNAME,
-                                null,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                null
                         ),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, MISSING_PASSWORD_RESPONSE)
                 ),
-                Arguments.of("Timezone is missing from request",
-                        new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
-                                TestEntityFactory.DEFAULT_USERNAME,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                null
-                        ),
-                        HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, MISSING_TIMEZONE_RESPONSE)
-                ),
                 Arguments.of("Invalid email provided",
                         new AuthRegisterRequest("invalid email",
                                 TestEntityFactory.DEFAULT_USERNAME,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                TestEntityFactory.DEFAULT_PASSWORD
                         ),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, ApiResponses.MALFORMED_EMAIL_RESPONSE)
@@ -263,8 +248,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Email is taken",
                         new AuthRegisterRequest(TestEntityFactory.DEFAULT_EMAIL,
                                 NOT_TAKEN_USERNAME,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                TestEntityFactory.DEFAULT_PASSWORD
                         ),
                         HttpStatus.CONFLICT,
                         error(HttpStatus.CONFLICT, ApiResponses.EMAIL_IS_TAKEN_RESPONSE)
@@ -272,8 +256,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Username is taken",
                         new AuthRegisterRequest(NOT_TAKEN_EMAIL,
                                 TestEntityFactory.DEFAULT_USERNAME,
-                                TestEntityFactory.DEFAULT_PASSWORD,
-                                TestEntityFactory.DEFAULT_TIMEZONE
+                                TestEntityFactory.DEFAULT_PASSWORD
                         ),
                         HttpStatus.CONFLICT,
                         error(HttpStatus.CONFLICT, ApiResponses.USERNAME_IS_TAKEN_RESPONSE)
@@ -390,8 +373,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(new AuthRegisterRequest(
                         TEST_REGISTER_EMAIL,
                         TEST_REGISTER_USERNAME,
-                        TestEntityFactory.DEFAULT_PASSWORD,
-                        TestEntityFactory.DEFAULT_TIMEZONE
+                        TestEntityFactory.DEFAULT_PASSWORD
                 ))
                 .exchange()
                 .expectStatus().isOk()

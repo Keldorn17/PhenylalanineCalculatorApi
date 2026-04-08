@@ -67,3 +67,9 @@ CREATE TABLE food_consumption
     FOREIGN KEY (food_id) REFERENCES food (food_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
+
+-- changeset Patai Zoltan:drop-timezone-from-users
+-- Removes the timezone column from the users table
+-- rollback ALTER TABLE users ADD timezone VARCHAR(255) NOT NULL;
+ALTER TABLE users
+    DROP COLUMN timezone;
