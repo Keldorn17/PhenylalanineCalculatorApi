@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -24,6 +25,7 @@ public class DailyIntakeService {
     private final DailyIntakeMapper dailyIntakeMapper;
     private final DailyIntakeRepository dailyIntakeRepository;
 
+    @Transactional(readOnly = true)
     public DailyIntakeResponse findByDate(LocalDate date) {
         log.debug("Sending response for findByDate");
         return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
@@ -47,7 +49,8 @@ public class DailyIntakeService {
      * @param amount The amount to add to (positive) or subtract from (negative) the total.
      * @throws DailyIntakeCannotBeLowerThanZeroException if the update would result in a negative total.
      */
-    protected final void addAmount(LocalDate date, BigDecimal amount) {
+    @Transactional
+    protected void addAmount(LocalDate date, BigDecimal amount) {
         log.debug("Adding amount for daily intake");
         DailyIntake dailyIntake = dailyIntakeRepository
                 .findByUserIdAndDate(userService.getCurrentUserId(), date)

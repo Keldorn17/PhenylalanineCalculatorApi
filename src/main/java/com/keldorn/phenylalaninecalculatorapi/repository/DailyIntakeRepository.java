@@ -16,5 +16,5 @@ public interface DailyIntakeRepository extends JpaRepository<DailyIntake, Long> 
 
     @Modifying
     @Query("DELETE FROM DailyIntake di WHERE di.user.userId = ?1")
-    void deleteDailyIntakeByUserId(Long userId);
+    int deleteDailyIntakeByUserId(Long userId);
 }

@@ -9,14 +9,13 @@ import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtT
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -49,12 +48,14 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getProfile() {
         User user = getCurrentUser();
         log.debug("Getting Profile information for: {}", user.getUserId());
         return userMapper.toResponse(user);
     }
 
+    @Transactional
     public UserResponse update(UserRequest request) {
         var user = getCurrentUser();
         log.debug("Updating user information for: {}", user.getUserId());

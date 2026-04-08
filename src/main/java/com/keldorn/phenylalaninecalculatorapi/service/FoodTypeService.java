@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -29,11 +30,13 @@ public class FoodTypeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Food Type Not Found."));
     }
 
+    @Transactional(readOnly = true)
     public FoodTypeResponse findById(Long id) {
         log.debug("Finding Food Type Response By Id: {}", id);
         return foodTypeMapper.toResponse(findByIdOrThrow(id));
     }
 
+    @Transactional(readOnly = true)
     public Page<FoodTypeResponse> findAll(int page, int size) {
         log.debug("Finding All Food Types");
         Pageable pageable = PageRequest.of(page, size);
@@ -41,12 +44,14 @@ public class FoodTypeService {
                 .map(foodTypeMapper::toResponse);
     }
 
+    @Transactional
     public FoodTypeResponse save(FoodTypeRequest request) {
         log.debug("Saving Food Type");
         var foodType = foodTypeRepository.save(foodTypeMapper.toEntity(request));
         return foodTypeMapper.toResponse(foodType);
     }
 
+    @Transactional
     public FoodTypeResponse update(Long id, FoodTypeRequest request) {
         log.debug("Updating Food Type");
         var foodType = findByIdOrThrow(id);
@@ -55,6 +60,7 @@ public class FoodTypeService {
         return foodTypeMapper.toResponse(foodTypeRepository.save(foodType));
     }
 
+    @Transactional
     public void deleteById(Long id) {
         log.debug("Deleting Food Type By Id: {}", id);
         foodTypeRepository.delete(findByIdOrThrow(id));

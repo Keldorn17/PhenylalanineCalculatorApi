@@ -4,12 +4,11 @@ import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 
-import jakarta.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,8 +21,13 @@ public class DeleteUserAssociationsService {
 
     @Transactional
     public void removeAssociation(Long userId) {
-        foodRepository.updateFoodUser(userId, null);
-        dailyIntakeRepository.deleteDailyIntakeByUserId(userId);
-        foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);
+        int foodCount = foodRepository.updateFoodUser(userId, null);
+        log.debug("Removed food associations {}, for user: {}", foodCount, userId);
+        int dailyIntakeCount = dailyIntakeRepository.deleteDailyIntakeByUserId(userId);
+        log.debug("Deleted daily intake {}, for user {}", dailyIntakeCount, userId);
+        int foodConsumptionCount = foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);
+        log.debug("Deleted food consumption {}, for user {}", foodConsumptionCount, userId);
+
     }
+
 }

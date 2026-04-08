@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -31,6 +32,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional(readOnly = true)
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
         manageAuth(request.username(), request.password());
@@ -39,6 +41,7 @@ public class AuthService {
         return getResponse(user);
     }
 
+    @Transactional
     public AuthResponse register(AuthRegisterRequest request) {
         log.debug("Registering New User.");
         isUsernameTakenAndThrow(request.username());
@@ -55,6 +58,7 @@ public class AuthService {
         return getResponse(user);
     }
 
+    @Transactional
     public AuthResponse changePassword(AuthPasswordChangeRequest request) {
         log.debug("Changing users password");
         if (request.oldPassword().equals(request.password())) {
@@ -70,6 +74,7 @@ public class AuthService {
         return getResponse(user);
     }
 
+    @Transactional
     public AuthResponse changeUsername(AuthUsernameChangeRequest request) {
         log.debug("Change users username");
         isUsernameTakenAndThrow(request.username());

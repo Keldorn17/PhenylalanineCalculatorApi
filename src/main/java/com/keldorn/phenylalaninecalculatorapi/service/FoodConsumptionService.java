@@ -14,8 +14,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-import jakarta.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,10 +21,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class FoodConsumptionService {
 
@@ -42,6 +40,7 @@ public class FoodConsumptionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Food consumption not found by id: " + id));
     }
 
+    @Transactional(readOnly = true)
     public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size) {
         log.debug("Finding all food consumptions by date");
         ZoneId zoneId = userService.getCurrentUser().resolveZoneId();
@@ -53,6 +52,7 @@ public class FoodConsumptionService {
                 .map(foodConsumptionMapper::toResponse);
     }
 
+    @Transactional
     public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request) {
         log.debug("Creating food consumption");
         Food food = foodService.findByIdOrThrow(foodId);
@@ -70,6 +70,7 @@ public class FoodConsumptionService {
         return foodConsumptionMapper.toResponse(foodConsumptionRepository.save(foodConsumption));
     }
 
+    @Transactional
     public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request) {
         log.debug("Updating food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
@@ -83,6 +84,7 @@ public class FoodConsumptionService {
         return foodConsumptionMapper.toResponse(foodConsumptionRepository.save(foodConsumption));
     }
 
+    @Transactional
     public void deleteById(Long id) {
         log.debug("Deleting food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());

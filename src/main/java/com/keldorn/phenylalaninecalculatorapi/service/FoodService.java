@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -56,11 +57,13 @@ public class FoodService {
         }
     }
 
+    @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
         return foodMapper.toResponse(findByIdOrThrow(id));
     }
 
+    @Transactional
     public Page<FoodResponse> findAll(int page, int size) {
         log.debug("Finding All Foods");
         Pageable pageable = PageRequest.of(page, size);
@@ -68,6 +71,7 @@ public class FoodService {
                 .map(foodMapper::toResponse);
     }
 
+    @Transactional
     public FoodResponse save(FoodRequest request) {
         log.debug("Saving Food");
         Food food = foodMapper.toEntity(request);
@@ -77,6 +81,7 @@ public class FoodService {
         return foodMapper.toResponse(foodRepository.save(food));
     }
 
+    @Transactional
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = findByIdOrThrow(id);
@@ -97,6 +102,7 @@ public class FoodService {
         return foodMapper.toResponse(foodRepository.save(food));
     }
 
+    @Transactional
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
         foodRepository.delete(findByIdOrThrow(id));

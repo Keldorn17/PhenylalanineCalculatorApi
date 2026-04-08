@@ -21,5 +21,5 @@ public interface FoodConsumptionRepository extends JpaRepository<FoodConsumption
 
     @Modifying
     @Query("DELETE FROM FoodConsumption fc WHERE fc.user.userId = ?1")
-    void deleteFoodConsumptionByUserId(Long userId);
+    int deleteFoodConsumptionByUserId(Long userId);
 }
