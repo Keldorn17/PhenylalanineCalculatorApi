@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface DailyIntakeRepository extends JpaRepository<DailyIntake, Long> {
@@ -13,4 +14,7 @@ public interface DailyIntakeRepository extends JpaRepository<DailyIntake, Long> 
     @Query("FROM DailyIntake d WHERE d.user.userId = ?1 AND d.date = ?2")
     Optional<DailyIntake> findByUserIdAndDate(Long userid, LocalDate date);
 
+    @Modifying
+    @Query("DELETE FROM DailyIntake di WHERE di.user.userId = ?1")
+    void deleteDailyIntakeByUserId(Long userId);
 }

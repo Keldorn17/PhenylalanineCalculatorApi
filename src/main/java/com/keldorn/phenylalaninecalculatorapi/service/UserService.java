@@ -9,6 +9,8 @@ import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtT
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,8 +25,9 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final DeleteUserAssociationsService deleteUserAssociationsService;
 
-    protected final User getCurrentUser() {
+    protected User getCurrentUser() {
         log.debug("Getting current user from SecurityContextHolder");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -35,12 +38,12 @@ public class UserService {
                 .orElseThrow(() -> new DeletedUserTokenReceivedException("Unauthorized"));
     }
 
-    protected final Long getCurrentUserId() {
+    protected Long getCurrentUserId() {
         log.debug("Getting current user's id");
         return getCurrentUser().getUserId();
     }
 
-    protected final void isEmailTakenAndThrow(String email) {
+    protected void isEmailTakenAndThrow(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new EmailIsTakenException("Email is taken");
         }
@@ -68,9 +71,12 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(user));
     }
 
+    @Transactional
     public void delete() {
         User user = getCurrentUser();
-        log.debug("Deleting user for: {}", user.getUserId());
+        Long userId = user.getUserId();
+        log.debug("Deleting user for: {}", userId);
+        deleteUserAssociationsService.removeAssociation(userId);
         userRepository.delete(user);
     }
 

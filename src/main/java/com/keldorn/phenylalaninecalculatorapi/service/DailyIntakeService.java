@@ -24,6 +24,11 @@ public class DailyIntakeService {
     private final DailyIntakeMapper dailyIntakeMapper;
     private final DailyIntakeRepository dailyIntakeRepository;
 
+    public DailyIntakeResponse findByDate(LocalDate date) {
+        log.debug("Sending response for findByDate");
+        return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
+    }
+
     private DailyIntake findByDateOrThrow(LocalDate date) {
         log.debug("Getting daily intake by date");
         return dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
@@ -57,11 +62,6 @@ public class DailyIntakeService {
         }
         dailyIntake.setTotalPhenylalanine(updated);
         dailyIntakeRepository.save(dailyIntake);
-    }
-
-    public DailyIntakeResponse findByDate(LocalDate date) {
-        log.debug("Sending response for findByDate");
-        return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
     }
 
 }

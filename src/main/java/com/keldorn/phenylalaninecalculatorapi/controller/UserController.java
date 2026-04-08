@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -49,7 +50,6 @@ public class UserController {
             }
     )
     @GetMapping
-    @NotFoundApiResponse
     @UnauthorizedApiResponse
     public ResponseEntity<UserResponse> me() {
         log.info("Get Request: {}", ApiRoutes.USER_PATH);
@@ -68,7 +68,7 @@ public class UserController {
             }
     )
     @PatchMapping
-    @NotFoundApiResponse
+    @ConflictApiResponse
     @BadRequestApiResponse
     @UnauthorizedApiResponse
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {

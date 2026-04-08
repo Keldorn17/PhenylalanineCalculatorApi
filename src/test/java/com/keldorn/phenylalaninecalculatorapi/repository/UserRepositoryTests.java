@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.repository;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.MySQLRepositoryTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.RepositoryCleanUp;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
+@RepositoryCleanUp
 @MySQLRepositoryTest
 public class UserRepositoryTests {
 

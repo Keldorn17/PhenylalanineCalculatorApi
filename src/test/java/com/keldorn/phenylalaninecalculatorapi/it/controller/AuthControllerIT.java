@@ -12,10 +12,8 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.it.BaseIntegrationTest;
 import com.keldorn.phenylalaninecalculatorapi.it.annotation.DirtyTest;
-import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
-import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
-import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
+import com.keldorn.phenylalaninecalculatorapi.service.DeleteUserAssociationsService;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 
 import java.util.stream.Stream;
@@ -35,13 +33,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private FoodRepository foodRepository;
-
-    @Autowired
-    private FoodConsumptionRepository foodConsumptionRepository;
-
-    @Autowired
-    private DailyIntakeRepository dailyIntakeRepository;
+    private DeleteUserAssociationsService deleteUserAssociationsService;
 
     @Autowired
     private JwtService jwtService;
@@ -54,16 +46,16 @@ public class AuthControllerIT extends BaseIntegrationTest {
     private static final String NEW_PASSWORD = "new password";
     private static final String NEW_USERNAME = "new username";
 
+    private static final String MISSING_EMAIL_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("email");
+    private static final String MISSING_TIMEZONE_RESPONSE =
+            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("timezone");
     private static final String MISSING_USERNAME_RESPONSE =
             ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("username");
     private static final String MISSING_PASSWORD_RESPONSE =
             ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("password");
     private static final String MISSING_OLD_PASSWORD_RESPONSE =
             ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("oldPassword");
-    private static final String MISSING_EMAIL_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("email");
-    private static final String MISSING_TIMEZONE_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("timezone");
 
     @Test
     void testRegistration_shouldReturn200_whenSuccessfulRegistration() {
@@ -409,10 +401,9 @@ public class AuthControllerIT extends BaseIntegrationTest {
     }
 
     private void wipeDatabase() {
-        dailyIntakeRepository.deleteAll();
-        foodConsumptionRepository.deleteAll();
-        foodRepository.deleteAll();
-        userRepository.deleteAll();
+        Long userId = TestEntityFactory.DEFAULT_ID;
+        deleteUserAssociationsService.removeAssociation(userId);
+        userRepository.deleteById(userId);
     }
 
 }

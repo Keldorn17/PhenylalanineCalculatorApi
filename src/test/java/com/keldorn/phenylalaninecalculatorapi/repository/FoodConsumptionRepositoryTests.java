@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.repository;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.MySQLRepositoryTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.RepositoryCleanUp;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+@RepositoryCleanUp
 @MySQLRepositoryTest
 public class FoodConsumptionRepositoryTests {
 

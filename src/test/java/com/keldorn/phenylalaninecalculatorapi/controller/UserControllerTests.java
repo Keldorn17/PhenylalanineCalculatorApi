@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
@@ -53,12 +53,12 @@ public class UserControllerTests {
     }
 
     @Test
-    void me_shouldReturn404_whenResourceNotFound() {
-        when(userService.getProfile()).thenThrow(ResourceNotFoundException.class);
+    void me_shouldReturn401_whenZombieUser() {
+        when(userService.getProfile()).thenThrow(DeletedUserTokenReceivedException.class);
         restTestClient.get()
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -112,18 +112,18 @@ public class UserControllerTests {
     }
 
     @Test
-    void updateUser_shouldReturn404_whenResourceNotFound() {
+    void updateUser_shouldReturn401_whenZombieUser() {
         UserRequest request = new UserRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_TIMEZONE
         );
-        when(userService.update(request)).thenThrow(ResourceNotFoundException.class);
+        when(userService.update(request)).thenThrow(DeletedUserTokenReceivedException.class);
         restTestClient.patch()
                 .uri(ApiRoutes.USER_PATH)
                 .body(request)
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -144,12 +144,12 @@ public class UserControllerTests {
     }
 
     @Test
-    void deleteUser_shouldReturn404_whenResourceNotFound() {
-        doThrow(ResourceNotFoundException.class).when(userService).delete();
+    void deleteUser_shouldReturn401_whenZombieUser() {
+        doThrow(DeletedUserTokenReceivedException.class).when(userService).delete();
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized();
     }
 
     private void doAssertionsCheckOnResponse(UserResponse response, UserResponse expectedResponse) {

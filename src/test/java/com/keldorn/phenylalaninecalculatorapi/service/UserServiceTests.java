@@ -41,6 +41,9 @@ public class UserServiceTests {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private DeleteUserAssociationsService deleteUserAssociationsService;
+
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
@@ -155,6 +158,7 @@ public class UserServiceTests {
         User user = TestEntityFactory.user();
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         userService.delete();
+        verify(deleteUserAssociationsService).removeAssociation(user.getUserId());
         verify(userRepository).delete(user);
     }
 
