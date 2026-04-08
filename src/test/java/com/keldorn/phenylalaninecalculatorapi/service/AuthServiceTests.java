@@ -90,7 +90,7 @@ public class AuthServiceTests {
     @Test
     public void register_shouldReturnAuthResponse_whenRegistrationSucceeds() {
         AuthRegisterRequest request =
-                new AuthRegisterRequest("test@gmail.com", "Test", "password", "UTC");
+                new AuthRegisterRequest("test@gmail.com", "Test", "password");
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
         when(jwtService.generateToken(request.username())).thenReturn(RETURN_TOKEN);
@@ -99,7 +99,6 @@ public class AuthServiceTests {
         verify(userRepository).save(captor.capture());
         User savedUser = captor.getValue();
         Assertions.assertThat(savedUser.getUsername()).isEqualTo(request.username());
-        Assertions.assertThat(savedUser.getTimezone()).isEqualTo(request.timezone());
         Assertions.assertThat(savedUser.getPassword()).isEqualTo(ENCODED_PASSWORD);
         Assertions.assertThat(savedUser.getRole()).isEqualTo(Role.ROLE_USER);
         Assertions.assertThat(response.token()).isEqualTo(RETURN_TOKEN);
@@ -108,7 +107,7 @@ public class AuthServiceTests {
     @Test
     public void register_shouldThrow_whenUsernameIsTaken() {
         AuthRegisterRequest request =
-                new AuthRegisterRequest(null, "Test", null, null);
+                new AuthRegisterRequest(null, "Test", null);
         when(userRepository.existsByUsername(request.username())).thenReturn(true);
         Assertions.assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(UsernameIsTakenException.class);
@@ -120,7 +119,7 @@ public class AuthServiceTests {
     @Test
     public void register_shouldThrow_whenEmailIsTaken() {
         AuthRegisterRequest request =
-                new AuthRegisterRequest("test@gmail.com", "Test", null, null);
+                new AuthRegisterRequest("test@gmail.com", "Test", null);
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         doThrow(EmailIsTakenException.class)
                 .when(userService)
@@ -135,7 +134,7 @@ public class AuthServiceTests {
     @Test
     public void register_shouldThrow_whenBadCredentials() {
         AuthRegisterRequest request =
-                new AuthRegisterRequest("test@gmail.com", "Test", "password", "UTC");
+                new AuthRegisterRequest("test@gmail.com", "Test", "password");
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
         doThrow(BadCredentialsException.class)

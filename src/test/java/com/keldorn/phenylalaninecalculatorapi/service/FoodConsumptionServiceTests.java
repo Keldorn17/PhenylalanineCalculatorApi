@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +62,7 @@ public class FoodConsumptionServiceTests {
 
     private final Long FOOD_CONSUMPTION_ID = 1L;
 
+
     @Test
     public void save_shouldReturnFoodConsumptionResponse() {
         Long foodId = 1L;
@@ -79,7 +81,7 @@ public class FoodConsumptionServiceTests {
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedCalculatedPhe));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
-        verify(foodConsumptionMapper).toResponse(any(FoodConsumption.class));
+        verify(foodConsumptionMapper).toResponse(any(FoodConsumption.class), any(ZoneId.class));
         FoodConsumption savedEntity = captor.getValue();
         Assertions.assertThat(savedEntity.getPhenylalanineAmount()).isEqualByComparingTo(expectedCalculatedPhe);
         Assertions.assertThat(savedEntity.getAmount()).isEqualByComparingTo(consumedAmount);
@@ -102,8 +104,6 @@ public class FoodConsumptionServiceTests {
     public void save_shouldThrowExceptionAndSaveNothing_whenDailyIntakeFailsDueToNegativeConsumption() {
         Long foodId = 1L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.valueOf(-100));
-        User user = TestEntityFactory.user();
-        when(userService.getCurrentUser()).thenReturn(user);
         when(foodService.findByIdOrThrow(foodId)).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
@@ -122,14 +122,13 @@ public class FoodConsumptionServiceTests {
         );
         List<FoodConsumption> consumptionList = List.of(foodConsumption);
         Page<FoodConsumption> pageWithData = new PageImpl<>(consumptionList);
-        when(userService.getCurrentUser()).thenReturn(TestEntityFactory.user());
         when(userService.getCurrentUserId()).thenReturn(userId);
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(Long.class), any(Instant.class),
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(pageWithData);
         Page<FoodConsumptionResponse> response =
-                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20);
-        verify(foodConsumptionMapper).toResponse(consumptionList.getFirst());
+                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20, null);
+        verify(foodConsumptionMapper).toResponse(eq(consumptionList.getFirst()), any(ZoneId.class));
         Assertions.assertThat(response).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodConsumption);
     }
@@ -137,13 +136,12 @@ public class FoodConsumptionServiceTests {
     @Test
     public void findAllByDate_shouldReturnsEmptyList() {
         Long userId = 1L;
-        when(userService.getCurrentUser()).thenReturn(TestEntityFactory.user());
         when(userService.getCurrentUserId()).thenReturn(userId);
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(Long.class), any(Instant.class),
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(Page.empty());
         Page<FoodConsumptionResponse> response =
-                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20);
+                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20, null);
         Assertions.assertThat(response).hasSize(0);
     }
 
@@ -165,7 +163,6 @@ public class FoodConsumptionServiceTests {
         existingEntity.setAmount(oldAmount);
         existingEntity.setPhenylalanineAmount(oldPheAmount);
         existingEntity.getFood().setPhenylalanine(foodPheContent);
-        when(userService.getCurrentUser()).thenReturn(user);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
@@ -175,7 +172,7 @@ public class FoodConsumptionServiceTests {
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedDelta));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
-        verify(foodConsumptionMapper).toResponse(any());
+        verify(foodConsumptionMapper).toResponse(any(FoodConsumption.class), any(ZoneId.class));
         FoodConsumption savedEntity = captor.getValue();
         Assertions.assertThat(savedEntity.getPhenylalanineAmount()).isEqualByComparingTo(newPheAmount);
         Assertions.assertThat(savedEntity.getAmount()).isEqualByComparingTo(newAmount);
@@ -206,7 +203,6 @@ public class FoodConsumptionServiceTests {
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
-        when(userService.getCurrentUser()).thenReturn(user);
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
         Assertions.assertThatThrownBy(() -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request))
@@ -225,7 +221,6 @@ public class FoodConsumptionServiceTests {
                 TestEntityFactory.CONSUMED_AT
         );
         existingEntity.setPhenylalanineAmount(currentPheAmount);
-        when(userService.getCurrentUser()).thenReturn(user);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
@@ -242,7 +237,6 @@ public class FoodConsumptionServiceTests {
                 TestEntityFactory.food(TestEntityFactory.foodType()),
                 TestEntityFactory.CONSUMED_AT
         );
-        when(userService.getCurrentUser()).thenReturn(user);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));

@@ -47,7 +47,7 @@ public class FoodConsumptionControllerTests {
         int size = 20;
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         Page<FoodConsumptionResponse> pageResponse = new PageImpl<>(List.of(expectedResponse));
-        when(foodConsumptionService.findAllByDate(testDate, page, size)).thenReturn(pageResponse);
+        when(foodConsumptionService.findAllByDate(testDate, page, size, null)).thenReturn(pageResponse);
         TestPage<FoodConsumptionResponse> response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)

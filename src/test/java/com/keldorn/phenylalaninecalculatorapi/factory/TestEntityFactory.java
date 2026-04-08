@@ -25,7 +25,6 @@ public class TestEntityFactory {
     public static final String DEFAULT_USERNAME = "testUser";
     public static final String DEFAULT_EMAIL = "test@testmail.com";
     public static final String DEFAULT_PASSWORD = "testPassword";
-    public static final String DEFAULT_TIMEZONE = "UTC";
     public static final String DEFAULT_FOOD_TYPE_NAME = "testFoodType";
     public static final String DEFAULT_FOOD_NAME = "testFood";
     public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN.setScale(4, RoundingMode.HALF_UP);
@@ -43,7 +42,6 @@ public class TestEntityFactory {
 
     public static User user() {
         return User.builder()
-                .timezone(DEFAULT_TIMEZONE)
                 .dailyLimit(DEFAULT_BIG_DECIMAL_VALUE)
                 .email(DEFAULT_EMAIL)
                 .role(Role.ROLE_USER)
@@ -105,8 +103,7 @@ public class TestEntityFactory {
     }
 
     public static UserResponse userResponse() {
-        return new UserResponse(DEFAULT_ID, DEFAULT_USERNAME, DEFAULT_EMAIL, DEFAULT_BIG_DECIMAL_VALUE,
-                DEFAULT_TIMEZONE);
+        return new UserResponse(DEFAULT_ID, DEFAULT_USERNAME, DEFAULT_EMAIL, DEFAULT_BIG_DECIMAL_VALUE);
     }
 
     public static FoodTypeResponse foodTypeResponse() {

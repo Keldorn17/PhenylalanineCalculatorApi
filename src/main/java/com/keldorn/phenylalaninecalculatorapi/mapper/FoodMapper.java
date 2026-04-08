@@ -10,6 +10,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "phenylalanine", ignore = true)
+    @Mapping(target = "foodType", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Food toEntity(FoodRequest request);
 
     @Mapping(source = "foodType.name", target = "foodTypeName")

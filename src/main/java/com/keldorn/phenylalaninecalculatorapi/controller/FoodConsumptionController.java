@@ -64,10 +64,11 @@ public class FoodConsumptionController {
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
             @RequestParam LocalDate date,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(required = false) String timezone
     ) {
         log.info("Get request for getting all food consumption by date: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        var result = foodConsumptionService.findAllByDate(date, page, size);
+        var result = foodConsumptionService.findAllByDate(date, page, size, timezone);
         return ResponseEntity.ok(new PagedModel<>(result));
     }
 

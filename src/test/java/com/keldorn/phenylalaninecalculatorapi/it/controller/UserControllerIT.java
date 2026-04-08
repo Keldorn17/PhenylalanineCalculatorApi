@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 public class UserControllerIT extends BaseIntegrationTest {
 
     private static final String UPDATED_EMAIL = "updated@mail.com";
-    private static final String UPDATED_TIMEZONE = "Europe/Budapest";
     private static final BigDecimal UPDATED_DAILY_LIMIT = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
     private static final String INVALID_EMAIL = "invalid email";
 
@@ -93,17 +92,17 @@ public class UserControllerIT extends BaseIntegrationTest {
     private static Stream<Arguments> updateUserTestCases() {
         return Stream.of(
                 Arguments.of("Successful all args update",
-                        new UserRequest(UPDATED_EMAIL, UPDATED_DAILY_LIMIT, UPDATED_TIMEZONE),
+                        new UserRequest(UPDATED_EMAIL, UPDATED_DAILY_LIMIT),
                         HttpStatus.OK,
-                        userResponse(UPDATED_EMAIL, UPDATED_DAILY_LIMIT, UPDATED_TIMEZONE)
+                        userResponse(UPDATED_EMAIL, UPDATED_DAILY_LIMIT)
                 ),
                 Arguments.of("Email is taken",
-                        new UserRequest(TestEntityFactory.DEFAULT_EMAIL, null, null),
+                        new UserRequest(TestEntityFactory.DEFAULT_EMAIL, null),
                         HttpStatus.CONFLICT,
                         error(HttpStatus.CONFLICT, ApiResponses.EMAIL_IS_TAKEN_RESPONSE)
                 ),
                 Arguments.of("Invalid email passed",
-                        new UserRequest(INVALID_EMAIL, null, null),
+                        new UserRequest(INVALID_EMAIL, null),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, ApiResponses.MALFORMED_EMAIL_RESPONSE)
                 )
@@ -115,18 +114,16 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()).isEqualTo(expected);
     }
 
-    private static UserResponse userResponse(String email, BigDecimal dailyLimit, String timezone) {
+    private static UserResponse userResponse(String email, BigDecimal dailyLimit) {
         return new UserResponse(TestEntityFactory.DEFAULT_ID,
                 TestEntityFactory.DEFAULT_USERNAME,
                 email,
-                dailyLimit,
-                timezone);
+                dailyLimit);
     }
 
     private static UserResponse userResponse() {
         return userResponse(TestEntityFactory.DEFAULT_EMAIL,
-                BigDecimal.valueOf(400L).setScale(2, RoundingMode.HALF_UP),
-                TestEntityFactory.DEFAULT_TIMEZONE);
+                BigDecimal.valueOf(400L).setScale(2, RoundingMode.HALF_UP));
     }
 
 }

@@ -80,8 +80,7 @@ public class AuthControllerTests extends RestTestUtils {
         AuthRegisterRequest request = new AuthRegisterRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_USERNAME,
-                TestEntityFactory.DEFAULT_PASSWORD,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_PASSWORD
         );
         when(authService.register(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.post()
@@ -98,7 +97,7 @@ public class AuthControllerTests extends RestTestUtils {
 
     @Test
     void register_shouldReturn400_whenRequiredDataIsMissing() {
-        AuthRegisterRequest request = new AuthRegisterRequest(null, null, null, null);
+        AuthRegisterRequest request = new AuthRegisterRequest(null, null, null);
         restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
                 .body(request)
@@ -111,8 +110,7 @@ public class AuthControllerTests extends RestTestUtils {
         AuthRegisterRequest request = new AuthRegisterRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_USERNAME,
-                TestEntityFactory.DEFAULT_PASSWORD,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_PASSWORD
         );
         when(authService.register(request)).thenThrow(EmailIsTakenException.class);
         restTestClient.post()
@@ -127,8 +125,7 @@ public class AuthControllerTests extends RestTestUtils {
         AuthRegisterRequest request = new AuthRegisterRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_USERNAME,
-                TestEntityFactory.DEFAULT_PASSWORD,
-                TestEntityFactory.DEFAULT_TIMEZONE
+                TestEntityFactory.DEFAULT_PASSWORD
         );
         when(authService.register(request)).thenThrow(UsernameIsTakenException.class);
         restTestClient.post()

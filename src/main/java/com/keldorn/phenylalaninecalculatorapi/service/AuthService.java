@@ -51,7 +51,6 @@ public class AuthService {
                 .email(request.email())
                 .password(encodePassword(request.password()))
                 .role(Role.ROLE_USER)
-                .timezone(request.timezone())
                 .build();
         userRepository.save(user);
         manageAuth(request.username(), request.password());
