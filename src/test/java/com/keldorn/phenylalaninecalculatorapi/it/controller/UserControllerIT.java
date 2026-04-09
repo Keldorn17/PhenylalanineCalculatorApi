@@ -70,6 +70,19 @@ public class UserControllerIT extends BaseIntegrationTest {
 
     @Test
     @DirtyTest
+    void testUpdateUser_shouldReturn401FromSecurityLayer_whenTokenIsMissing() {
+        UserRequest request = new UserRequest(UPDATED_EMAIL, UPDATED_DAILY_LIMIT);
+        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
+        var responseSpec = restTestClient.patch()
+                .uri(ApiRoutes.USER_PATH)
+                .body(request)
+                .exchange()
+                .expectStatus().isUnauthorized();
+        verifyError(responseSpec, expectedResponse);
+    }
+
+    @Test
+    @DirtyTest
     void testDelete_shouldReturn204() {
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)

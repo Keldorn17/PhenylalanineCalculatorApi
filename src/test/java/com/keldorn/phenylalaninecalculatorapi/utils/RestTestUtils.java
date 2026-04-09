@@ -19,4 +19,10 @@ public abstract class RestTestUtils {
                 .toUri();
     }
 
+    protected URI path(String baseById, Long id) {
+        return UriComponentsBuilder.fromUriString(baseById)
+                .buildAndExpand(id)
+                .toUri();
+    }
+
 }
