@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -49,5 +51,9 @@ public class Food {
     @JoinColumn(name = "user_id")
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private User user;
+
+    @JoinColumn(name = "food_id", insertable = false)
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<FoodConsumption> foodConsumption;
 
 }

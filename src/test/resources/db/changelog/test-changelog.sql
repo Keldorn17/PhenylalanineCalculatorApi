@@ -12,6 +12,8 @@ VALUES ('testUser', 'test@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoa
 -- Loads food type
 INSERT INTO food_type (name, multiplier)
 VALUES ('testFoodType', 10);
+INSERT INTO food_type (name, multiplier)
+VALUES ('testFoodType', 10);
 
 -- Test Food
 -- changeset Patai Zoltán:load-test-food

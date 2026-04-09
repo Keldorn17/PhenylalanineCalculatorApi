@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -94,8 +94,9 @@ public class FoodConsumptionController {
     ) {
         log.info("Post request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
         FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .buildAndExpand(response.id()).toUri();
+        URI uri = UriComponentsBuilder.fromUriString(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID)
+                .buildAndExpand(response.id())
+                .toUri();
         return ResponseEntity.created(uri).body(response);
     }
 

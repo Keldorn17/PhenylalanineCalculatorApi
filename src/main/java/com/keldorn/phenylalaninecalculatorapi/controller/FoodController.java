@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -101,8 +101,9 @@ public class FoodController {
     public ResponseEntity<FoodResponse> postFood(@Valid @RequestBody FoodRequest request) {
         log.info("Post Request: {}", ApiRoutes.FOOD_PATH);
         FoodResponse response = foodService.save(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .buildAndExpand(response.id()).toUri();
+        URI uri = UriComponentsBuilder.fromUriString(ApiRoutes.FOOD_PATH_BY_ID)
+                .buildAndExpand(response.id())
+                .toUri();
         return ResponseEntity.created(uri).body(response);
     }
 

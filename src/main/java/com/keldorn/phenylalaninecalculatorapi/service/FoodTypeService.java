@@ -24,7 +24,7 @@ public class FoodTypeService {
     private final FoodTypeMapper foodTypeMapper;
     private final FoodTypeRepository foodTypeRepository;
 
-    protected final FoodType findByIdOrThrow(Long id) {
+    protected FoodType findByIdOrThrow(Long id) {
         log.debug("Getting Food Type By Id: {}", id);
         return foodTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Food Type Not Found."));
