@@ -13,6 +13,7 @@ public interface FoodTypeMapper {
     FoodTypeResponse toResponse(FoodType foodType);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
     FoodType toEntity(FoodTypeRequest foodTypeRequest);
 
 }
