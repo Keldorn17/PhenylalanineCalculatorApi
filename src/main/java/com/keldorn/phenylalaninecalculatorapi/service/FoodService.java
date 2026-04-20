@@ -85,15 +85,7 @@ public class FoodService {
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = findByIdOrThrow(id);
-        if (request.name() != null) {
-            food.setName(request.name());
-        }
-        if (request.protein() != null) {
-            food.setProtein(request.protein());
-        }
-        if (request.calories() != null) {
-            food.setCalories(request.calories());
-        }
+        foodMapper.updateEntity(request, food);
         if (request.foodTypeId() != null) {
             FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
             food.setFoodType(foodType);
