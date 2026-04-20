@@ -73,3 +73,8 @@ CREATE TABLE food_consumption
 -- rollback ALTER TABLE users ADD timezone VARCHAR(255) NOT NULL;
 ALTER TABLE users
     DROP COLUMN timezone;
+
+-- changeset Patai Zoltan:add-is-deleted-food-type
+-- Adds is_deleted to Food Type
+-- rollback ALTER TABLE food_type DROP COLUMN is_deleted;
+ALTER TABLE food_type ADD is_deleted BOOLEAN NOT NULL;

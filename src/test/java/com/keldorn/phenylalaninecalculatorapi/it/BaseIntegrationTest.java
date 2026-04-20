@@ -56,7 +56,6 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
                     .expectBody(AuthResponse.class)
                     .returnResult()
                     .getResponseBody();
-
             Assertions.assertThat(response).isNotNull();
             cachedToken = response.token();
         }
@@ -73,8 +72,10 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
     }
 
     protected void verifyError(RestTestClient.ResponseSpec spec, ErrorResponse expected) {
-        spec.expectBody(ErrorResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
+        if (expected != null) {
+            spec.expectBody(ErrorResponse.class)
+                    .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
+        }
     }
 
 }

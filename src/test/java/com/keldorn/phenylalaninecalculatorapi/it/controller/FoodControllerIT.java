@@ -88,7 +88,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
             verifySuccess(responseSpec, (FoodResponse) expectedResponse);
-            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH, String.valueOf(2L))));
+            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID, 2L)));
             return;
         }
         verifyError(responseSpec, (ErrorResponse) expectedResponse);
@@ -156,9 +156,6 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
-        if (expectedStatus.is2xxSuccessful()) {
-            return;
-        }
         verifyError(responseSpec, (ErrorResponse) expectedResponse);
     }
 

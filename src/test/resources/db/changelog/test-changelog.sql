@@ -10,10 +10,10 @@ VALUES ('testUser', 'test@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoa
 -- Test Food Type
 -- changeset Patai Zoltán:load-test-food-type
 -- Loads food type
-INSERT INTO food_type (name, multiplier)
-VALUES ('testFoodType', 10);
-INSERT INTO food_type (name, multiplier)
-VALUES ('testFoodType', 10);
+INSERT INTO food_type (name, multiplier, is_deleted)
+VALUES ('testFoodType', 10, false);
+INSERT INTO food_type (name, multiplier, is_deleted)
+VALUES ('testFoodType', 10, false);
 
 -- Test Food
 -- changeset Patai Zoltán:load-test-food
