@@ -3,9 +3,13 @@ package com.keldorn.phenylalaninecalculatorapi.mapper;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
@@ -19,5 +23,8 @@ public interface FoodMapper {
     @Mapping(source = "foodType.name", target = "foodTypeName")
     @Mapping(source = "foodType.multiplier", target = "multiplier")
     FoodResponse toResponse(Food food);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(FoodUpdateRequest request, @MappingTarget Food food);
 
 }

@@ -62,7 +62,6 @@ public class FoodConsumptionServiceTests {
 
     private final Long FOOD_CONSUMPTION_ID = 1L;
 
-
     @Test
     public void save_shouldReturnFoodConsumptionResponse() {
         Long foodId = 1L;
@@ -77,7 +76,7 @@ public class FoodConsumptionServiceTests {
         when(foodService.findByIdOrThrow(foodId)).thenReturn(food);
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
-        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
+        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request, TestEntityFactory.UTC_TIMEZONE);
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedCalculatedPhe));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
@@ -94,7 +93,8 @@ public class FoodConsumptionServiceTests {
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
         when(foodService.findByIdOrThrow(FOOD_CONSUMPTION_ID))
                 .thenThrow(ResourceNotFoundException.class);
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(FOOD_CONSUMPTION_ID, request))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.save(FOOD_CONSUMPTION_ID, request, TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).save(any());
@@ -107,7 +107,8 @@ public class FoodConsumptionServiceTests {
         when(foodService.findByIdOrThrow(foodId)).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(foodId, request))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.save(foodId, request, TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
         verify(foodConsumptionRepository, never()).save(any());
     }
@@ -168,7 +169,8 @@ public class FoodConsumptionServiceTests {
                 Optional.of(existingEntity));
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
-        FoodConsumptionResponse response = foodConsumptionService.update(FOOD_CONSUMPTION_ID, request);
+        FoodConsumptionResponse response =
+                foodConsumptionService.update(FOOD_CONSUMPTION_ID, request, TestEntityFactory.UTC_TIMEZONE);
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedDelta));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
@@ -185,7 +187,9 @@ public class FoodConsumptionServiceTests {
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID))
                 .thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request,
+                                TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).save(any());
@@ -205,7 +209,9 @@ public class FoodConsumptionServiceTests {
                 Optional.of(existingEntity));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request,
+                                TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
         verify(foodConsumptionRepository, never()).save(any());
     }
@@ -224,7 +230,7 @@ public class FoodConsumptionServiceTests {
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
-        foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID);
+        foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID, TestEntityFactory.UTC_TIMEZONE);
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedNegativeAmount));
         verify(foodConsumptionRepository).delete(existingEntity);
     }
@@ -242,7 +248,8 @@ public class FoodConsumptionServiceTests {
                 Optional.of(existingEntity));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID, TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
         verify(foodConsumptionRepository, never()).delete(any());
     }
@@ -252,7 +259,8 @@ public class FoodConsumptionServiceTests {
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID)).thenReturn(
                 Optional.empty());
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID))
+        Assertions.assertThatThrownBy(
+                        () -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID, TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(dailyIntakeService, never()).addAmount(any(), any());
         verify(foodConsumptionRepository, never()).delete(any());

@@ -61,11 +61,8 @@ public class UserService {
         log.debug("Updating user information for: {}", user.getUserId());
         if (request.email() != null) {
             isEmailTakenAndThrow(request.email());
-            user.setEmail(request.email());
         }
-        if (request.dailyLimit() != null) {
-            user.setDailyLimit(request.dailyLimit());
-        }
+        userMapper.updateEntity(request, user);
         return userMapper.toResponse(userRepository.save(user));
     }
 

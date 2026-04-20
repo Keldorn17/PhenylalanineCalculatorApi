@@ -58,12 +58,13 @@ public class FoodConsumptionService {
     }
 
     @Transactional
-    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request) {
+    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request, String timezone) {
         log.debug("Creating food consumption");
         Food food = foodService.findByIdOrThrow(foodId);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
         Instant now = Instant.now();
-        LocalDate userLocalDate = LocalDate.ofInstant(now, utcZoneId);
+        ZoneId userZoneId = resolveZoneId(timezone);
+        LocalDate userLocalDate = LocalDate.ofInstant(now, userZoneId);
         dailyIntakeService.addAmount(userLocalDate, phenylalanineAmount);
         FoodConsumption foodConsumption = FoodConsumption.builder()
                 .user(userService.getCurrentUser())
@@ -76,12 +77,13 @@ public class FoodConsumptionService {
     }
 
     @Transactional
-    public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request) {
+    public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request, String timezone) {
         log.debug("Updating food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
         BigDecimal phenylalanineAmount =
                 calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
-        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), utcZoneId);
+        ZoneId userZoneId = resolveZoneId(timezone);
+        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), userZoneId);
         dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());
@@ -89,10 +91,11 @@ public class FoodConsumptionService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
+    public void deleteById(Long id, String timezone) {
         log.debug("Deleting food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
-        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), utcZoneId);
+        ZoneId userZoneId = resolveZoneId(timezone);
+        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), userZoneId);
         dailyIntakeService.addAmount(localDate, foodConsumption.getPhenylalanineAmount().negate());
         foodConsumptionRepository.delete(foodConsumption);
     }

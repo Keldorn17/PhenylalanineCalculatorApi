@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 public class TestEntityFactory {
@@ -32,14 +33,16 @@ public class TestEntityFactory {
     public static final Integer DEFAULT_INTEGER_VALUE = 10;
     public static final Long DEFAULT_ID = 1L;
 
+    private static final ZoneId UTC = ZoneOffset.UTC;
+    public static final String UTC_TIMEZONE = "UTC";
     public static final LocalDate TEST_DATE = LocalDate.of(2026, 1, 1);
     public static final LocalDateTime TEST_DATE_TIME = LocalDateTime.of(TEST_DATE, LocalTime.of(0, 0));
     public static final Instant START = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
-            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
+            LocalTime.of(0, 0), UTC).toInstant();
     public static final Instant END = ZonedDateTime.of(LocalDate.of(2026, 1, 2),
-            LocalTime.of(0, 0), ZoneId.of("UTC")).toInstant();
+            LocalTime.of(0, 0), UTC).toInstant();
     public static final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
-            LocalTime.of(12, 0), ZoneId.of("UTC")).toInstant();
+            LocalTime.of(12, 0), UTC).toInstant();
 
     public static User user() {
         return User.builder()
