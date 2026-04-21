@@ -44,9 +44,6 @@ public class FoodServiceTests {
     @Mock
     private UserService userService;
 
-    @Spy
-    private FoodMapper foodMapper = Mappers.getMapper(FoodMapper.class);
-
     @InjectMocks
     private FoodService foodService;
 
@@ -64,7 +61,6 @@ public class FoodServiceTests {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         when(foodRepository.findById(FOOD_ID)).thenReturn(Optional.of(food));
         FoodResponse response = foodService.findById(FOOD_ID);
-        verify(foodMapper).toResponse(food);
         doAssertionsCheckOnResponse(response, food);
     }
 
@@ -75,7 +71,6 @@ public class FoodServiceTests {
         Page<Food> responsePage = new PageImpl<>(responseList);
         when(foodRepository.findAll(any(Pageable.class))).thenReturn(responsePage);
         Page<FoodResponse> response = foodService.findAll(0, 20);
-        verify(foodMapper).toResponse(any(Food.class));
         Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), food);
     }
@@ -98,8 +93,6 @@ public class FoodServiceTests {
         when(userService.getCurrentUser()).thenReturn(TestEntityFactory.user());
         when(foodRepository.save(any(Food.class))).thenReturn(food);
         FoodResponse response = foodService.save(request);
-        verify(foodMapper).toEntity(request);
-        verify(foodMapper).toResponse(food);
         ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
         verify(foodRepository).save(captor.capture());
         Food savedFood = captor.getValue();
@@ -119,8 +112,6 @@ public class FoodServiceTests {
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.save(request))
                 .isInstanceOf(ResourceNotFoundException.class);
-        verify(foodMapper).toEntity(request);
-        verify(foodMapper, never()).toResponse(any());
         verify(foodRepository, never()).save(any());
     }
 
@@ -133,8 +124,6 @@ public class FoodServiceTests {
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.save(request))
                 .isInstanceOf(ResourceNotFoundException.class);
-        verify(foodMapper).toEntity(request);
-        verify(foodMapper, never()).toResponse(any());
         verify(foodRepository, never()).save(any());
     }
 
@@ -152,8 +141,6 @@ public class FoodServiceTests {
         FoodResponse response = foodService.update(FOOD_ID, request);
         ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
         verify(foodRepository).save(captor.capture());
-        verify(foodMapper).toResponse(any(Food.class));
-        verify(foodMapper, never()).toEntity(any());
         Food savedFood = captor.getValue();
         Assertions.assertThat(savedFood.getName()).isEqualTo(foodName);
         Assertions.assertThat(savedFood.getProtein()).isEqualByComparingTo(BigDecimal.ONE);

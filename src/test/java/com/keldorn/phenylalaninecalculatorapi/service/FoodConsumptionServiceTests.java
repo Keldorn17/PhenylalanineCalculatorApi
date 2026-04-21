@@ -15,25 +15,21 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptio
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -53,9 +49,6 @@ public class FoodConsumptionServiceTests {
 
     @Mock
     private DailyIntakeService dailyIntakeService;
-
-    @Spy
-    private FoodConsumptionMapper foodConsumptionMapper = Mappers.getMapper(FoodConsumptionMapper.class);
 
     @InjectMocks
     private FoodConsumptionService foodConsumptionService;
@@ -80,7 +73,6 @@ public class FoodConsumptionServiceTests {
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedCalculatedPhe));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
-        verify(foodConsumptionMapper).toResponse(any(FoodConsumption.class), any(ZoneId.class));
         FoodConsumption savedEntity = captor.getValue();
         Assertions.assertThat(savedEntity.getPhenylalanineAmount()).isEqualByComparingTo(expectedCalculatedPhe);
         Assertions.assertThat(savedEntity.getAmount()).isEqualByComparingTo(consumedAmount);
@@ -129,7 +121,6 @@ public class FoodConsumptionServiceTests {
                 .thenReturn(pageWithData);
         Page<FoodConsumptionResponse> response =
                 foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20, null);
-        verify(foodConsumptionMapper).toResponse(eq(consumptionList.getFirst()), any(ZoneId.class));
         Assertions.assertThat(response).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodConsumption);
     }
@@ -174,7 +165,6 @@ public class FoodConsumptionServiceTests {
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedDelta));
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
-        verify(foodConsumptionMapper).toResponse(any(FoodConsumption.class), any(ZoneId.class));
         FoodConsumption savedEntity = captor.getValue();
         Assertions.assertThat(savedEntity.getPhenylalanineAmount()).isEqualByComparingTo(newPheAmount);
         Assertions.assertThat(savedEntity.getAmount()).isEqualByComparingTo(newAmount);

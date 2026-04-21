@@ -11,7 +11,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeRespons
 import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 
 import java.math.BigDecimal;
@@ -20,11 +19,9 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,9 +32,6 @@ public class DailyIntakeServiceTests {
 
     @Mock
     private UserService userService;
-
-    @Spy
-    private DailyIntakeMapper dailyIntakeMapper = Mappers.getMapper(DailyIntakeMapper.class);
 
     @InjectMocks
     private DailyIntakeService dailyIntakeService;
@@ -51,7 +45,6 @@ public class DailyIntakeServiceTests {
         when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE);
-        verify(dailyIntakeMapper).toResponse(dailyIntake);
         Assertions.assertThat(response.id()).isEqualTo(dailyIntake.getId());
         Assertions.assertThat(response.date()).isEqualTo(dailyIntake.getDate());
         Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(dailyIntake.getTotalPhenylalanine());

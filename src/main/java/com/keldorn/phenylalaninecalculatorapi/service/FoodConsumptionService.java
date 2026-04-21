@@ -34,7 +34,6 @@ public class FoodConsumptionService {
     private final FoodService foodService;
     private final UserService userService;
     private final DailyIntakeService dailyIntakeService;
-    private final FoodConsumptionMapper foodConsumptionMapper;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
     private final ZoneId utcZoneId = ZoneOffset.UTC;
@@ -54,7 +53,7 @@ public class FoodConsumptionService {
         Long userId = userService.getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size);
         return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable)
-                .map(foodConsumption -> foodConsumptionMapper.toResponse(foodConsumption, zoneId));
+                .map(foodConsumption -> FoodConsumptionMapper.INSTANCE.toResponse(foodConsumption, zoneId));
     }
 
     @Transactional
@@ -73,7 +72,7 @@ public class FoodConsumptionService {
                 .amount(request.amount())
                 .phenylalanineAmount(phenylalanineAmount)
                 .build();
-        return foodConsumptionMapper.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
     }
 
     @Transactional
@@ -87,7 +86,7 @@ public class FoodConsumptionService {
         dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());
-        return foodConsumptionMapper.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
     }
 
     @Transactional

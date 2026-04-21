@@ -22,13 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class DailyIntakeService {
 
     private final UserService userService;
-    private final DailyIntakeMapper dailyIntakeMapper;
     private final DailyIntakeRepository dailyIntakeRepository;
 
     @Transactional(readOnly = true)
     public DailyIntakeResponse findByDate(LocalDate date) {
         log.debug("Sending response for findByDate");
-        return dailyIntakeMapper.toResponse(findByDateOrThrow(date));
+        return DailyIntakeMapper.INSTANCE.toResponse(findByDateOrThrow(date));
     }
 
     private DailyIntake findByDateOrThrow(LocalDate date) {

@@ -9,9 +9,12 @@ import java.time.ZoneId;
 
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface FoodConsumptionMapper {
+
+    FoodConsumptionMapper INSTANCE = Mappers.getMapper(FoodConsumptionMapper.class);
 
     FoodConsumptionResponse toResponse(FoodConsumption foodConsumption, @Context ZoneId timezone);
 

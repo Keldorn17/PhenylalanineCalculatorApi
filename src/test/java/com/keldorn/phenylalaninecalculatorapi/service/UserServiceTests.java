@@ -44,9 +44,6 @@ public class UserServiceTests {
     @Mock
     private DeleteUserAssociationsService deleteUserAssociationsService;
 
-    @Spy
-    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
-
     @InjectMocks
     private UserService userService;
 
@@ -70,7 +67,6 @@ public class UserServiceTests {
         User user = TestEntityFactory.user();
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         UserResponse response = userService.getProfile();
-        verify(userMapper).toResponse(user);
         doAssertionsCheckOnResponse(response, user);
     }
 
@@ -101,7 +97,6 @@ public class UserServiceTests {
         UserResponse response = userService.update(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
-        verify(userMapper).toResponse(any(User.class));
         User savedUser = captor.getValue();
         Assertions.assertThat(savedUser.getEmail()).isEqualTo(request.email());
         Assertions.assertThat(savedUser.getDailyLimit()).isEqualByComparingTo(request.dailyLimit());

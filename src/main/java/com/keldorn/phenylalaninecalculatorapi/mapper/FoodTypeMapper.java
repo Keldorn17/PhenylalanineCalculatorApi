@@ -6,9 +6,12 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface FoodTypeMapper {
+
+    FoodTypeMapper INSTANCE = Mappers.getMapper(FoodTypeMapper.class);
 
     FoodTypeResponse toResponse(FoodType foodType);
 
