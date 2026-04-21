@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final DeleteUserAssociationsService deleteUserAssociationsService;
 
@@ -52,7 +51,7 @@ public class UserService {
     public UserResponse getProfile() {
         User user = getCurrentUser();
         log.debug("Getting Profile information for: {}", user.getUserId());
-        return userMapper.toResponse(user);
+        return UserMapper.INSTANCE.toResponse(user);
     }
 
     @Transactional
@@ -62,8 +61,8 @@ public class UserService {
         if (request.email() != null) {
             isEmailTakenAndThrow(request.email());
         }
-        userMapper.updateEntity(request, user);
-        return userMapper.toResponse(userRepository.save(user));
+        UserMapper.INSTANCE.updateEntity(request, user);
+        return UserMapper.INSTANCE.toResponse(userRepository.save(user));
     }
 
     @Transactional

@@ -10,7 +10,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 
 import java.util.List;
@@ -19,11 +18,9 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,9 +31,6 @@ public class FoodTypeServiceTests {
 
     @Mock
     private FoodTypeRepository foodTypeRepository;
-
-    @Spy
-    private FoodTypeMapper foodTypeMapper = Mappers.getMapper(FoodTypeMapper.class);
 
     @InjectMocks
     private FoodTypeService foodTypeService;
@@ -49,7 +43,6 @@ public class FoodTypeServiceTests {
         foodType.setId(FOOD_TYPE_ID);
         when(foodTypeRepository.findById(FOOD_TYPE_ID)).thenReturn(Optional.of(foodType));
         FoodTypeResponse response = foodTypeService.findById(FOOD_TYPE_ID);
-        verify(foodTypeMapper).toResponse(foodType);
         doAssertionsCheckOnResponse(response, foodType);
     }
 
@@ -68,7 +61,6 @@ public class FoodTypeServiceTests {
         Page<FoodType> foodTypePage = new PageImpl<>(foodTypeList);
         when(foodTypeRepository.findAll(any(Pageable.class))).thenReturn(foodTypePage);
         Page<FoodTypeResponse> response = foodTypeService.findAll(0, 20);
-        verify(foodTypeMapper).toResponse(foodTypeList.getFirst());
         Assertions.assertThat(response).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodType);
     }
@@ -79,9 +71,7 @@ public class FoodTypeServiceTests {
         FoodTypeRequest request = new FoodTypeRequest(foodType.getName(), foodType.getMultiplier());
         when(foodTypeRepository.save(foodType)).thenReturn(foodType);
         FoodTypeResponse response = foodTypeService.save(request);
-        verify(foodTypeMapper).toEntity(request);
         verify(foodTypeRepository).save(foodType);
-        verify(foodTypeMapper).toResponse(foodType);
         doAssertionsCheckOnResponse(response, foodType);
     }
 
@@ -96,7 +86,6 @@ public class FoodTypeServiceTests {
         ArgumentCaptor<FoodType> captor = ArgumentCaptor.forClass(FoodType.class);
         verify(foodTypeRepository).save(captor.capture());
         FoodType savedEntity = captor.getValue();
-        verify(foodTypeMapper).toResponse(savedEntity);
         Assertions.assertThat(savedEntity).isNotNull();
         Assertions.assertThat(savedEntity.getName()).isEqualTo(request.name());
         Assertions.assertThat(savedEntity.getMultiplier()).isEqualTo(request.multiplier());

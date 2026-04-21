@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FoodTypeService {
 
-    private final FoodTypeMapper foodTypeMapper;
     private final FoodTypeRepository foodTypeRepository;
 
     protected FoodType findByIdOrThrow(Long id) {
@@ -33,7 +32,7 @@ public class FoodTypeService {
     @Transactional(readOnly = true)
     public FoodTypeResponse findById(Long id) {
         log.debug("Finding Food Type Response By Id: {}", id);
-        return foodTypeMapper.toResponse(findByIdOrThrow(id));
+        return FoodTypeMapper.INSTANCE.toResponse(findByIdOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -41,14 +40,14 @@ public class FoodTypeService {
         log.debug("Finding All Food Types");
         Pageable pageable = PageRequest.of(page, size);
         return foodTypeRepository.findAll(pageable)
-                .map(foodTypeMapper::toResponse);
+                .map(FoodTypeMapper.INSTANCE::toResponse);
     }
 
     @Transactional
     public FoodTypeResponse save(FoodTypeRequest request) {
         log.debug("Saving Food Type");
-        var foodType = foodTypeRepository.save(foodTypeMapper.toEntity(request));
-        return foodTypeMapper.toResponse(foodType);
+        var foodType = foodTypeRepository.save(FoodTypeMapper.INSTANCE.toEntity(request));
+        return FoodTypeMapper.INSTANCE.toResponse(foodType);
     }
 
     @Transactional
@@ -57,7 +56,7 @@ public class FoodTypeService {
         var foodType = findByIdOrThrow(id);
         foodType.setName(request.name());
         foodType.setMultiplier(request.multiplier());
-        return foodTypeMapper.toResponse(foodTypeRepository.save(foodType));
+        return FoodTypeMapper.INSTANCE.toResponse(foodTypeRepository.save(foodType));
     }
 
     @Transactional

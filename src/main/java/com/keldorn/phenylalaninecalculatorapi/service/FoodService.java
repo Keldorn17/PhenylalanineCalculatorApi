@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FoodService {
 
-    private final FoodMapper foodMapper;
     private final UserService userService;
     private final FoodRepository foodRepository;
     private final FoodTypeService foodTypeService;
@@ -60,7 +59,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
-        return foodMapper.toResponse(findByIdOrThrow(id));
+        return FoodMapper.INSTANCE.toResponse(findByIdOrThrow(id));
     }
 
     @Transactional
@@ -68,30 +67,30 @@ public class FoodService {
         log.debug("Finding All Foods");
         Pageable pageable = PageRequest.of(page, size);
         return foodRepository.findAll(pageable)
-                .map(foodMapper::toResponse);
+                .map(FoodMapper.INSTANCE::toResponse);
     }
 
     @Transactional
     public FoodResponse save(FoodRequest request) {
         log.debug("Saving Food");
-        Food food = foodMapper.toEntity(request);
+        Food food = FoodMapper.INSTANCE.toEntity(request);
         addTypeToFood(food, request);
         addUserToFood(food);
         updatePhenylalanine(food);
-        return foodMapper.toResponse(foodRepository.save(food));
+        return FoodMapper.INSTANCE.toResponse(foodRepository.save(food));
     }
 
     @Transactional
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = findByIdOrThrow(id);
-        foodMapper.updateEntity(request, food);
+        FoodMapper.INSTANCE.updateEntity(request, food);
         if (request.foodTypeId() != null) {
             FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
             food.setFoodType(foodType);
         }
         updatePhenylalanine(food);
-        return foodMapper.toResponse(foodRepository.save(food));
+        return FoodMapper.INSTANCE.toResponse(foodRepository.save(food));
     }
 
     @Transactional
