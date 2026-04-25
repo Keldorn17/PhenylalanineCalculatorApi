@@ -63,7 +63,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
     @Test
     void testGetAll_shouldReturn200() {
         TestPage<FoodResponse> expectedResponse =
-                new TestPage<>(List.of(foodResponse()), new TestPage.PageMetadata(20, 0, 1, 1));
+                new TestPage<>(List.of(TestEntityFactory.foodResponse()), new TestPage.PageMetadata(20, 0, 1, 1));
         restTestClient.get()
                 .uri(ApiRoutes.FOOD_PATH)
                 .headers(withBearer(getAuthToken()))
@@ -174,7 +174,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 Arguments.of("Successful food retrieval",
                         TestEntityFactory.DEFAULT_ID,
                         HttpStatus.OK,
-                        foodResponse()
+                        TestEntityFactory.foodResponse()
                 ),
                 Arguments.of("Food not found by id",
                         UNKNOWN_ID,
@@ -193,8 +193,6 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.CREATED,
                         foodResponse(2L,
-                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
-                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                                 BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP))
                 ),
                 Arguments.of("Food name missing",
@@ -253,7 +251,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 UPDATE_NAME,
                                 UPDATE_BIGDECIMAL,
                                 UPDATE_BIGDECIMAL,
-                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE_SCALE_2)
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE)
                 ),
                 Arguments.of("Food type not found",
                         TestEntityFactory.DEFAULT_ID,
@@ -290,25 +288,26 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 TestEntityFactory.DEFAULT_INTEGER_VALUE);
     }
 
-    private static FoodResponse foodResponse(Long id, BigDecimal protein, BigDecimal calories,
+    private static FoodResponse foodResponse(Long id,
             BigDecimal phenylalanine) {
-        return foodResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, protein, calories, phenylalanine);
-    }
-
-    private static FoodResponse foodResponse() {
-        return foodResponse(TestEntityFactory.DEFAULT_ID,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE_SCALE_2,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE_SCALE_2,
-                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE_SCALE_2);
+        return foodResponse(id,
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                phenylalanine);
     }
 
     private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, FoodResponse expectedResponse) {
         responseSpec.expectBody(FoodResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expectedResponse));
+                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
+                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                        .isEqualTo(expectedResponse));
     }
 
     private static void verifySuccess(TestPage<FoodResponse> actual, TestPage<FoodResponse> expectedResponse) {
-        Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expectedResponse);
+        Assertions.assertThat(actual).usingRecursiveComparison()
+                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                .isEqualTo(expectedResponse);
     }
 
 }

@@ -62,7 +62,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
     void testFindAll_shouldReturn200() {
         TestPage<FoodTypeResponse> expectedResponse =
                 new TestPage<>(List.of(
-                        foodTypeResponse(),
+                        TestEntityFactory.foodTypeResponse(),
                         foodTypeResponse(2L)
                 ), new TestPage.PageMetadata(20, 0, 2, 1));
         restTestClient.get()
@@ -137,7 +137,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 Arguments.of("Successful food type retrieval",
                         EXISTING_FOOD_TYPE_ID,
                         HttpStatus.OK,
-                        foodTypeResponse()
+                        TestEntityFactory.foodTypeResponse()
                 ),
                 Arguments.of("Food type not found by id",
                         UNKNOWN_FOOD_TYPE_ID,
@@ -221,10 +221,6 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
     private static FoodTypeResponse foodTypeResponse(Long foodTypeId) {
         return new FoodTypeResponse(foodTypeId, TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
                 TestEntityFactory.DEFAULT_INTEGER_VALUE);
-    }
-
-    private static FoodTypeResponse foodTypeResponse() {
-        return foodTypeResponse(TestEntityFactory.DEFAULT_ID);
     }
 
     private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, FoodTypeResponse expectedResponse) {

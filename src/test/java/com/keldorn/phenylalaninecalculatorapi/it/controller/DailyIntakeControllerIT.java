@@ -7,6 +7,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.it.BaseIntegrationTest;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -20,7 +21,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 public class DailyIntakeControllerIT extends BaseIntegrationTest {
 
-    private static final LocalDate REGISTERED_DATE = LocalDate.of(2026, 4, 4);
+    private static final LocalDate REGISTERED_DATE = LocalDate.of(2026, 1, 1);
     private static final LocalDate UNREGISTERED_DATE = LocalDate.of(2026, 4, 3);
     private static final String MALFORMED_DATE = "malformed date";
 
@@ -88,7 +89,9 @@ public class DailyIntakeControllerIT extends BaseIntegrationTest {
 
     private void verifySuccess(RestTestClient.ResponseSpec spec, DailyIntakeResponse expected) {
         spec.expectBody(DailyIntakeResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
+                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
+                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                        .isEqualTo(expected));
     }
 
 }
