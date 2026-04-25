@@ -25,10 +25,10 @@ VALUES ('testFood', 10, 10, 1, 1, 10);
 -- changeset Patai Zoltán:load-test-food-consumption
 -- Loads food consumption
 INSERT INTO food_consumption (amount, phenylalanine_amount, consumed_at, food_id, user_id)
-VALUES (10, 10, '2026-04-04T11:20:10.3319278', 1, 1);
+VALUES (10, 10, '2026-01-01T00:00', 1, 1);
 
 -- Test Daily Intake
 -- changeset Patai Zoltán:load-test-daily-intake
 -- Loads daily intake
 INSERT INTO daily_intake (date, total_phenylalanine, user_id)
-VALUES ('2026-04-04', 10, 1)
+VALUES ('2026-01-01', 10, 1)
