@@ -2,13 +2,13 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.EmailIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
-import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
+import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
+import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 
 import java.util.stream.Collectors;
 

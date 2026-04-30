@@ -1,4 +1,4 @@
-package com.keldorn.phenylalaninecalculatorapi.it;
+package com.keldorn.phenylalaninecalculatorapi;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;

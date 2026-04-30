@@ -1,4 +1,4 @@
-package com.keldorn.phenylalaninecalculatorapi.it.annotation;
+package com.keldorn.phenylalaninecalculatorapi.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

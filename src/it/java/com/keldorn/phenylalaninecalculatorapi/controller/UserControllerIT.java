@@ -1,4 +1,4 @@
-package com.keldorn.phenylalaninecalculatorapi.it.controller;
+package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -6,8 +6,8 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.it.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.it.annotation.DirtyTest;
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
