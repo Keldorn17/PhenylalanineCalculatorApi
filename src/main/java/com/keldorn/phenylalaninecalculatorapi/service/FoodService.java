@@ -6,7 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 

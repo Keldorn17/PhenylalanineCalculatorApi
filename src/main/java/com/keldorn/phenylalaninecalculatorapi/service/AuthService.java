@@ -7,9 +7,9 @@ import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.PasswordMismatchException;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.DeletedUserTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
+import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

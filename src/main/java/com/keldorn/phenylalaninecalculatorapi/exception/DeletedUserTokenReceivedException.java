@@ -1,4 +1,4 @@
-package com.keldorn.phenylalaninecalculatorapi.exception.unauthorized;
+package com.keldorn.phenylalaninecalculatorapi.exception;
 
 import lombok.experimental.StandardException;
 

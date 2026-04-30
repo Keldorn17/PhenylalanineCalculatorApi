@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 

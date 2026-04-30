@@ -2,8 +2,8 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.conflict.DailyIntakeCannotBeLowerThanZeroException;
-import com.keldorn.phenylalaninecalculatorapi.exception.notfound.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 

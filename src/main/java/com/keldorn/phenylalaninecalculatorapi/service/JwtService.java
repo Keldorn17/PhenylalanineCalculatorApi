@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import com.keldorn.phenylalaninecalculatorapi.exception.unauthorized.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 
 import java.util.Date;
 

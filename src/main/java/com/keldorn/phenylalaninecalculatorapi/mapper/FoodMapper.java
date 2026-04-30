@@ -17,7 +17,6 @@ public interface FoodMapper {
 
     FoodMapper INSTANCE = Mappers.getMapper(FoodMapper.class);
 
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "phenylalanine", ignore = true)
     @Mapping(target = "foodType", ignore = true)
