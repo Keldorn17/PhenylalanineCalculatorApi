@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +8,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
@@ -83,7 +84,7 @@ public class FoodTypeControllerTests {
     @Test
     void findAll_shouldReturn200() {
         Page<FoodTypeResponse> pageResponse = new PageImpl<>(List.of(TestEntityFactory.foodTypeResponse()));
-        when(foodTypeService.findAll(anyInt(), anyInt())).thenReturn(pageResponse);
+        when(foodTypeService.findAll(any(PaginationRequest.class))).thenReturn(pageResponse);
         TestPage<FoodTypeResponse> response = restTestClient.get()
                 .uri(ApiRoutes.FOOD_TYPE_PATH)
                 .exchange()

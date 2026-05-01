@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
@@ -45,13 +46,13 @@ public class FoodConsumptionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, int page, int size, String timezone) {
+    public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, PaginationRequest paginationRequest, String timezone) {
         log.debug("Finding all food consumptions by date");
         ZoneId zoneId = resolveZoneId(timezone);
         Instant start = date.atStartOfDay(zoneId).toInstant();
         Instant end = date.plusDays(1).atStartOfDay(zoneId).toInstant();
         Long userId = userService.getCurrentUserId();
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
         return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable)
                 .map(foodConsumption -> FoodConsumptionMapper.INSTANCE.toResponse(foodConsumption, zoneId));
     }

@@ -6,20 +6,33 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidRSQLException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
+import com.keldorn.phenylalaninecalculatorapi.utils.FoodQueryParamsUtil;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import cz.jirutka.rsql.parser.RSQLParserException;
 
 @Slf4j
 @Service
@@ -59,15 +72,19 @@ public class FoodService {
     @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
-        return FoodMapper.INSTANCE.toResponse(findByIdOrThrow(id));
+        return FoodMapper.INSTANCE.toModel(findByIdOrThrow(id));
     }
 
     @Transactional
-    public Page<FoodResponse> findAll(int page, int size) {
+    public PagedFoodResponse findAll(QueryRequest queryRequest, PaginationRequest paginationRequest) {
         log.debug("Finding All Foods");
-        Pageable pageable = PageRequest.of(page, size);
-        return foodRepository.findAll(pageable)
-                .map(FoodMapper.INSTANCE::toResponse);
+        PageRequest pageRequest = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
+        Page<Long> foodIdResponse = fetchPaginatedFoodIds(queryRequest, pageRequest);
+        if (foodIdResponse.isEmpty()) {
+            return FoodMapper.INSTANCE.toModel(Page.empty(pageRequest));
+        }
+        Page<Food> loadedPage = loadAndSortFood(foodIdResponse, pageRequest);
+        return FoodMapper.INSTANCE.toModel(loadedPage);
     }
 
     @Transactional
@@ -77,7 +94,7 @@ public class FoodService {
         addTypeToFood(food, request);
         addUserToFood(food);
         updatePhenylalanine(food);
-        return FoodMapper.INSTANCE.toResponse(foodRepository.save(food));
+        return FoodMapper.INSTANCE.toModel(foodRepository.save(food));
     }
 
     @Transactional
@@ -90,13 +107,35 @@ public class FoodService {
             food.setFoodType(foodType);
         }
         updatePhenylalanine(food);
-        return FoodMapper.INSTANCE.toResponse(foodRepository.save(food));
+        return FoodMapper.INSTANCE.toModel(foodRepository.save(food));
     }
 
     @Transactional
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
         foodRepository.delete(findByIdOrThrow(id));
+    }
+
+    private Page<Long> fetchPaginatedFoodIds(QueryRequest request, PageRequest pageRequest) {
+        try {
+            Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(request);
+            return foodRepository.findSortedFoodIds(querySpecification, pageRequest);
+        } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException ex) {
+            log.debug("Invalid query or sort parameters provided query='{}', sort='{}'",
+                    request.getQuery(), request.getSort());
+            throw new InvalidRSQLException("Invalid query or sort parameters");
+        }
+    }
+
+    private Page<Food> loadAndSortFood(Page<Long> pagedIdResult, PageRequest pageRequest) {
+        List<Long> foodIds = pagedIdResult.getContent();
+        List<Food> loadedFoods = foodRepository.findAllByIds(foodIds);
+        Map<Long, Food> foodMap = loadedFoods.stream()
+                .collect(Collectors.toMap(Food::getId, Function.identity()));
+        List<Food> sortedFoods = foodIds.stream()
+                .map(foodMap::get)
+                .toList();
+        return new PageImpl<>(sortedFoods, pageRequest, pagedIdResult.getTotalElements());
     }
 
 }

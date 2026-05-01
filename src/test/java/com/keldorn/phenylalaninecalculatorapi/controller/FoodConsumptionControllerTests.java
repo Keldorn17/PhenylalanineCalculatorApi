@@ -10,6 +10,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -44,18 +45,17 @@ public class FoodConsumptionControllerTests {
     @Test
     void getAllFoodConsumptionByDate_shouldReturn200() {
         LocalDate testDate = TestEntityFactory.TEST_DATE;
-        int page = 0;
-        int size = 20;
+        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         Page<FoodConsumptionResponse> pageResponse = new PageImpl<>(List.of(expectedResponse));
-        when(foodConsumptionService.findAllByDate(testDate, page, size, TestEntityFactory.UTC_TIMEZONE)).thenReturn(
+        when(foodConsumptionService.findAllByDate(testDate, paginationRequest, TestEntityFactory.UTC_TIMEZONE)).thenReturn(
                 pageResponse);
         TestPage<FoodConsumptionResponse> response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
                         .queryParam("date", testDate)
-                        .queryParam("page", page)
-                        .queryParam("size", size)
+                        .queryParam("page", paginationRequest.getPageNumber())
+                        .queryParam("size", paginationRequest.getPageSize())
                         .build()
                 )
                 .exchange()

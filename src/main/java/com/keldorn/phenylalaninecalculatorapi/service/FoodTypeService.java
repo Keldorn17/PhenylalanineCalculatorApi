@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
@@ -36,9 +37,9 @@ public class FoodTypeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FoodTypeResponse> findAll(int page, int size) {
+    public Page<FoodTypeResponse> findAll(PaginationRequest paginationRequest) {
         log.debug("Finding All Food Types");
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
         return foodTypeRepository.findAll(pageable)
                 .map(FoodTypeMapper.INSTANCE::toResponse);
     }

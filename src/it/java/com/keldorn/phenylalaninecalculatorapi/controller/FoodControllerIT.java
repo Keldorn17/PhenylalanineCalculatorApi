@@ -1,15 +1,16 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -60,17 +60,25 @@ public class FoodControllerIT extends BaseIntegrationTest {
         verifyError(responseSpec, expectedResponse);
     }
 
-    @Test
-    void testGetAll_shouldReturn200() {
-        TestPage<FoodResponse> expectedResponse =
-                new TestPage<>(List.of(TestEntityFactory.foodResponse()), new TestPage.PageMetadata(20, 0, 1, 1));
-        restTestClient.get()
-                .uri(ApiRoutes.FOOD_PATH)
+    @MethodSource("getAllTestCases")
+    @ParameterizedTest(name = "{index} - {0}")
+    void testGetAll(String description,
+            Integer pageNumber,
+            Integer pageSize,
+            String query,
+            String sort,
+            HttpStatus expectedStatus,
+            Object expectedResponse) {
+        var responseSpec = restTestClient.get()
+                .uri(path(ApiRoutes.FOOD_PATH, pageNumber, pageSize, sort, query))
                 .headers(withBearer(getAuthToken()))
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<TestPage<FoodResponse>>() {})
-                .value(actual -> verifySuccess(actual, expectedResponse));
+                .expectStatus().isEqualTo(expectedStatus);
+        if (expectedStatus.is2xxSuccessful()) {
+            verifySuccess(responseSpec, (PagedFoodResponse) expectedResponse);
+            return;
+        }
+        verifyError(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -88,7 +96,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
             verifySuccess(responseSpec, (FoodResponse) expectedResponse);
-            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID, 2L)));
+            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID, 3L)));
             return;
         }
         verifyError(responseSpec, (ErrorResponse) expectedResponse);
@@ -184,6 +192,53 @@ public class FoodControllerIT extends BaseIntegrationTest {
         );
     }
 
+    private static Stream<Arguments> getAllTestCases() {
+        return Stream.of(
+                Arguments.of("Successful get all food",
+                        null, null, null, null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(List.of(TestEntityFactory.foodResponse(), appleFoodResponse()),
+                                new PageResponse(20, 0, 2, 1))
+                ),
+                Arguments.of("Query unknown name should return empty object",
+                        null, null, "name==\"unknown\"", null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(List.of(), new PageResponse(20, 0, 0, 0))
+                ),
+                Arguments.of("Query for apple",
+                        null, null, "name==\"apple\"", null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(List.of(appleFoodResponse()), new PageResponse(20, 0, 1, 1))
+                ),
+                Arguments.of("Sort ids in descending order",
+                        null, null, null, "id,desc",
+                        HttpStatus.OK,
+                        new PagedFoodResponse(List.of(appleFoodResponse(), TestEntityFactory.foodResponse()),
+                                new PageResponse(20, 0, 2, 1))
+                ),
+                Arguments.of("Invalid rsql query provided",
+                        null, null, "invalid==\"apple\"", null,
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                ),
+                Arguments.of("Syntax error in provided rsql query",
+                        null, null, "name LIKE \"apple\"", null,
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                ),
+                Arguments.of("Invalid rsql sort provided",
+                        null, null, null, "invalid,desc",
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                ),
+                Arguments.of("Syntax error in provided rsql sort",
+                        null, null, null, "invalid desc",
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                )
+        );
+    }
+
     private static Stream<Arguments> postFoodTestCases() {
         return Stream.of(
                 Arguments.of("Successful food creation",
@@ -192,8 +247,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.CREATED,
-                        foodResponse(2L,
-                                BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP))
+                        foodResponse(3L, BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP))
                 ),
                 Arguments.of("Food name missing",
                         new FoodRequest(null,
@@ -288,13 +342,17 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 TestEntityFactory.DEFAULT_INTEGER_VALUE);
     }
 
-    private static FoodResponse foodResponse(Long id,
-            BigDecimal phenylalanine) {
+    private static FoodResponse foodResponse(Long id, BigDecimal phenylalanine) {
         return foodResponse(id,
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 phenylalanine);
+    }
+
+    private static FoodResponse appleFoodResponse() {
+        return new FoodResponse(2L, "apple", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
+                BigDecimal.valueOf(2.6), "testFoodType", 10);
     }
 
     private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, FoodResponse expectedResponse) {
@@ -304,10 +362,11 @@ public class FoodControllerIT extends BaseIntegrationTest {
                         .isEqualTo(expectedResponse));
     }
 
-    private static void verifySuccess(TestPage<FoodResponse> actual, TestPage<FoodResponse> expectedResponse) {
-        Assertions.assertThat(actual).usingRecursiveComparison()
-                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                .isEqualTo(expectedResponse);
+    private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, PagedFoodResponse expectedResponse) {
+        responseSpec.expectBody(PagedFoodResponse.class)
+                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
+                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                        .isEqualTo(expectedResponse));
     }
 
 }
