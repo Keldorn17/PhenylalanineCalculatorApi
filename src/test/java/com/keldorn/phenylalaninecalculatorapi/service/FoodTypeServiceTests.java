@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.PagedFoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -62,8 +63,8 @@ public class FoodTypeServiceTests {
         List<FoodType> foodTypeList = List.of(foodType);
         Page<FoodType> foodTypePage = new PageImpl<>(foodTypeList);
         when(foodTypeRepository.findAll(any(Pageable.class))).thenReturn(foodTypePage);
-        Page<FoodTypeResponse> response = foodTypeService.findAll(paginationRequest);
-        Assertions.assertThat(response).hasSize(1);
+        PagedFoodTypeResponse response = foodTypeService.findAll(paginationRequest);
+        Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodType);
     }
 

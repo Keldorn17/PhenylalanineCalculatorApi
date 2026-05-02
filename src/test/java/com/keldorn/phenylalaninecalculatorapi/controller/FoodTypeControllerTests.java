@@ -5,9 +5,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.PagedFoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -20,9 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -83,17 +81,18 @@ public class FoodTypeControllerTests {
 
     @Test
     void findAll_shouldReturn200() {
-        Page<FoodTypeResponse> pageResponse = new PageImpl<>(List.of(TestEntityFactory.foodTypeResponse()));
+        PagedFoodTypeResponse pageResponse =
+                new PagedFoodTypeResponse(List.of(TestEntityFactory.foodTypeResponse()), new PageResponse());
         when(foodTypeService.findAll(any(PaginationRequest.class))).thenReturn(pageResponse);
-        TestPage<FoodTypeResponse> response = restTestClient.get()
+        PagedFoodTypeResponse response = restTestClient.get()
                 .uri(ApiRoutes.FOOD_TYPE_PATH)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<TestPage<FoodTypeResponse>>() {})
+                .expectBody(PagedFoodTypeResponse.class)
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        doAssertionsCheckOnResponse(response.content().getFirst(), pageResponse.getContent().getFirst());
+        doAssertionsCheckOnResponse(response.getContent().getFirst(), pageResponse.getContent().getFirst());
     }
 
     @Test

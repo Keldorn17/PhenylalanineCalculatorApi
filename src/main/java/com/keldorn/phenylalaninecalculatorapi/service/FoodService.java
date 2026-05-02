@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.jirutka.rsql.parser.RSQLParserException;
+import io.github.perplexhub.rsql.UnknownPropertyException;
 
 @Slf4j
 @Service
@@ -120,7 +121,8 @@ public class FoodService {
         try {
             Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(request);
             return foodRepository.findSortedFoodIds(querySpecification, pageRequest);
-        } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException ex) {
+        } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException |
+                 UnknownPropertyException ex) {
             log.debug("Invalid query or sort parameters provided query='{}', sort='{}'",
                     request.getQuery(), request.getSort());
             throw new InvalidRSQLException("Invalid query or sort parameters");
