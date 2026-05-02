@@ -26,7 +26,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
 
     private static final Long EXISTING_FOOD_TYPE_ID = 1L;
     private static final Long UNKNOWN_FOOD_TYPE_ID = 99L;
-    private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 3L;
+    private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 4L;
     private static final String UPDATED_FOOD_TYPE_NAME = "updated name";
     private static final Integer UPDATED_FOOD_TYPE_MULTIPLIER = 15;
 

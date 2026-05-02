@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
@@ -121,9 +122,9 @@ public class FoodConsumptionServiceTests {
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(Long.class), any(Instant.class),
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(pageWithData);
-        Page<FoodConsumptionResponse> response =
+        PagedFoodConsumptionResponse response =
                 foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, paginationRequest, null);
-        Assertions.assertThat(response).hasSize(1);
+        Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodConsumption);
     }
 
@@ -135,9 +136,9 @@ public class FoodConsumptionServiceTests {
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(Long.class), any(Instant.class),
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(Page.empty());
-        Page<FoodConsumptionResponse> response =
+        PagedFoodConsumptionResponse response =
                 foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, paginationRequest, null);
-        Assertions.assertThat(response).hasSize(0);
+        Assertions.assertThat(response.getContent()).hasSize(0);
     }
 
     @Test

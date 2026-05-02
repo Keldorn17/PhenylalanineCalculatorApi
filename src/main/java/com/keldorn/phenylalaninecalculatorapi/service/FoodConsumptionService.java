@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
@@ -46,15 +47,16 @@ public class FoodConsumptionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FoodConsumptionResponse> findAllByDate(LocalDate date, PaginationRequest paginationRequest, String timezone) {
+    public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest, String timezone) {
         log.debug("Finding all food consumptions by date");
         ZoneId zoneId = resolveZoneId(timezone);
         Instant start = date.atStartOfDay(zoneId).toInstant();
         Instant end = date.plusDays(1).atStartOfDay(zoneId).toInstant();
         Long userId = userService.getCurrentUserId();
         Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
-        return foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable)
-                .map(foodConsumption -> FoodConsumptionMapper.INSTANCE.toResponse(foodConsumption, zoneId));
+        Page<FoodConsumption> response =
+                foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable);
+        return FoodConsumptionMapper.INSTANCE.toModel(response, zoneId);
     }
 
     @Transactional
@@ -73,7 +75,7 @@ public class FoodConsumptionService {
                 .amount(request.amount())
                 .phenylalanineAmount(phenylalanineAmount)
                 .build();
-        return FoodConsumptionMapper.INSTANCE.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption), utcZoneId);
     }
 
     @Transactional
@@ -87,7 +89,7 @@ public class FoodConsumptionService {
         dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());
-        return FoodConsumptionMapper.INSTANCE.toResponse(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption), utcZoneId);
     }
 
     @Transactional

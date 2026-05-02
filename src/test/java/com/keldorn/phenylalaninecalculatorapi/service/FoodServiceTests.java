@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
@@ -66,18 +67,19 @@ public class FoodServiceTests {
     @Test
     public void findAll_shouldReturnPageOfFoodResponses() {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setId(1L);
         List<Food> responseList = List.of(food);
-        Page<Food> responsePage = new PageImpl<>(responseList);
-        when(foodRepository.findAll(any(Pageable.class))).thenReturn(responsePage);
-        PagedFoodResponse response = foodService.findAll(null, new PaginationRequest(0, 20));
+        when(foodRepository.findSortedFoodIds(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(1L)));
+        when(foodRepository.findAllByIds(any())).thenReturn(responseList);
+        PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), food);
     }
 
     @Test
     public void findAll_shouldReturnEmptyList() {
-        when(foodRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
-        PagedFoodResponse response = foodService.findAll(null, new PaginationRequest(0, 20));
+        when(foodRepository.findSortedFoodIds(any(), any(Pageable.class))).thenReturn(Page.empty());
+        PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(0);
     }
 

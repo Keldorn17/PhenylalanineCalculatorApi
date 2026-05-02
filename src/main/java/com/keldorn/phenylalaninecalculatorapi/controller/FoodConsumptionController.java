@@ -9,6 +9,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodConsumptionService;
 
@@ -21,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,7 +63,7 @@ public class FoodConsumptionController {
     @GetMapping
     @BadRequestApiResponse
     @UnauthorizedApiResponse
-    public ResponseEntity<PagedModel<FoodConsumptionResponse>> getAllFoodConsumptionByDate(
+    public ResponseEntity<PagedFoodConsumptionResponse> getAllFoodConsumptionByDate(
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
             @RequestParam LocalDate date,
             @ParameterObject PaginationRequest paginationRequest,
@@ -71,7 +71,7 @@ public class FoodConsumptionController {
     ) {
         log.info("Get request for getting all food consumption by date: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
         var result = foodConsumptionService.findAllByDate(date, paginationRequest, timezone);
-        return ResponseEntity.ok(new PagedModel<>(result));
+        return ResponseEntity.ok(result);
     }
 
     @Operation(

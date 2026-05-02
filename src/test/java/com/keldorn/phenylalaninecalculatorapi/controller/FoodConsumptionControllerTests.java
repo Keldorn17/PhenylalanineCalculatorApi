@@ -7,9 +7,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
@@ -25,9 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -47,10 +45,11 @@ public class FoodConsumptionControllerTests {
         LocalDate testDate = TestEntityFactory.TEST_DATE;
         PaginationRequest paginationRequest = new PaginationRequest(0, 20);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
-        Page<FoodConsumptionResponse> pageResponse = new PageImpl<>(List.of(expectedResponse));
+        PagedFoodConsumptionResponse pageResponse =
+                new PagedFoodConsumptionResponse(List.of(expectedResponse), new PageResponse());
         when(foodConsumptionService.findAllByDate(testDate, paginationRequest, TestEntityFactory.UTC_TIMEZONE)).thenReturn(
                 pageResponse);
-        TestPage<FoodConsumptionResponse> response = restTestClient.get()
+        PagedFoodConsumptionResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
                         .queryParam("date", testDate)
@@ -60,12 +59,12 @@ public class FoodConsumptionControllerTests {
                 )
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<TestPage<FoodConsumptionResponse>>() {})
+                .expectBody(PagedFoodConsumptionResponse.class)
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.content()).hasSize(1);
-        doAssertionsCheckOnResponse(response.content().getFirst(), expectedResponse);
+        Assertions.assertThat(response.getContent()).hasSize(1);
+        doAssertionsCheckOnResponse(response.getContent().getFirst(), expectedResponse);
     }
 
     @Test

@@ -5,7 +5,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
-import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -79,15 +77,15 @@ public class FoodControllerTests {
                 new PagedFoodResponse(List.of(TestEntityFactory.foodResponse()), new PageResponse());
         Page<FoodResponse> pageResponse = new PageImpl<>(List.of(TestEntityFactory.foodResponse()));
         when(foodService.findAll(any(QueryRequest.class), any(PaginationRequest.class))).thenReturn(pagedFoodResponse);
-        TestPage<FoodResponse> response = restTestClient.get()
+        PagedFoodResponse response = restTestClient.get()
                 .uri(ApiRoutes.FOOD_PATH)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<TestPage<FoodResponse>>() {})
+                .expectBody(PagedFoodResponse.class)
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        doAssertionsChecksOnResponse(response.content().getFirst(), pageResponse.getContent().getFirst());
+        doAssertionsChecksOnResponse(response.getContent().getFirst(), pageResponse.getContent().getFirst());
     }
 
     @Test
