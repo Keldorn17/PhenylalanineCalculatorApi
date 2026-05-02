@@ -23,6 +23,10 @@ public interface FoodConsumptionMapper {
     @Mapping(source = "content", target = "content")
     PagedFoodConsumptionResponse toModel(Page<FoodConsumption> savedPost, @Context ZoneId timezone);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "amount", target = "amount")
+    @Mapping(source = "consumedAt", target = "consumedAt")
+    @Mapping(source = "phenylalanineAmount", target = "phenylalanineAmount")
     FoodConsumptionResponse toModel(FoodConsumption foodConsumption, @Context ZoneId timezone);
 
     default LocalDateTime mapInstantToLocalDateTime(Instant consumedAt, @Context ZoneId timezone) {

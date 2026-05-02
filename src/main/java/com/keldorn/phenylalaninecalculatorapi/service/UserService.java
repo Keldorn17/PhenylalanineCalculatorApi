@@ -51,7 +51,7 @@ public class UserService {
     public UserResponse getProfile() {
         User user = getCurrentUser();
         log.debug("Getting Profile information for: {}", user.getUserId());
-        return UserMapper.INSTANCE.toResponse(user);
+        return UserMapper.INSTANCE.toModel(user);
     }
 
     @Transactional
@@ -62,7 +62,7 @@ public class UserService {
             isEmailTakenAndThrow(request.email());
         }
         UserMapper.INSTANCE.updateEntity(request, user);
-        return UserMapper.INSTANCE.toResponse(userRepository.save(user));
+        return UserMapper.INSTANCE.toModel(userRepository.save(user));
     }
 
     @Transactional

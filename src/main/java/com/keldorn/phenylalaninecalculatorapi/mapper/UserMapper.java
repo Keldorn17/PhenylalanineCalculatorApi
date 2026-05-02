@@ -16,9 +16,17 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(target = "id", source = "userId")
-    UserResponse toResponse(User user);
+    @Mapping(source = "userId", target = "id")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "dailyLimit", target = "dailyLimit")
+    UserResponse toModel(User user);
 
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(UserRequest request, @MappingTarget User user);
 

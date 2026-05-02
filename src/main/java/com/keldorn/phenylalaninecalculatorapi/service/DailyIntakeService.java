@@ -27,7 +27,7 @@ public class DailyIntakeService {
     @Transactional(readOnly = true)
     public DailyIntakeResponse findByDate(LocalDate date) {
         log.debug("Sending response for findByDate");
-        return DailyIntakeMapper.INSTANCE.toResponse(findByDateOrThrow(date));
+        return DailyIntakeMapper.INSTANCE.toModel(findByDateOrThrow(date));
     }
 
     private DailyIntake findByDateOrThrow(LocalDate date) {

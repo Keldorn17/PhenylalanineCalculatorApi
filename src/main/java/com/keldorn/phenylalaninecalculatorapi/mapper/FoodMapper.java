@@ -24,15 +24,29 @@ public interface FoodMapper {
     PagedFoodResponse toModel(Page<Food> savedPost);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "phenylalanine", ignore = true)
-    @Mapping(target = "foodType", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "foodType", ignore = true)
+    @Mapping(target = "phenylalanine", ignore = true)
+    @Mapping(target = "foodConsumption", ignore = true)
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "protein", target = "protein")
+    @Mapping(source = "calories", target = "calories")
     Food toEntity(FoodRequest request);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "protein", target = "protein")
+    @Mapping(source = "calories", target = "calories")
     @Mapping(source = "foodType.name", target = "foodTypeName")
+    @Mapping(source = "phenylalanine", target = "phenylalanine")
     @Mapping(source = "foodType.multiplier", target = "multiplier")
     FoodResponse toModel(Food food);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "foodType", ignore = true)
+    @Mapping(target = "phenylalanine", ignore = true)
+    @Mapping(target = "foodConsumption", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(FoodUpdateRequest request, @MappingTarget Food food);
 

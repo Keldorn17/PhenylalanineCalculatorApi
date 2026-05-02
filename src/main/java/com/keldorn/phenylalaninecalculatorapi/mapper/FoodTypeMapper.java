@@ -19,6 +19,9 @@ public interface FoodTypeMapper {
     @Mapping(source = "content", target = "content")
     PagedFoodTypeResponse toModel(Page<FoodType> savedPost);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "multiplier", target = "multiplier")
     FoodTypeResponse toModel(FoodType foodType);
 
     @Mapping(target = "id", ignore = true)

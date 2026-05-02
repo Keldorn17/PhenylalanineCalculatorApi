@@ -14,8 +14,8 @@ public interface PageResponseMapper {
 
     @Mapping(source = "size", target = "size")
     @Mapping(source = "number", target = "number")
-    @Mapping(source = "totalElements", target = "totalElements")
     @Mapping(source = "totalPages", target = "totalPages")
+    @Mapping(source = "totalElements", target = "totalElements")
     PageResponse toModel(Page<?> page);
 
 }
