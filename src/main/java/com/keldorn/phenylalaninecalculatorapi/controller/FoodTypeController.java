@@ -8,6 +8,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodTypeService;
 
 import java.net.URI;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -76,12 +77,9 @@ public class FoodTypeController {
     @GetMapping
     @BadRequestApiResponse
     @UnauthorizedApiResponse
-    public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size
-    ) {
+    public ResponseEntity<PagedModel<FoodTypeResponse>> findAll(@ParameterObject PaginationRequest paginationRequest) {
         log.info("Get All: {}", ApiRoutes.FOOD_TYPE_PATH);
-        var result = foodTypeService.findAll(page, size);
+        var result = foodTypeService.findAll(paginationRequest);
         return ResponseEntity.ok(new PagedModel<>(result));
     }
 

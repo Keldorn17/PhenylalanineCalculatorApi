@@ -4,6 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidRSQLException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
@@ -44,6 +45,11 @@ public class ControllerAdvice {
             DeletedUserTokenReceivedException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
         return buildAndLog(HttpStatus.UNAUTHORIZED, ApiResponses.CLIENT_ERROR, ex);
+    }
+
+    @ExceptionHandler(InvalidRSQLException.class)
+    public ResponseEntity<Object> handleBadRequest(Exception ex) {
+        return buildAndLog(HttpStatus.BAD_REQUEST, ApiResponses.CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler(Exception.class)
@@ -119,6 +125,7 @@ public class ControllerAdvice {
             case "InvalidJwtTokenReceivedException", "BadCredentialsException" -> ApiResponses.UNAUTHORIZED_RESPONSE;
             case "ResourceNotFoundException" -> ApiResponses.RESOURCE_NOT_FOUND_RESPONSE;
             case "DailyIntakeCannotBeLowerThanZeroException" -> ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE;
+            case "InvalidRSQLException" -> ApiResponses.INVALID_RSQL_RESPONSE;
             default -> ApiResponses.DEFAULT_RESPONSE;
         };
     }

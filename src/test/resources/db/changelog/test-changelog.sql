@@ -14,12 +14,16 @@ INSERT INTO food_type (name, multiplier, is_deleted)
 VALUES ('testFoodType', 10, false);
 INSERT INTO food_type (name, multiplier, is_deleted)
 VALUES ('testFoodType', 10, false);
+INSERT INTO food_type (name, multiplier, is_deleted)
+VALUES ('testFoodType', 10, true);
 
 -- Test Food
 -- changeset Patai Zoltán:load-test-food
 -- Loads food
 INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine)
 VALUES ('testFood', 10, 10, 1, 1, 10);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine)
+VALUES ('apple', .26, 52, 1, 1, 2.60);
 
 -- Test Food Consumption
 -- changeset Patai Zoltán:load-test-food-consumption

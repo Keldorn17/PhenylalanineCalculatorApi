@@ -10,6 +10,8 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
@@ -67,7 +69,7 @@ public class FoodServiceTests {
         List<Food> responseList = List.of(food);
         Page<Food> responsePage = new PageImpl<>(responseList);
         when(foodRepository.findAll(any(Pageable.class))).thenReturn(responsePage);
-        Page<FoodResponse> response = foodService.findAll(0, 20);
+        PagedFoodResponse response = foodService.findAll(null, new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), food);
     }
@@ -75,8 +77,8 @@ public class FoodServiceTests {
     @Test
     public void findAll_shouldReturnEmptyList() {
         when(foodRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
-        Page<FoodResponse> response = foodService.findAll(0, 20);
-        Assertions.assertThat(response).hasSize(0);
+        PagedFoodResponse response = foodService.findAll(null, new PaginationRequest(0, 20));
+        Assertions.assertThat(response.getContent()).hasSize(0);
     }
 
     @Test
@@ -164,7 +166,7 @@ public class FoodServiceTests {
         when(foodRepository.findById(FOOD_ID))
                 .thenReturn(Optional.of(TestEntityFactory.food(TestEntityFactory.foodType())));
         foodService.deleteById(FOOD_ID);
-        verify(foodRepository).delete(any());
+        verify(foodRepository).delete(any(Food.class));
     }
 
     @Test
@@ -173,7 +175,7 @@ public class FoodServiceTests {
                 .thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(() -> foodService.deleteById(FOOD_ID))
                 .isInstanceOf(ResourceNotFoundException.class);
-        verify(foodRepository, never()).delete(any());
+        verify(foodRepository, never()).delete(any(Food.class));
     }
 
     private void doAssertionsCheckOnResponse(FoodResponse response, Food food) {

@@ -3,6 +3,9 @@ package com.keldorn.phenylalaninecalculatorapi.utils;
 import java.time.ZoneId;
 import java.util.Set;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class TimezoneHelper {
 
     private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();

@@ -9,6 +9,9 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodService;
 
 import java.net.URI;
@@ -18,7 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.web.PagedModel;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -74,14 +76,13 @@ public class FoodController {
             }
     )
     @GetMapping
+    @BadRequestApiResponse
     @UnauthorizedApiResponse
-    public ResponseEntity<PagedModel<FoodResponse>> getAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size
-    ) {
+    public ResponseEntity<PagedFoodResponse> getAll(@ParameterObject QueryRequest queryRequest, @ParameterObject
+    PaginationRequest pageRequest) {
         log.info("Get All Request: {}", ApiRoutes.FOOD_PATH);
-        var result = foodService.findAll(page, size);
-        return ResponseEntity.ok(new PagedModel<>(result));
+        var result = foodService.findAll(queryRequest, pageRequest);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(

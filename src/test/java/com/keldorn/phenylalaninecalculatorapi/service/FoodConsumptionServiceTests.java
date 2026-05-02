@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -108,6 +109,7 @@ public class FoodConsumptionServiceTests {
     @Test
     public void findAllByDate_shouldReturnPageOfFoodConsumptionResponses() {
         Long userId = 1L;
+        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
         FoodConsumption foodConsumption = TestEntityFactory.foodConsumption(
                 TestEntityFactory.user(),
                 TestEntityFactory.food(TestEntityFactory.foodType()),
@@ -120,7 +122,7 @@ public class FoodConsumptionServiceTests {
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(pageWithData);
         Page<FoodConsumptionResponse> response =
-                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20, null);
+                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, paginationRequest, null);
         Assertions.assertThat(response).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodConsumption);
     }
@@ -128,12 +130,13 @@ public class FoodConsumptionServiceTests {
     @Test
     public void findAllByDate_shouldReturnsEmptyList() {
         Long userId = 1L;
+        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
         when(userService.getCurrentUserId()).thenReturn(userId);
         when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(any(Long.class), any(Instant.class),
                 any(Instant.class), any(Pageable.class)))
                 .thenReturn(Page.empty());
         Page<FoodConsumptionResponse> response =
-                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, 0, 20, null);
+                foodConsumptionService.findAllByDate(TestEntityFactory.TEST_DATE, paginationRequest, null);
         Assertions.assertThat(response).hasSize(0);
     }
 
