@@ -7,9 +7,9 @@ import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
-import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,26 +36,28 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
-        manageAuth(request.username(), request.password());
-        var user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new DeletedUserTokenReceivedException("Unauthorized"));
+        User user = manageAuth(request.username(), request.password());
         return getResponse(user);
     }
 
     @Transactional
     public AuthResponse register(AuthRegisterRequest request) {
         log.debug("Registering New User.");
-        isUsernameTakenAndThrow(request.username());
-        userService.isEmailTakenAndThrow(request.email());
+        userRepository.findByUsernameOrEmail(request.username(), request.email()).ifPresent(u -> {
+            if (u.getUsername().equals(request.username())) {
+                throw new UsernameIsTakenException("Username is taken.");
+            }
+            throw new EmailIsTakenException("Email is taken");
+        });
+
         var user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(encodePassword(request.password()))
                 .role(Role.ROLE_USER)
                 .build();
-        userRepository.save(user);
-        manageAuth(request.username(), request.password());
-        return getResponse(user);
+        User savedUser = userRepository.save(user);
+        return getResponse(savedUser);
     }
 
     @Transactional
@@ -69,7 +72,6 @@ public class AuthService {
         }
         user.setPassword(encodePassword(request.password()));
         userRepository.save(user);
-        manageAuth(user.getUsername(), request.password());
         return getResponse(user);
     }
 
@@ -83,7 +85,6 @@ public class AuthService {
         }
         user.setUsername(request.username());
         userRepository.save(user);
-        manageAuth(request.username(), request.password());
         return getResponse(user);
     }
 
@@ -97,17 +98,18 @@ public class AuthService {
 
     private AuthResponse getResponse(User user) {
         log.debug("Authentication Succeeded, Sending Token Back.");
-        var jwtToken = jwtService.generateToken(user.getUsername());
+        var jwtToken = jwtService.generateToken(user.getUsername(), user.getUserId());
         return new AuthResponse(jwtToken);
     }
 
-    private void manageAuth(String username, String password) {
-        authenticationManager.authenticate(
+    private User manageAuth(String username, String password) {
+        Authentication authenticate = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         username,
                         password
                 )
         );
+        return (User) authenticate.getPrincipal();
     }
 
     private void isUsernameTakenAndThrow(String username) {

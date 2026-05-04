@@ -2,8 +2,10 @@ package com.keldorn.phenylalaninecalculatorapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -24,11 +26,20 @@ import io.swagger.v3.core.jackson.ModelResolver;
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
+    private final HttpServletRequest request;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        return username -> {
+            User cachedUser = (User) request.getAttribute(RequestAttributes.CURRENT_USER);
+            if (cachedUser != null && cachedUser.getUsername().equals(username)) {
+                return cachedUser;
+            }
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+            request.setAttribute(RequestAttributes.CURRENT_USER, user);
+            return user;
+        };
     }
 
     @Bean

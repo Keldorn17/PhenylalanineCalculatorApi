@@ -26,15 +26,31 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Long userId) {
         log.debug("Generating Token");
         final long EXPIRATION = 1000 * 60 * 60 * 24;
         return Jwts.builder()
                 .subject(username)
+                .claim("userId", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(signingKey)
                 .compact();
+    }
+
+    public Long extractUserId(String token) {
+        log.debug("Extracting User Id.");
+        try {
+            return Jwts.parser()
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("userId", Long.class);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.debug("Error during extracting user id: {}", e.getMessage());
+            throw new InvalidJwtTokenReceivedException("Invalid token received");
+        }
     }
 
     public String extractUsername(String token) {

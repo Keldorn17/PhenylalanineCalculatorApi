@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,12 +19,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,10 +37,18 @@ public class FoodTypeServiceTests {
     @Mock
     private FoodTypeRepository foodTypeRepository;
 
+    @Mock
+    private ObjectProvider<FoodTypeService> foodTypeServiceProvider;
+
     @InjectMocks
     private FoodTypeService foodTypeService;
 
     private final Long FOOD_TYPE_ID = 1L;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(foodTypeServiceProvider.getObject()).thenReturn(foodTypeService);
+    }
 
     @Test
     public void findById_shouldReturnFoodTypeResponse_whenFoodTypeExists() {
