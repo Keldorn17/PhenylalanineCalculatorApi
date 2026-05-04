@@ -160,7 +160,7 @@ public class FoodConsumptionServiceTests {
         existingEntity.setPhenylalanineAmount(oldPheAmount);
         existingEntity.getFood().setPhenylalanine(foodPheContent);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
@@ -179,7 +179,7 @@ public class FoodConsumptionServiceTests {
     public void update_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID))
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID))
                 .thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(
                         () -> foodConsumptionService.update(FOOD_CONSUMPTION_ID, request,
@@ -199,7 +199,7 @@ public class FoodConsumptionServiceTests {
                 TestEntityFactory.CONSUMED_AT
         );
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
@@ -222,7 +222,7 @@ public class FoodConsumptionServiceTests {
         );
         existingEntity.setPhenylalanineAmount(currentPheAmount);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
         foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID, TestEntityFactory.UTC_TIMEZONE);
         verify(dailyIntakeService).addAmount(any(LocalDate.class), eq(expectedNegativeAmount));
@@ -238,7 +238,7 @@ public class FoodConsumptionServiceTests {
                 TestEntityFactory.CONSUMED_AT
         );
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID, user.getUserId())).thenReturn(
                 Optional.of(existingEntity));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
@@ -251,8 +251,8 @@ public class FoodConsumptionServiceTests {
     @Test
     public void deleteById_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
-        when(foodConsumptionRepository.findByIdAndUserId(FOOD_CONSUMPTION_ID, TestEntityFactory.DEFAULT_ID)).thenReturn(
-                Optional.empty());
+        when(foodConsumptionRepository.findByIdAndUser_UserId(FOOD_CONSUMPTION_ID,
+                TestEntityFactory.DEFAULT_ID)).thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(
                         () -> foodConsumptionService.deleteById(FOOD_CONSUMPTION_ID, TestEntityFactory.UTC_TIMEZONE))
                 .isInstanceOf(ResourceNotFoundException.class);

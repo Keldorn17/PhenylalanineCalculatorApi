@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
@@ -17,6 +17,8 @@ import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Optional;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +36,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
+
+    @Mock
+    private HttpServletRequest request;
 
     @Mock
     private UserRepository userRepository;
@@ -129,10 +134,11 @@ public class UserServiceTests {
     @Test
     public void delete_whenUserExists() {
         User user = TestEntityFactory.user();
+        user.setUserId(1L);
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         userService.delete();
         verify(deleteUserAssociationsService).removeAssociation(user.getUserId());
-        verify(userRepository).delete(user);
+        verify(userRepository).deleteById(user.getUserId());
     }
 
     @Test

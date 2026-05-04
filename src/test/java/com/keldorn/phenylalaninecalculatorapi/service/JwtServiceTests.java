@@ -16,12 +16,20 @@ public class JwtServiceTests {
     private final JwtService jwtServiceB = new JwtService(SECRET_B);
 
     private final String TEST_USERNAME = "Test User";
+    private final Long TEST_USER_ID = 1L;
 
     @Test
     public void shouldExtractUsername_whenTokenSignedWithSameKey() {
-        String token = jwtServiceA.generateToken(TEST_USERNAME);
+        String token = jwtServiceA.generateToken(TEST_USERNAME, TEST_USER_ID);
         String username = jwtServiceA.extractUsername(token);
         Assertions.assertThat(username).isEqualTo(TEST_USERNAME);
+    }
+
+    @Test
+    public void shouldExtractUserId_whenTokenSignedWithSameKey() {
+        String token = jwtServiceA.generateToken(TEST_USERNAME, TEST_USER_ID);
+        Long userId = jwtServiceA.extractUserId(token);
+        Assertions.assertThat(userId).isEqualTo(TEST_USER_ID);
     }
 
     @Test
@@ -33,7 +41,7 @@ public class JwtServiceTests {
 
     @Test
     public void shouldThrow_whenTokenSignedWithDifferentKey() {
-        String token = jwtServiceB.generateToken(TEST_USERNAME);
+        String token = jwtServiceB.generateToken(TEST_USERNAME, TEST_USER_ID);
         Assertions.assertThatThrownBy(() -> jwtServiceA.extractUsername(token))
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
 

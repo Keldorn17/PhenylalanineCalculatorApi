@@ -78,3 +78,8 @@ ALTER TABLE users
 -- Adds is_deleted to Food Type
 -- rollback ALTER TABLE food_type DROP COLUMN is_deleted;
 ALTER TABLE food_type ADD is_deleted BOOLEAN NOT NULL;
+
+-- changeset Patai Zoltan:add-version-to-daily_intake
+-- Adds version column for optimistic locking
+-- rollback ALTER TABLE daily_intake DROP COLUMN version;
+ALTER TABLE daily_intake ADD version BIGINT DEFAULT 0 NOT NULL;

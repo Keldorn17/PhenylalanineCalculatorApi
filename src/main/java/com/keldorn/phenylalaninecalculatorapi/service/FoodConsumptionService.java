@@ -42,7 +42,7 @@ public class FoodConsumptionService {
 
     private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);
-        return foodConsumptionRepository.findByIdAndUserId(id, userId)
+        return foodConsumptionRepository.findByIdAndUser_UserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Food consumption not found by id: " + id));
     }
 

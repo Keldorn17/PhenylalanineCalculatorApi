@@ -7,17 +7,18 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface FoodConsumptionRepository extends JpaRepository<FoodConsumption, Long> {
 
-    @Query("FROM FoodConsumption f WHERE f.user.userId = ?1 AND f.consumedAt >= ?2 AND f.consumedAt < ?3")
+    @Query("FROM FoodConsumption fc WHERE fc.user.userId = ?1 AND fc.consumedAt >= ?2 AND fc.consumedAt < ?3")
     Page<FoodConsumption> findAllByUserAndConsumedAtBetween(Long userId, Instant start, Instant end, Pageable pageable);
 
-    @Query("FROM FoodConsumption f WHERE f.id = ?1 AND f.user.userId = ?2")
-    Optional<FoodConsumption> findByIdAndUserId(Long id, Long userId);
+    @EntityGraph(attributePaths = {"food", "user"})
+    Optional<FoodConsumption> findByIdAndUser_UserId(Long id, Long userId);
 
     @Modifying
     @Query("DELETE FROM FoodConsumption fc WHERE fc.user.userId = ?1")

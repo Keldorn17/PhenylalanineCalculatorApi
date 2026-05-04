@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,15 +23,18 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 public class FoodServiceTests {
@@ -44,10 +48,18 @@ public class FoodServiceTests {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ObjectProvider<FoodService> foodServiceProvider;
+
     @InjectMocks
     private FoodService foodService;
 
     private final Long FOOD_ID = 1L;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(foodServiceProvider.getObject()).thenReturn(foodService);
+    }
 
     @Test
     public void findById_shouldThrowFoodNotFoundException_whenResourceNotFound() {
@@ -68,9 +80,8 @@ public class FoodServiceTests {
     public void findAll_shouldReturnPageOfFoodResponses() {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setId(1L);
-        List<Food> responseList = List.of(food);
-        when(foodRepository.findSortedFoodIds(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(1L)));
-        when(foodRepository.findAllByIds(any())).thenReturn(responseList);
+        when(foodRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(
+                new PageImpl<>(List.of(food)));
         PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), food);
@@ -78,7 +89,7 @@ public class FoodServiceTests {
 
     @Test
     public void findAll_shouldReturnEmptyList() {
-        when(foodRepository.findSortedFoodIds(any(), any(Pageable.class))).thenReturn(Page.empty());
+        when(foodRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
         PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(0);
     }
@@ -88,10 +99,13 @@ public class FoodServiceTests {
         Long foodTypeId = 1L;
         FoodRequest request = new FoodRequest("Test Name", BigDecimal.TEN, BigDecimal.TEN, 1L);
         FoodType foodType = TestEntityFactory.foodType();
+        foodType.setMultiplier(1);
         foodType.setName("Updated Type Name");
-        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        Food food = TestEntityFactory.food(foodType);
+        food.setProtein(BigDecimal.TEN);
+        food.setPhenylalanine(BigDecimal.TEN);
         when(foodTypeService.findByIdOrThrow(foodTypeId)).thenReturn(foodType);
-        when(userService.getCurrentUser()).thenReturn(TestEntityFactory.user());
+        when(userService.getCurrentUserReference()).thenReturn(TestEntityFactory.user());
         when(foodRepository.save(any(Food.class))).thenReturn(food);
         FoodResponse response = foodService.save(request);
         ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
@@ -100,8 +114,7 @@ public class FoodServiceTests {
         Assertions.assertThat(savedFood.getUser()).isNotNull();
         Assertions.assertThat(savedFood.getFoodType()).isNotNull();
         Assertions.assertThat(savedFood.getPhenylalanine())
-                .isEqualByComparingTo(food.getProtein()
-                        .multiply(BigDecimal.valueOf(food.getFoodType().getMultiplier())));
+                .isEqualByComparingTo(BigDecimal.TEN);
         Assertions.assertThat(savedFood.getFoodType().getName()).isEqualTo(foodType.getName());
         doAssertionsCheckOnResponse(response, food);
     }
@@ -118,10 +131,10 @@ public class FoodServiceTests {
 
     @Test
     public void save_shouldThrowExceptionAndSaveNothing_whenUserNotFound() {
-        FoodRequest request = new FoodRequest(null, null, null, 1L);
+        FoodRequest request = new FoodRequest("Test", BigDecimal.TEN, BigDecimal.TEN, 1L);
         when(foodTypeService.findByIdOrThrow(request.foodTypeId()))
                 .thenReturn(TestEntityFactory.foodType());
-        when(userService.getCurrentUser())
+        when(userService.getCurrentUserReference())
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.save(request))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -131,10 +144,12 @@ public class FoodServiceTests {
     @Test
     public void update_shouldReturnFoodResponse() {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setProtein(BigDecimal.ONE);
         String foodName = "New Food Name";
         String typeName = "New Type Name";
         FoodUpdateRequest request = new FoodUpdateRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, 1L);
         FoodType foodType = TestEntityFactory.foodType();
+        foodType.setMultiplier(1);
         foodType.setName(typeName);
         when(foodRepository.findById(FOOD_ID)).thenReturn(Optional.of(food));
         when(foodTypeService.findByIdOrThrow(request.foodTypeId())).thenReturn(foodType);
@@ -147,9 +162,7 @@ public class FoodServiceTests {
         Assertions.assertThat(savedFood.getProtein()).isEqualByComparingTo(BigDecimal.ONE);
         Assertions.assertThat(savedFood.getCalories()).isEqualByComparingTo(BigDecimal.ONE);
         Assertions.assertThat(savedFood.getFoodType()).isEqualTo(foodType);
-        Assertions.assertThat(savedFood.getPhenylalanine())
-                .isEqualByComparingTo(food.getProtein()
-                        .multiply(BigDecimal.valueOf(food.getFoodType().getMultiplier())));
+        Assertions.assertThat(savedFood.getPhenylalanine()).isEqualByComparingTo(BigDecimal.ONE);
         doAssertionsCheckOnResponse(response, food);
     }
 

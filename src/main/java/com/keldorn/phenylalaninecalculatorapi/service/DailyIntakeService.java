@@ -50,9 +50,8 @@ public class DailyIntakeService {
      */
     @Transactional
     protected void addAmount(LocalDate date, BigDecimal amount) {
-        log.debug("Adding amount for daily intake");
-        DailyIntake dailyIntake = dailyIntakeRepository
-                .findByUserIdAndDate(userService.getCurrentUserId(), date)
+        log.debug("Adding amount for daily intake: {} to date: {}", amount, date);
+        DailyIntake dailyIntake = dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
                 .orElseGet(() -> DailyIntake.builder()
                         .user(userService.getCurrentUser())
                         .date(date)
