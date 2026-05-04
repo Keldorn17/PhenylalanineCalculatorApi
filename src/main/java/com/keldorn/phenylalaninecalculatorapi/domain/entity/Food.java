@@ -46,8 +46,7 @@ public class Food {
     private BigDecimal phenylalanine;
 
     @JoinColumn(name = "food_type_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
-            CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     private FoodType foodType;
 
     @JoinColumn(name = "user_id")
@@ -55,7 +54,7 @@ public class Food {
     private User user;
 
     @JoinColumn(name = "food_id", insertable = false)
-    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     private List<FoodConsumption> foodConsumption;
 
 }

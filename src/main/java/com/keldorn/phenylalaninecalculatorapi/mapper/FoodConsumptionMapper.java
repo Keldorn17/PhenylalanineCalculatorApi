@@ -25,6 +25,7 @@ public interface FoodConsumptionMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "amount", target = "amount")
+    @Mapping(source = "food.name", target = "foodName")
     @Mapping(source = "consumedAt", target = "consumedAt")
     @Mapping(source = "phenylalanineAmount", target = "phenylalanineAmount")
     FoodConsumptionResponse toModel(FoodConsumption foodConsumption, @Context ZoneId timezone);

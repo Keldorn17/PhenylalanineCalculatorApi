@@ -10,7 +10,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidRSQLException;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.utils.FoodQueryParamsUtil;
@@ -20,9 +19,7 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,26 +37,13 @@ public class FoodService {
 
     private final UserService userService;
     private final FoodRepository foodRepository;
-    private final FoodTypeService foodTypeService;
-
-    private final ObjectProvider<FoodService> foodServiceProvider;
-
-    private FoodService getSelf() {
-        return foodServiceProvider.getObject();
-    }
-
-    @Transactional(readOnly = true)
-    @Cacheable(value = "foods", key = "#id")
-    public Food findByIdOrThrow(Long id) {
-        log.debug("Getting Food By Id: {}", id);
-        return foodRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Food Not Found."));
-    }
+    private final FoodReadService foodReadService;
+    private final FoodTypeReadService foodTypeReadService;
 
     @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
-        return FoodMapper.INSTANCE.toModel(getSelf().findByIdOrThrow(id));
+        return FoodMapper.INSTANCE.toModel(foodReadService.findByIdOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -92,10 +76,10 @@ public class FoodService {
     @CacheEvict(value = "foods", key = "#id")
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
-        Food food = getSelf().findByIdOrThrow(id);
+        Food food = foodReadService.findByIdOrThrow(id);
         FoodMapper.INSTANCE.updateEntity(request, food);
         if (request.foodTypeId() != null) {
-            FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
+            FoodType foodType = foodTypeReadService.findByIdOrThrow(request.foodTypeId());
             food.setFoodType(foodType);
         }
         updatePhenylalanine(food);
@@ -106,14 +90,13 @@ public class FoodService {
     @CacheEvict(value = "foods", key = "#id")
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
-        Food food = foodRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Food Not Found."));
+        Food food = foodReadService.findByIdOrThrow(id);
         foodRepository.delete(food);
     }
 
     private void addTypeToFood(Food food, FoodRequest request) {
         log.debug("Adding Food Type To Food. Food Type Id: {}", request.foodTypeId());
-        FoodType foodType = foodTypeService.findByIdOrThrow(request.foodTypeId());
+        FoodType foodType = foodTypeReadService.findByIdOrThrow(request.foodTypeId());
         food.setFoodType(foodType);
     }
 

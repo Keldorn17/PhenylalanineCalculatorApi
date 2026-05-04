@@ -33,8 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FoodConsumptionService {
 
-    private final FoodService foodService;
     private final UserService userService;
+    private final FoodReadService foodReadService;
     private final DailyIntakeService dailyIntakeService;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
@@ -62,7 +62,7 @@ public class FoodConsumptionService {
     @Transactional
     public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request, String timezone) {
         log.debug("Creating food consumption");
-        Food food = foodService.findByIdOrThrow(foodId);
+        Food food = foodReadService.findByIdOrThrow(foodId);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
         Instant now = Instant.now();
         ZoneId userZoneId = resolveZoneId(timezone);

@@ -89,8 +89,8 @@ public class TestEntityFactory {
     }
 
     public static FoodConsumptionResponse foodConsumptionResponse() {
-        return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_BIG_DECIMAL_VALUE, DEFAULT_BIG_DECIMAL_VALUE,
-                TEST_DATE_TIME);
+        return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_FOOD_NAME, DEFAULT_BIG_DECIMAL_VALUE,
+                DEFAULT_BIG_DECIMAL_VALUE, TEST_DATE_TIME);
     }
 
     public static FoodResponse foodResponse() {

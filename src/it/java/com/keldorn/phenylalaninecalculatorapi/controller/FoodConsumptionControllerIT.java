@@ -168,7 +168,8 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         TestEntityFactory.DEFAULT_ID,
                         foodConsumptionRequest(),
                         HttpStatus.OK,
-                        foodConsumptionResponse(TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE, BigDecimal.valueOf(0.1))
+                        foodConsumptionResponse(TestEntityFactory.DEFAULT_ID,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE, BigDecimal.valueOf(0.1))
                 ),
                 Arguments.of("Conflict: Negative overall food consumption",
                         TestEntityFactory.DEFAULT_ID,
@@ -200,7 +201,8 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
 
     private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount,
             BigDecimal phenylalanineAmount) {
-        return new FoodConsumptionResponse(id, amount, phenylalanineAmount, TestEntityFactory.TEST_DATE_TIME);
+        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, amount, phenylalanineAmount,
+                TestEntityFactory.TEST_DATE_TIME);
     }
 
     private static void verifySuccess(TestPage<FoodConsumptionResponse> actual,

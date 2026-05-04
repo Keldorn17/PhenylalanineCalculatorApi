@@ -47,6 +47,9 @@ public class FoodConsumptionServiceTests {
     private FoodService foodService;
 
     @Mock
+    private FoodReadService foodReadService;
+
+    @Mock
     private UserService userService;
 
     @Mock
@@ -68,7 +71,7 @@ public class FoodConsumptionServiceTests {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setPhenylalanine(foodPheContent);
         when(userService.getCurrentUser()).thenReturn(user);
-        when(foodService.findByIdOrThrow(foodId)).thenReturn(food);
+        when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
         FoodConsumptionResponse response = foodConsumptionService.save(foodId, request, TestEntityFactory.UTC_TIMEZONE);
@@ -85,7 +88,7 @@ public class FoodConsumptionServiceTests {
     @Test
     public void save_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
-        when(foodService.findByIdOrThrow(FOOD_CONSUMPTION_ID))
+        when(foodReadService.findByIdOrThrow(FOOD_CONSUMPTION_ID))
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(
                         () -> foodConsumptionService.save(FOOD_CONSUMPTION_ID, request, TestEntityFactory.UTC_TIMEZONE))
@@ -98,7 +101,7 @@ public class FoodConsumptionServiceTests {
     public void save_shouldThrowExceptionAndSaveNothing_whenDailyIntakeFailsDueToNegativeConsumption() {
         Long foodId = 1L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.valueOf(-100));
-        when(foodService.findByIdOrThrow(foodId)).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
+        when(foodReadService.findByIdOrThrow(foodId)).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
         doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
                 .when(dailyIntakeService).addAmount(any(), any());
         Assertions.assertThatThrownBy(

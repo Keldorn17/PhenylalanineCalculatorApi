@@ -5,14 +5,12 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.PagedFoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodTypeMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -26,25 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class FoodTypeService {
 
     private final FoodTypeRepository foodTypeRepository;
-
-    private final ObjectProvider<FoodTypeService> foodTypeServiceProvider;
-
-    private FoodTypeService getSelf() {
-        return foodTypeServiceProvider.getObject();
-    }
-
-    @Transactional(readOnly = true)
-    @Cacheable(value = "foodTypes", key = "#id")
-    public FoodType findByIdOrThrow(Long id) {
-        log.debug("Getting Food Type By Id: {}", id);
-        return foodTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Food Type Not Found."));
-    }
+    private final FoodTypeReadService foodTypeReadService;
 
     @Transactional(readOnly = true)
     public FoodTypeResponse findById(Long id) {
         log.debug("Finding Food Type Response By Id: {}", id);
-        return FoodTypeMapper.INSTANCE.toModel(getSelf().findByIdOrThrow(id));
+        return FoodTypeMapper.INSTANCE.toModel(foodTypeReadService.findByIdOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +52,7 @@ public class FoodTypeService {
     @CacheEvict(value = "foodTypes", key = "#id")
     public FoodTypeResponse update(Long id, FoodTypeRequest request) {
         log.debug("Updating Food Type");
-        FoodType foodType = getSelf().findByIdOrThrow(id);
+        FoodType foodType = foodTypeReadService.findByIdOrThrow(id);
         foodType.setName(request.name());
         foodType.setMultiplier(request.multiplier());
         return FoodTypeMapper.INSTANCE.toModel(foodTypeRepository.save(foodType));
@@ -77,8 +62,7 @@ public class FoodTypeService {
     @CacheEvict(value = "foodTypes", key = "#id")
     public void deleteById(Long id) {
         log.debug("Deleting Food Type By Id: {}", id);
-        FoodType foodType = foodTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Food Type Not Found."));
+        FoodType foodType = foodTypeReadService.findByIdOrThrow(id);
         foodTypeRepository.delete(foodType);
     }
 
