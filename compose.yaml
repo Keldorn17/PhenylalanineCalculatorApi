@@ -8,9 +8,9 @@ services:
   mysql:
     image: 'mysql:9.6.0'
     environment:
-      - 'MYSQL_DATABASE=${MYSQL_DB}'
-      - 'MYSQL_USER=${MYSQL_USER}'
-      - 'MYSQL_PASSWORD=${MYSQL_PASS}'
-      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}'
+      - 'MYSQL_DATABASE=${MYSQL_DB:-dummy_db}'
+      - 'MYSQL_USER=${MYSQL_USER:-dummy_user}'
+      - 'MYSQL_PASSWORD=${MYSQL_PASS:-dummy_password}'
+      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS:-dummy_password}'
     ports:
       - '${EXTERNAL_MYSQL_PORT:-3306}:3306'
