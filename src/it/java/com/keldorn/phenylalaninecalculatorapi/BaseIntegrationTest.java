@@ -9,6 +9,8 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
 
+import java.math.BigDecimal;
+
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
@@ -71,10 +73,22 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         );
     }
 
-    protected void verifyError(RestTestClient.ResponseSpec spec, ErrorResponse expected) {
+    @SuppressWarnings("unchecked")
+    protected <T> void verifyResponse(RestTestClient.ResponseSpec spec, T expected) {
         if (expected != null) {
-            spec.expectBody(ErrorResponse.class)
+            Class<T> responseClass = (Class<T>) expected.getClass();
+            spec.expectBody(responseClass)
                     .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> void verifyResponseWithBigDecimalCompareTo(RestTestClient.ResponseSpec spec, T expected) {
+        if (expected != null) {
+            Class<T> responseClass = (Class<T>) expected.getClass();
+            spec.expectBody(responseClass)
+                    .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
+                            .withComparatorForType(BigDecimal::compareTo, BigDecimal.class).isEqualTo(expected));
         }
     }
 

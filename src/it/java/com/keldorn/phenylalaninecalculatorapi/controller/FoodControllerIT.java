@@ -17,13 +17,11 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 public class FoodControllerIT extends BaseIntegrationTest {
 
@@ -44,10 +42,10 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -57,7 +55,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .uri(path(ApiRoutes.FOOD_PATH_BY_ID, TestEntityFactory.DEFAULT_ID))
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @MethodSource("getAllTestCases")
@@ -75,10 +73,10 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (PagedFoodResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (PagedFoodResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -95,11 +93,11 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
             responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID, 3L)));
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -115,7 +113,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -133,10 +131,10 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -149,7 +147,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -164,7 +162,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -174,7 +172,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .uri(path(ApiRoutes.FOOD_PATH_BY_ID, TestEntityFactory.DEFAULT_ID))
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> getByIdTestCases() {
@@ -353,20 +351,6 @@ public class FoodControllerIT extends BaseIntegrationTest {
     private static FoodResponse appleFoodResponse() {
         return new FoodResponse(2L, "apple", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
                 BigDecimal.valueOf(2.6), "testFoodType", 10);
-    }
-
-    private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, FoodResponse expectedResponse) {
-        responseSpec.expectBody(FoodResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
-                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                        .isEqualTo(expectedResponse));
-    }
-
-    private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, PagedFoodResponse expectedResponse) {
-        responseSpec.expectBody(PagedFoodResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
-                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                        .isEqualTo(expectedResponse));
     }
 
 }

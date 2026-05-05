@@ -1,5 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
@@ -7,8 +9,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 public class FoodTypeControllerIT extends BaseIntegrationTest {
 
@@ -42,10 +41,10 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodTypeResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodTypeResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 .uri(path(ApiRoutes.FOOD_TYPE_PATH_BY_ID, TestEntityFactory.DEFAULT_ID))
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -88,12 +87,12 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodTypeResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodTypeResponse) expectedResponse);
             responseSpec.expectHeader().location(
                     String.valueOf(path(ApiRoutes.FOOD_TYPE_PATH_BY_ID, NEXT_AVAILABLE_FOOD_TYPE_ID)));
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -111,10 +110,10 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodTypeResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodTypeResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -129,7 +128,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     private static Stream<Arguments> findByIdTestCases() {
@@ -221,11 +220,6 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
     private static FoodTypeResponse foodTypeResponse(Long foodTypeId) {
         return new FoodTypeResponse(foodTypeId, TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
                 TestEntityFactory.DEFAULT_INTEGER_VALUE);
-    }
-
-    private static void verifySuccess(RestTestClient.ResponseSpec responseSpec, FoodTypeResponse expectedResponse) {
-        responseSpec.expectBody(FoodTypeResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expectedResponse));
     }
 
     private static void verifySuccess(TestPage<FoodTypeResponse> actual, TestPage<FoodTypeResponse> expectedResponse) {
