@@ -31,10 +31,31 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.springdoc.version>3.0.3</org.springdoc.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
+        <io.opentelemetry.version>1.60.1</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.27.0-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.0</io.github.perplexhub.version>
-    </properties>
-    <dependencies>
+        </properties>
+
+        <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${io.opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${io.opentelemetry.instrumentation.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+        </dependencyManagement>
+
+        <dependencies>
         <!-- Spring Boot Web & Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
