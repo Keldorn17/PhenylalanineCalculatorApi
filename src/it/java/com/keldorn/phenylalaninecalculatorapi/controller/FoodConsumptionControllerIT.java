@@ -77,7 +77,7 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 )
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -100,7 +100,7 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
                     String.valueOf(path(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID, NEW_FOOD_CONSUMPTION_ID)));
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -118,10 +118,10 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (FoodConsumptionResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodConsumptionResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @DirtyTest
@@ -136,7 +136,7 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     private static Stream<Arguments> postFoodConsumptionTestCases() {
@@ -210,14 +210,6 @@ public class FoodConsumptionControllerIT extends BaseIntegrationTest {
         Assertions.assertThat(actual).usingRecursiveComparison()
                 .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
                 .isEqualTo(expectedResponse);
-    }
-
-    private static void verifySuccess(RestTestClient.ResponseSpec responseSpec,
-            FoodConsumptionResponse expectedResponse) {
-        responseSpec.expectBody(FoodConsumptionResponse.class).value(
-                actual -> Assertions.assertThat(actual).usingRecursiveComparison()
-                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                        .isEqualTo(expectedResponse));
     }
 
     private static void verifySuccessIgnoreCreatedAt(RestTestClient.ResponseSpec responseSpec,

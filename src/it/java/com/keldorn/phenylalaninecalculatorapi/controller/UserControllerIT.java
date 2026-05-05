@@ -1,25 +1,23 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 public class UserControllerIT extends BaseIntegrationTest {
 
@@ -35,7 +33,7 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isOk();
-        verifySuccess(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -45,7 +43,7 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -62,10 +60,10 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (UserResponse) expectedResponse);
+            verifyResponse(responseSpec, (UserResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -78,7 +76,7 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -99,7 +97,7 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> updateUserTestCases() {
@@ -120,11 +118,6 @@ public class UserControllerIT extends BaseIntegrationTest {
                         error(HttpStatus.BAD_REQUEST, ApiResponses.MALFORMED_EMAIL_RESPONSE)
                 )
         );
-    }
-
-    private void verifySuccess(RestTestClient.ResponseSpec spec, UserResponse expected) {
-        spec.expectBody(UserResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()).isEqualTo(expected);
     }
 
     private static UserResponse userResponse(String email, BigDecimal dailyLimit) {

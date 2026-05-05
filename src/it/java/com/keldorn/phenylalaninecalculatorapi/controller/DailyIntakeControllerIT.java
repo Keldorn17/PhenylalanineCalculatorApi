@@ -1,23 +1,20 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 public class DailyIntakeControllerIT extends BaseIntegrationTest {
 
@@ -42,10 +39,10 @@ public class DailyIntakeControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifySuccess(responseSpec, (DailyIntakeResponse) expectedResponse);
+            verifyResponseWithBigDecimalCompareTo(responseSpec, (DailyIntakeResponse) expectedResponse);
             return;
         }
-        verifyError(responseSpec, (ErrorResponse) expectedResponse);
+        verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
     @Test
@@ -59,7 +56,7 @@ public class DailyIntakeControllerIT extends BaseIntegrationTest {
                 )
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> getDailyIntakeTestCases() {
@@ -85,13 +82,6 @@ public class DailyIntakeControllerIT extends BaseIntegrationTest {
                         error(HttpStatus.BAD_REQUEST, ApiResponses.REQUIRED_MISSING_RESPONSE.formatted("date"))
                 )
         );
-    }
-
-    private void verifySuccess(RestTestClient.ResponseSpec spec, DailyIntakeResponse expected) {
-        spec.expectBody(DailyIntakeResponse.class)
-                .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
-                        .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                        .isEqualTo(expected));
     }
 
 }

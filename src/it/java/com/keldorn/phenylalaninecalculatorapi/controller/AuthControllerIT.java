@@ -78,7 +78,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
             verifySuccess(responseSpec, TEST_REGISTER_USERNAME);
             return;
         }
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @MethodSource("getAuthenticateTestCases")
@@ -96,7 +96,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
             verifySuccess(responseSpec);
             return;
         }
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -122,7 +122,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                     .expectStatus().isOk();
             return;
         }
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @DirtyTest
@@ -178,7 +178,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                     .expectStatus().isOk();
             return;
         }
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().isUnauthorized();
-        verifyError(responseSpec, expectedResponse);
+        verifyResponse(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> getRegistrationTestCases() {
