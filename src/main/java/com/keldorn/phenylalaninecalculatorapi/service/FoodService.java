@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,7 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "foodPages", key = "{#queryRequest, #paginationRequest, @userService.getCurrentUserId()}")
     public PagedFoodResponse findAll(QueryRequest queryRequest, PaginationRequest paginationRequest) {
         log.debug("Finding All Foods");
         PageRequest pageRequest = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
@@ -63,6 +65,7 @@ public class FoodService {
     }
 
     @Transactional
+    @CacheEvict(value = {"foodEntities", "foodPages"}, allEntries = true)
     public FoodResponse save(FoodRequest request) {
         log.debug("Saving Food");
         Food food = FoodMapper.INSTANCE.toEntity(request);
@@ -73,7 +76,7 @@ public class FoodService {
     }
 
     @Transactional
-    @CacheEvict(value = "foods", key = "#id")
+    @CacheEvict(value = {"foodEntities", "foodPages"}, allEntries = true)
     public FoodResponse update(Long id, FoodUpdateRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = foodReadService.findByIdOrThrow(id);
@@ -87,7 +90,7 @@ public class FoodService {
     }
 
     @Transactional
-    @CacheEvict(value = "foods", key = "#id")
+    @CacheEvict(value = {"foodEntities", "foodPages"}, allEntries = true)
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
         Food food = foodReadService.findByIdOrThrow(id);

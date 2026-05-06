@@ -83,3 +83,13 @@ ALTER TABLE food_type ADD is_deleted BOOLEAN NOT NULL;
 -- Adds version column for optimistic locking
 -- rollback ALTER TABLE daily_intake DROP COLUMN version;
 ALTER TABLE daily_intake ADD version BIGINT DEFAULT 0 NOT NULL;
+
+-- changeset Patai Zoltan:add-user-id-to-food-type
+-- Adds userId column to Food Type
+-- rollback ALTER TABLE food_type DROP COLUMN userId;
+ALTER TABLE food_type ADD user_id BIGINT;
+
+-- changeset Patai Zoltan:add-fk-user-id-to-food-type
+-- Adds foreign key constraint to userId in Food Type table
+-- rollback ALTER TABLE food_type DROP FOREIGN KEY fk_food_type_user;
+ALTER TABLE food_type ADD CONSTRAINT fk_food_type_user FOREIGN KEY (user_id) REFERENCES users (user_id);

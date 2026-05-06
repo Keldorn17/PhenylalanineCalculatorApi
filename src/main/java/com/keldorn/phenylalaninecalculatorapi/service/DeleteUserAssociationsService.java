@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeleteUserAssociationsService {
 
     private final FoodRepository foodRepository;
+    private final FoodTypeRepository foodTypeRepository;
     private final DailyIntakeRepository dailyIntakeRepository;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
@@ -23,6 +25,8 @@ public class DeleteUserAssociationsService {
     public void removeAssociation(Long userId) {
         int foodCount = foodRepository.updateFoodUser(userId, null);
         log.debug("Removed food associations {}, for user: {}", foodCount, userId);
+        int foodTypeCount = foodTypeRepository.updateFoodTypeUser(userId, null);
+        log.debug("Removed food associations {}, for user: {}", foodTypeCount, userId);
         int dailyIntakeCount = dailyIntakeRepository.deleteDailyIntakeByUserId(userId);
         log.debug("Deleted daily intake {}, for user {}", dailyIntakeCount, userId);
         int foodConsumptionCount = foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);

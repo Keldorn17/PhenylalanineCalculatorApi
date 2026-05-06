@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 public class FoodTypeControllerIT extends BaseIntegrationTest {
 
     private static final Long EXISTING_FOOD_TYPE_ID = 1L;
+    private static final Long UNOWNED_FOOD_TYPE_ID = 2L;
     private static final Long UNKNOWN_FOOD_TYPE_ID = 99L;
     private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 4L;
     private static final String UPDATED_FOOD_TYPE_NAME = "updated name";
@@ -62,7 +63,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
         TestPage<FoodTypeResponse> expectedResponse =
                 new TestPage<>(List.of(
                         TestEntityFactory.foodTypeResponse(),
-                        foodTypeResponse(2L)
+                        foodTypeResponse(2L, false)
                 ), new TestPage.PageMetadata(20, 0, 2, 1));
         restTestClient.get()
                 .uri(ApiRoutes.FOOD_TYPE_PATH)
@@ -151,7 +152,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 Arguments.of("Successful food type creation",
                         foodTypeRequest(),
                         HttpStatus.CREATED,
-                        foodTypeResponse(NEXT_AVAILABLE_FOOD_TYPE_ID)
+                        foodTypeResponse(NEXT_AVAILABLE_FOOD_TYPE_ID, true)
                 ),
                 Arguments.of("Missing name parameter",
                         new FoodTypeRequest(null, TestEntityFactory.DEFAULT_INTEGER_VALUE),
@@ -174,7 +175,7 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                         EXISTING_FOOD_TYPE_ID,
                         HttpStatus.OK,
                         new FoodTypeResponse(EXISTING_FOOD_TYPE_ID, UPDATED_FOOD_TYPE_NAME,
-                                UPDATED_FOOD_TYPE_MULTIPLIER)
+                                UPDATED_FOOD_TYPE_MULTIPLIER, true)
                 ),
                 Arguments.of("Food type not found",
                         foodTypeRequest(),
@@ -194,6 +195,12 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
                                 ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("multiplier"))
+                ),
+                Arguments.of("Cannot edit unowned resource",
+                        new FoodTypeRequest(UPDATED_FOOD_TYPE_NAME, UPDATED_FOOD_TYPE_MULTIPLIER),
+                        UNOWNED_FOOD_TYPE_ID,
+                        HttpStatus.FORBIDDEN,
+                        error(HttpStatus.FORBIDDEN, ApiResponses.UNOWNED_RESOURCE_RESPONSE)
                 )
         );
     }
@@ -209,6 +216,11 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                         UNKNOWN_FOOD_TYPE_ID,
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                ),
+                Arguments.of("Cannot delete unowned resource",
+                        UNOWNED_FOOD_TYPE_ID,
+                        HttpStatus.FORBIDDEN,
+                        error(HttpStatus.FORBIDDEN, ApiResponses.UNOWNED_RESOURCE_RESPONSE)
                 )
         );
     }
@@ -217,9 +229,9 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
         return new FoodTypeRequest(TestEntityFactory.DEFAULT_FOOD_TYPE_NAME, TestEntityFactory.DEFAULT_INTEGER_VALUE);
     }
 
-    private static FoodTypeResponse foodTypeResponse(Long foodTypeId) {
+    private static FoodTypeResponse foodTypeResponse(Long foodTypeId, boolean canEdit) {
         return new FoodTypeResponse(foodTypeId, TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
-                TestEntityFactory.DEFAULT_INTEGER_VALUE);
+                TestEntityFactory.DEFAULT_INTEGER_VALUE, canEdit);
     }
 
     private static void verifySuccess(TestPage<FoodTypeResponse> actual, TestPage<FoodTypeResponse> expectedResponse) {

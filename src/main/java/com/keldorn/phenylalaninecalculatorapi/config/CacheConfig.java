@@ -12,12 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfig {
 
+    private final String[] cacheNames = {"foodTypeEntities", "foodTypePages", "foodEntities", "foodPages"};
+
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("foodTypes", "foods");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(cacheNames);
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .initialCapacity(100)
-                .maximumSize(500)
+                .maximumSize(1000)
                 .expireAfterWrite(1, TimeUnit.HOURS)
                 .recordStats());
         return cacheManager;
