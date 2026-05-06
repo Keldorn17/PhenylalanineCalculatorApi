@@ -3,6 +3,14 @@ package com.keldorn.phenylalaninecalculatorapi.repository;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface FoodTypeRepository extends JpaRepository<FoodType, Long> {
+
+    @Modifying
+    @Query(value = "UPDATE food_type SET user_id = :updatedUserId WHERE user_id = :userId", nativeQuery = true)
+    int updateFoodTypeUser(@Param("userId") Long userId, @Param("updatedUserId") Long updatedUserId);
+
 }

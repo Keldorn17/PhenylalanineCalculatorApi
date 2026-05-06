@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.PagedFoodTypeResponse;
@@ -36,6 +37,9 @@ public class FoodTypeServiceTests {
     @Mock
     private FoodTypeReadService foodTypeReadService;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private FoodTypeService foodTypeService;
 
@@ -45,7 +49,10 @@ public class FoodTypeServiceTests {
     public void findById_shouldReturnFoodTypeResponse_whenFoodTypeExists() {
         FoodType foodType = TestEntityFactory.foodType();
         foodType.setId(FOOD_TYPE_ID);
+        foodType.setUser(TestEntityFactory.user());
+        foodType.getUser().setUserId(TestEntityFactory.DEFAULT_ID);
         when(foodTypeReadService.findByIdOrThrow(FOOD_TYPE_ID)).thenReturn(foodType);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         FoodTypeResponse response = foodTypeService.findById(FOOD_TYPE_ID);
         doAssertionsCheckOnResponse(response, foodType);
     }
@@ -62,9 +69,12 @@ public class FoodTypeServiceTests {
         FoodType foodType = TestEntityFactory.foodType();
         PaginationRequest paginationRequest = new PaginationRequest(0, 20);
         foodType.setId(FOOD_TYPE_ID);
+        foodType.setUser(TestEntityFactory.user());
+        foodType.getUser().setUserId(TestEntityFactory.DEFAULT_ID);
         List<FoodType> foodTypeList = List.of(foodType);
         Page<FoodType> foodTypePage = new PageImpl<>(foodTypeList);
         when(foodTypeRepository.findAll(any(Pageable.class))).thenReturn(foodTypePage);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         PagedFoodTypeResponse response = foodTypeService.findAll(paginationRequest);
         Assertions.assertThat(response.getContent()).hasSize(1);
         doAssertionsCheckOnResponse(response.getContent().getFirst(), foodType);
@@ -72,8 +82,12 @@ public class FoodTypeServiceTests {
 
     @Test
     public void save_shouldReturnSavedFoodTypeResponse() {
+        User user = TestEntityFactory.user();
+        user.setUserId(TestEntityFactory.DEFAULT_ID);
         FoodType foodType = TestEntityFactory.foodType();
+        foodType.setUser(user);
         FoodTypeRequest request = new FoodTypeRequest(foodType.getName(), foodType.getMultiplier());
+        when(userService.getCurrentUserReference()).thenReturn(user);
         when(foodTypeRepository.save(foodType)).thenReturn(foodType);
         FoodTypeResponse response = foodTypeService.save(request);
         verify(foodTypeRepository).save(foodType);
@@ -84,8 +98,11 @@ public class FoodTypeServiceTests {
     public void update_shouldReturnUpdatedFoodTypeResponse_whenFoodTypeExists() {
         FoodType foodType = TestEntityFactory.foodType();
         foodType.setId(FOOD_TYPE_ID);
+        foodType.setUser(TestEntityFactory.user());
+        foodType.getUser().setUserId(TestEntityFactory.DEFAULT_ID);
         FoodTypeRequest request = new FoodTypeRequest("Updated Name", 100);
         when(foodTypeReadService.findByIdOrThrow(FOOD_TYPE_ID)).thenReturn(foodType);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(foodTypeRepository.save(any(FoodType.class))).thenReturn(foodType);
         FoodTypeResponse response = foodTypeService.update(FOOD_TYPE_ID, request);
         ArgumentCaptor<FoodType> captor = ArgumentCaptor.forClass(FoodType.class);
@@ -109,7 +126,10 @@ public class FoodTypeServiceTests {
     @Test
     public void delete_shouldDeleteEntity() {
         FoodType foodType = TestEntityFactory.foodType();
+        foodType.setUser(TestEntityFactory.user());
+        foodType.getUser().setUserId(TestEntityFactory.DEFAULT_ID);
         when(foodTypeReadService.findByIdOrThrow(FOOD_TYPE_ID)).thenReturn(foodType);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         foodTypeService.deleteById(FOOD_TYPE_ID);
         verify(foodTypeRepository).delete(foodType);
         verify(foodTypeRepository, never()).deleteById(any());

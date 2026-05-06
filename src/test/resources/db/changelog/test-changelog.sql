@@ -6,16 +6,19 @@
 INSERT INTO users (username, email, password, role, daily_limit)
 VALUES ('testUser', 'test@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoaLw9eP59snqmbCiePoD3Gti', 'ROLE_USER',
         400);
+INSERT INTO users (username, email, password, role, daily_limit)
+VALUES ('testUser2', 'test2@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoaLw9eP59snqmbCiePoD3Gti', 'ROLE_USER',
+        400);
 
 -- Test Food Type
 -- changeset Patai Zoltán:load-test-food-type
 -- Loads food type
-INSERT INTO food_type (name, multiplier, is_deleted)
-VALUES ('testFoodType', 10, false);
-INSERT INTO food_type (name, multiplier, is_deleted)
-VALUES ('testFoodType', 10, false);
-INSERT INTO food_type (name, multiplier, is_deleted)
-VALUES ('testFoodType', 10, true);
+INSERT INTO food_type (name, multiplier, is_deleted, user_id)
+VALUES ('testFoodType', 10, false, 1);
+INSERT INTO food_type (name, multiplier, is_deleted, user_id)
+VALUES ('testFoodType', 10, false, 2);
+INSERT INTO food_type (name, multiplier, is_deleted, user_id)
+VALUES ('testFoodType', 10, true, 1);
 
 -- Test Food
 -- changeset Patai Zoltán:load-test-food

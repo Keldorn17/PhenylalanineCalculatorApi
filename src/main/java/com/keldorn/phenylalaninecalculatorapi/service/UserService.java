@@ -55,7 +55,7 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    protected User getCurrentUser() {
+    public User getCurrentUser() {
         log.debug("Getting current user");
         User cachedUser = (User) request.getAttribute(RequestAttributes.CURRENT_USER);
         if (cachedUser != null) {
@@ -78,7 +78,7 @@ public class UserService {
         return user;
     }
 
-    protected Long getCurrentUserId() {
+    public Long getCurrentUserId() {
         log.debug("Getting current user's id");
         Long userId = (Long) request.getAttribute(RequestAttributes.CURRENT_USER_ID);
         if (userId != null) {
@@ -87,7 +87,7 @@ public class UserService {
         return getCurrentUser().getUserId();
     }
 
-    protected User getCurrentUserReference() {
+    public User getCurrentUserReference() {
         log.debug("Getting current user reference");
         return userRepository.getReferenceById(getCurrentUserId());
     }

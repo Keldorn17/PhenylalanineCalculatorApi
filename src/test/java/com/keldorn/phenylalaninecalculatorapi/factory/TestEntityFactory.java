@@ -110,7 +110,7 @@ public class TestEntityFactory {
     }
 
     public static FoodTypeResponse foodTypeResponse() {
-        return new FoodTypeResponse(DEFAULT_ID, DEFAULT_FOOD_TYPE_NAME, DEFAULT_INTEGER_VALUE);
+        return new FoodTypeResponse(DEFAULT_ID, DEFAULT_FOOD_TYPE_NAME, DEFAULT_INTEGER_VALUE, true);
     }
 
 }

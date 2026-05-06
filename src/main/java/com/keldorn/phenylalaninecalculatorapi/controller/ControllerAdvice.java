@@ -2,14 +2,15 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.exception.CannotEditResourceException;
 import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
+import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidRSQLException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
-import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
-import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 
 import java.util.stream.Collectors;
 
@@ -50,6 +51,11 @@ public class ControllerAdvice {
     @ExceptionHandler(InvalidRSQLException.class)
     public ResponseEntity<Object> handleBadRequest(Exception ex) {
         return buildAndLog(HttpStatus.BAD_REQUEST, ApiResponses.CLIENT_ERROR, ex);
+    }
+
+    @ExceptionHandler(CannotEditResourceException.class)
+    public ResponseEntity<Object> handleInternalError(CannotEditResourceException ex) {
+        return buildAndLog(HttpStatus.FORBIDDEN, ApiResponses.CLIENT_ERROR, ex);
     }
 
     @ExceptionHandler(Exception.class)
@@ -126,6 +132,7 @@ public class ControllerAdvice {
             case "ResourceNotFoundException" -> ApiResponses.RESOURCE_NOT_FOUND_RESPONSE;
             case "DailyIntakeCannotBeLowerThanZeroException" -> ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE;
             case "InvalidRSQLException" -> ApiResponses.INVALID_RSQL_RESPONSE;
+            case "CannotEditResourceException" -> ApiResponses.UNOWNED_RESOURCE_RESPONSE;
             default -> ApiResponses.DEFAULT_RESPONSE;
         };
     }

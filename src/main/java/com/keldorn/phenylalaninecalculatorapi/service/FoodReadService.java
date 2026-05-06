@@ -19,7 +19,7 @@ public class FoodReadService {
     private final FoodRepository foodRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "foods", key = "#id")
+    @Cacheable(value = "foodEntities", key = "#id")
     public Food findByIdOrThrow(Long id) {
         log.debug("Getting Food By Id: {}", id);
         return foodRepository.findById(id)
