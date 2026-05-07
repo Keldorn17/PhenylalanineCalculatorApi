@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,8 +22,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @Entity
@@ -30,6 +33,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "food")
+@EntityListeners(AuditingEntityListener.class)
+@SQLDelete(sql = "UPDATE food SET is_deleted = true WHERE food_id = ?")
 public class Food {
 
     @Id
@@ -49,6 +54,10 @@ public class Food {
     @Column(name = "phenylalanine", precision = 10, scale = 2)
     private BigDecimal phenylalanine;
 
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
     @CreatedDate
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
@@ -65,8 +74,7 @@ public class Food {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     private User user;
 
-    @JoinColumn(name = "food_id", insertable = false)
-    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "food", cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     private List<FoodConsumption> foodConsumption;
 
 }

@@ -101,7 +101,8 @@ public class TestEntityFactory {
                 DEFAULT_BIG_DECIMAL_VALUE,
                 DEFAULT_BIG_DECIMAL_VALUE,
                 DEFAULT_FOOD_TYPE_NAME,
-                DEFAULT_INTEGER_VALUE
+                DEFAULT_INTEGER_VALUE,
+                true
         );
     }
 

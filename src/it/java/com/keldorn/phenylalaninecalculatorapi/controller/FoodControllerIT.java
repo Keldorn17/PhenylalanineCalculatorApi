@@ -28,6 +28,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
     private static final Long UNKNOWN_ID = 99L;
     private static final Long UPDATE_FOOD_TYPE_ID = 2L;
     private static final String UPDATE_NAME = "updateName";
+    private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 5L;
     private static final BigDecimal UPDATE_BIGDECIMAL = BigDecimal.ONE;
 
     @MethodSource("getByIdTestCases")
@@ -94,7 +95,8 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
             verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
-            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID, 3L)));
+            responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID,
+                    NEXT_AVAILABLE_FOOD_TYPE_ID)));
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
@@ -195,8 +197,9 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 Arguments.of("Successful get all food",
                         null, null, null, null,
                         HttpStatus.OK,
-                        new PagedFoodResponse(List.of(TestEntityFactory.foodResponse(), appleFoodResponse()),
-                                new PageResponse(20, 0, 2, 1))
+                        new PagedFoodResponse(
+                                List.of(TestEntityFactory.foodResponse(), apple3FoodResponse(), appleFoodResponse()),
+                                new PageResponse(20, 0, 3, 1))
                 ),
                 Arguments.of("Query unknown name should return empty object",
                         null, null, "name==\"unknown\"", null,
@@ -211,8 +214,9 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 Arguments.of("Sort ids in descending order",
                         null, null, null, "id,desc",
                         HttpStatus.OK,
-                        new PagedFoodResponse(List.of(appleFoodResponse(), TestEntityFactory.foodResponse()),
-                                new PageResponse(20, 0, 2, 1))
+                        new PagedFoodResponse(
+                                List.of(apple3FoodResponse(), appleFoodResponse(), TestEntityFactory.foodResponse()),
+                                new PageResponse(20, 0, 3, 1))
                 ),
                 Arguments.of("Invalid rsql query provided",
                         null, null, "invalid==\"apple\"", null,
@@ -245,7 +249,8 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.CREATED,
-                        foodResponse(3L, BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP))
+                        foodResponse(NEXT_AVAILABLE_FOOD_TYPE_ID,
+                                BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP))
                 ),
                 Arguments.of("Food name missing",
                         new FoodRequest(null,
@@ -337,7 +342,8 @@ public class FoodControllerIT extends BaseIntegrationTest {
                 calories,
                 phenylalanine,
                 TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
-                TestEntityFactory.DEFAULT_INTEGER_VALUE);
+                TestEntityFactory.DEFAULT_INTEGER_VALUE,
+                true);
     }
 
     private static FoodResponse foodResponse(Long id, BigDecimal phenylalanine) {
@@ -350,7 +356,12 @@ public class FoodControllerIT extends BaseIntegrationTest {
 
     private static FoodResponse appleFoodResponse() {
         return new FoodResponse(2L, "apple", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
-                BigDecimal.valueOf(2.6), "testFoodType", 10);
+                BigDecimal.valueOf(2.6), "testFoodType", 10, true);
+    }
+
+    private static FoodResponse apple3FoodResponse() {
+        return new FoodResponse(4L, "apple3", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
+                BigDecimal.valueOf(2.6), "testFoodType", 10, false);
     }
 
 }

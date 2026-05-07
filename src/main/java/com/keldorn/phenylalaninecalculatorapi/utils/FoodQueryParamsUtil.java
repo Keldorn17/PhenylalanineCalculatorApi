@@ -29,7 +29,7 @@ public class FoodQueryParamsUtil {
     }
 
     public static Specification<Food> createQuerySpecification(QueryRequest request) {
-        Specification<Food> spec = ((_, _, criteriaBuilder) -> criteriaBuilder.conjunction());
+        Specification<Food> spec = ((root, _, criteriaBuilder) -> criteriaBuilder.isFalse(root.get("isDeleted")));
         if (isNotBlank(request.getQuery())) {
             spec = spec.and(RSQLJPASupport.toSpecification(request.getQuery(), PROPERTY_MAP));
         }

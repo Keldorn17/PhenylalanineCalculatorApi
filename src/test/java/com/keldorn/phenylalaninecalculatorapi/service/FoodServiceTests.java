@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
@@ -25,6 +26,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -75,7 +77,7 @@ public class FoodServiceTests {
     public void findAll_shouldReturnPageOfFoodResponses() {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setId(1L);
-        when(foodRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(
+        when(foodRepository.findAll(ArgumentMatchers.<Specification<Food>>any(), any(Pageable.class))).thenReturn(
                 new PageImpl<>(List.of(food)));
         PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(1);
@@ -84,7 +86,7 @@ public class FoodServiceTests {
 
     @Test
     public void findAll_shouldReturnEmptyList() {
-        when(foodRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+        when(foodRepository.findAll(ArgumentMatchers.<Specification<Food>>any(), any(Pageable.class))).thenReturn(Page.empty());
         PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).hasSize(0);
     }
@@ -138,8 +140,11 @@ public class FoodServiceTests {
 
     @Test
     public void update_shouldReturnFoodResponse() {
+        User user = TestEntityFactory.user();
+        user.setUserId(TestEntityFactory.DEFAULT_ID);
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setProtein(BigDecimal.ONE);
+        food.setUser(user);
         String foodName = "New Food Name";
         String typeName = "New Type Name";
         FoodUpdateRequest request = new FoodUpdateRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, 1L);
@@ -148,6 +153,7 @@ public class FoodServiceTests {
         foodType.setName(typeName);
         when(foodTypeReadService.findByIdOrThrow(request.foodTypeId())).thenReturn(foodType);
         when(foodReadService.findByIdOrThrow(anyLong())).thenReturn(food);
+        when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodRepository.save(any(Food.class))).thenReturn(food);
         FoodResponse response = foodService.update(FOOD_ID, request);
         ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
@@ -172,7 +178,12 @@ public class FoodServiceTests {
 
     @Test
     public void deleteById_whenFoodExists() {
-        when(foodReadService.findByIdOrThrow(FOOD_ID)).thenReturn(TestEntityFactory.food(TestEntityFactory.foodType()));
+        User user = TestEntityFactory.user();
+        user.setUserId(TestEntityFactory.DEFAULT_ID);
+        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setUser(user);
+        when(foodReadService.findByIdOrThrow(FOOD_ID)).thenReturn(food);
+        when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         foodService.deleteById(FOOD_ID);
         verify(foodRepository).delete(any(Food.class));
     }

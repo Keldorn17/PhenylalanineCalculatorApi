@@ -23,10 +23,14 @@ VALUES ('testFoodType', 10, true, 1);
 -- Test Food
 -- changeset Patai Zoltán:load-test-food
 -- Loads food
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine)
-VALUES ('testFood', 10, 10, 1, 1, 10);
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine)
-VALUES ('apple', .26, 52, 1, 1, 2.60);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
+VALUES ('testFood', 10, 10, 1, 1, 10, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
+VALUES ('apple', .26, 52, 1, 1, 2.60, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
+VALUES ('apple2', .26, 52, 1, 1, 2.60, true);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
+VALUES ('apple3', .26, 52, 2, 1, 2.60, false);
 
 -- Test Food Consumption
 -- changeset Patai Zoltán:load-test-food-consumption
