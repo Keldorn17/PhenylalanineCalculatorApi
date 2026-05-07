@@ -123,3 +123,8 @@ ALTER TABLE users ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)
 -- rollback ALTER TABLE daily_intake DROP COLUMN created_at; ALTER TABLE daily_intake DROP COLUMN updated_at;
 ALTER TABLE daily_intake ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE daily_intake ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+-- changeset Patai Zoltan:add-is-deleted-food
+-- Adds is_deleted to Food
+-- rollback ALTER TABLE food DROP COLUMN is_deleted;
+ALTER TABLE food ADD is_deleted BOOLEAN NOT NULL;

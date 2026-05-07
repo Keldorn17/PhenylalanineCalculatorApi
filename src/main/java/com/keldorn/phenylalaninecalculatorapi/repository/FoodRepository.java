@@ -24,7 +24,8 @@ public interface FoodRepository extends JpaRepository<Food, Long>, JpaSpecificat
     @NonNull
     @Override
     @EntityGraph(attributePaths = {"foodType"})
-    Optional<Food> findById(@NonNull Long id);
+    @Query("FROM Food f WHERE f.id = :id AND f.isDeleted = false")
+    Optional<Food> findById(@NonNull @Param("id") Long id);
 
     @NonNull
     @Override

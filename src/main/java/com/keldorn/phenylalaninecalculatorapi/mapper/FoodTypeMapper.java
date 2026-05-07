@@ -23,8 +23,7 @@ public interface FoodTypeMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "multiplier", target = "multiplier")
-    @Mapping(target = "canEdit",
-            expression = "java(foodType.getUser() != null && foodType.getUser().getUserId().equals(currentUserId))")
+    @Mapping(target = "canEdit", expression = "java(canEdit(foodType, currentUserId))")
     FoodTypeResponse toModel(FoodType foodType, @Context Long currentUserId);
 
     @Mapping(target = "id", ignore = true)
@@ -33,5 +32,9 @@ public interface FoodTypeMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     FoodType toEntity(FoodTypeRequest foodTypeRequest);
+
+    default boolean canEdit(FoodType foodType, Long currentUserId) {
+        return foodType.getUser() != null && foodType.getUser().getUserId().equals(currentUserId);
+    }
 
 }

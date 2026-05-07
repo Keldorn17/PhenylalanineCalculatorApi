@@ -5,11 +5,17 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,10 +29,16 @@ import io.swagger.v3.core.jackson.ModelResolver;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
     private final HttpServletRequest request;
+
+    @Bean
+    public DateTimeProvider dateTimeProvider() {
+        return () -> Optional.of(ZonedDateTime.now());
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {

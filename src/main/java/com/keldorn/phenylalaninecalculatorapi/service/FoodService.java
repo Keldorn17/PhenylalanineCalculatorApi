@@ -1,5 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
@@ -9,12 +10,16 @@ import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
+import com.keldorn.phenylalaninecalculatorapi.exception.CannotEditResourceException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidRSQLException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.utils.FoodQueryParamsUtil;
 
 import java.math.BigDecimal;
+
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +49,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
-        return FoodMapper.INSTANCE.toModel(foodReadService.findByIdOrThrow(id));
+        return FoodMapper.INSTANCE.toModel(foodReadService.findByIdOrThrow(id), userService.getCurrentUserId());
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +60,7 @@ public class FoodService {
         try {
             Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(queryRequest);
             Page<Food> response = foodRepository.findAll(querySpecification, pageRequest);
-            return FoodMapper.INSTANCE.toModel(response);
+            return FoodMapper.INSTANCE.toModel(response, userService.getCurrentUserId());
         } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException |
                  UnknownPropertyException ex) {
             log.debug("Invalid query or sort parameters provided query='{}', sort='{}'",
@@ -72,7 +77,7 @@ public class FoodService {
         addTypeToFood(food, request);
         addUserToFood(food);
         updatePhenylalanine(food);
-        return FoodMapper.INSTANCE.toModel(foodRepository.save(food));
+        return FoodMapper.INSTANCE.toModel(foodRepository.save(food), userService.getCurrentUserId());
     }
 
     @Transactional
@@ -86,7 +91,9 @@ public class FoodService {
             food.setFoodType(foodType);
         }
         updatePhenylalanine(food);
-        return FoodMapper.INSTANCE.toModel(foodRepository.save(food));
+        Long currentUserId = userService.getCurrentUserId();
+        canEditOrThrow(currentUserId, food.getUser().getUserId());
+        return FoodMapper.INSTANCE.toModel(foodRepository.save(food), currentUserId);
     }
 
     @Transactional
@@ -94,6 +101,8 @@ public class FoodService {
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
         Food food = foodReadService.findByIdOrThrow(id);
+        Long currentUserId = userService.getCurrentUserId();
+        canEditOrThrow(currentUserId, food.getUser().getUserId());
         foodRepository.delete(food);
     }
 
@@ -114,6 +123,12 @@ public class FoodService {
             BigDecimal updated = food.getProtein()
                     .multiply(BigDecimal.valueOf(food.getFoodType().getMultiplier()));
             food.setPhenylalanine(updated);
+        }
+    }
+
+    private void canEditOrThrow(@NotNull Long currentUserId, @Nullable Long resourceUserId) {
+        if (!currentUserId.equals(resourceUserId)) {
+            throw new CannotEditResourceException(ApiResponses.UNOWNED_RESOURCE_RESPONSE);
         }
     }
 
