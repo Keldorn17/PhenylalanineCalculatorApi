@@ -21,7 +21,8 @@ public final class ApiResponses {
     public static final String INVALID_RSQL_RESPONSE = "Invalid query or sort parameters";
     public static final String UNOWNED_RESOURCE_RESPONSE = "You are not the owner of this resource";
 
-    public static final String REQUIRED_MISSING_REQUEST_RESPONSE = "%s must not be null";
+    public static final String MUST_NOT_BE_BLANK_RESPONSE = "%s must not be blank";
+    public static final String MUST_NOT_BE_NULL_RESPONSE = "%s must not be null";
     public static final String MALFORMED_EMAIL_RESPONSE = "email must be a well-formed email address";
 
 }

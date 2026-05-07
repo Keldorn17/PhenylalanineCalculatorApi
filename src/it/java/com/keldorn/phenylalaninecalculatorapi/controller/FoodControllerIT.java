@@ -253,7 +253,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("name"))
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("name"))
                 ),
                 Arguments.of("Food protein missing",
                         new FoodRequest(TestEntityFactory.DEFAULT_FOOD_NAME,
@@ -262,7 +262,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
-                                ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("protein"))
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("protein"))
                 ),
                 Arguments.of("Food calories missing",
                         new FoodRequest(TestEntityFactory.DEFAULT_FOOD_NAME,
@@ -271,7 +271,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_ID),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
-                                ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("calories"))
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("calories"))
                 ),
                 Arguments.of("Food type id missing",
                         new FoodRequest(TestEntityFactory.DEFAULT_FOOD_NAME,
@@ -280,7 +280,7 @@ public class FoodControllerIT extends BaseIntegrationTest {
                                 null),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
-                                ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("foodTypeId"))
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("foodTypeId"))
                 ),
                 Arguments.of("Food type not found",
                         new FoodRequest(TestEntityFactory.DEFAULT_FOOD_NAME,

@@ -157,13 +157,13 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                 Arguments.of("Missing name parameter",
                         new FoodTypeRequest(null, TestEntityFactory.DEFAULT_INTEGER_VALUE),
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("name"))
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("name"))
                 ),
                 Arguments.of("Missing multiplier parameter",
                         new FoodTypeRequest(TestEntityFactory.DEFAULT_FOOD_TYPE_NAME, null),
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
-                                ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("multiplier"))
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("multiplier"))
                 )
         );
     }
@@ -187,14 +187,14 @@ public class FoodTypeControllerIT extends BaseIntegrationTest {
                         new FoodTypeRequest(null, TestEntityFactory.DEFAULT_INTEGER_VALUE),
                         EXISTING_FOOD_TYPE_ID,
                         HttpStatus.BAD_REQUEST,
-                        error(HttpStatus.BAD_REQUEST, ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("name"))
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("name"))
                 ),
                 Arguments.of("Missing multiplier parameter",
                         new FoodTypeRequest(TestEntityFactory.DEFAULT_FOOD_TYPE_NAME, null),
                         EXISTING_FOOD_TYPE_ID,
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST,
-                                ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("multiplier"))
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("multiplier"))
                 ),
                 Arguments.of("Cannot edit unowned resource",
                         new FoodTypeRequest(UPDATED_FOOD_TYPE_NAME, UPDATED_FOOD_TYPE_MULTIPLIER),

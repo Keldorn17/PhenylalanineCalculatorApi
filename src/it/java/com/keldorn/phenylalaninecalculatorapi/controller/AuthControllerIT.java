@@ -47,13 +47,13 @@ public class AuthControllerIT extends BaseIntegrationTest {
     private static final String NEW_USERNAME = "new username";
 
     private static final String MISSING_EMAIL_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("email");
+            ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("email");
     private static final String MISSING_USERNAME_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("username");
+            ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("username");
     private static final String MISSING_PASSWORD_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("password");
+            ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("password");
     private static final String MISSING_OLD_PASSWORD_RESPONSE =
-            ApiResponses.REQUIRED_MISSING_REQUEST_RESPONSE.formatted("oldPassword");
+            ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("oldPassword");
 
     @Test
     void testRegistration_shouldReturn200_whenSuccessfulRegistration() {
