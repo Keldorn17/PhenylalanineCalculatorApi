@@ -1,5 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.dto.auth;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
-public record AuthPasswordChangeRequest(@NotNull String oldPassword, @NotNull String password) {}
+import lombok.Builder;
+
+@Builder
+public record AuthPasswordChangeRequest(@NotBlank String oldPassword, @NotBlank String password) {}

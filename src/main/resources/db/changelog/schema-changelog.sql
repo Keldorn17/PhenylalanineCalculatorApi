@@ -93,3 +93,33 @@ ALTER TABLE food_type ADD user_id BIGINT;
 -- Adds foreign key constraint to userId in Food Type table
 -- rollback ALTER TABLE food_type DROP FOREIGN KEY fk_food_type_user;
 ALTER TABLE food_type ADD CONSTRAINT fk_food_type_user FOREIGN KEY (user_id) REFERENCES users (user_id);
+
+-- changeset Patai Zoltan:add-created-at-and-updated-at-to-food
+-- Adds created_at and updated_at to Food
+-- rollback ALTER TABLE food DROP COLUMN created_at; ALTER TABLE food DROP COLUMN updated_at;
+ALTER TABLE food ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
+ALTER TABLE food ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+-- changeset Patai Zoltan:add-created-at-and-updated-at-to-food-type
+-- Adds created_at and updated_at to Food Type
+-- rollback ALTER TABLE food_type DROP COLUMN created_at; ALTER TABLE food_type DROP COLUMN updated_at;
+ALTER TABLE food_type ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
+ALTER TABLE food_type ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+-- changeset Patai Zoltan:add-created-at-and-updated-at-to-food-consumption
+-- Adds created_at and updated_at to Food Consumption
+-- rollback ALTER TABLE food_consumption DROP COLUMN created_at; ALTER TABLE food_consumption DROP COLUMN updated_at;
+ALTER TABLE food_consumption ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
+ALTER TABLE food_consumption ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+-- changeset Patai Zoltan:add-created-at-and-updated-at-to-users
+-- Adds created_at and updated_at to Users
+-- rollback ALTER TABLE users DROP COLUMN created_at; ALTER TABLE users DROP COLUMN updated_at;
+ALTER TABLE users ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
+ALTER TABLE users ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+
+-- changeset Patai Zoltan:add-created-at-and-updated-at-to-daily-intake
+-- Adds created_at and updated_at to Daily Intake
+-- rollback ALTER TABLE daily_intake DROP COLUMN created_at; ALTER TABLE daily_intake DROP COLUMN updated_at;
+ALTER TABLE daily_intake ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
+ALTER TABLE daily_intake ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);

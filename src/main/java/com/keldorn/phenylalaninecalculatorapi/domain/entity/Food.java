@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -19,6 +20,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Data
 @Entity
@@ -44,6 +48,14 @@ public class Food {
 
     @Column(name = "phenylalanine", precision = 10, scale = 2)
     private BigDecimal phenylalanine;
+
+    @CreatedDate
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
 
     @JoinColumn(name = "food_type_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH})

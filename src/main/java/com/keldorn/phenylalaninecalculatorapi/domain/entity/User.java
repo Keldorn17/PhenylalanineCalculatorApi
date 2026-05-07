@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,6 +22,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -53,6 +56,14 @@ public class User implements UserDetails {
 
     @Column(name = "daily_limit")
     private BigDecimal dailyLimit;
+
+    @CreatedDate
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
 
     @NonNull
     @Override

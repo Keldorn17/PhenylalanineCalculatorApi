@@ -1,5 +1,10 @@
 package com.keldorn.phenylalaninecalculatorapi.dto.foodtype;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
-public record FoodTypeRequest(@NotNull String name, @NotNull Integer multiplier) {}
+import lombok.Builder;
+
+@Builder
+public record FoodTypeRequest(@NotBlank String name, @NotNull @PositiveOrZero Integer multiplier) {}

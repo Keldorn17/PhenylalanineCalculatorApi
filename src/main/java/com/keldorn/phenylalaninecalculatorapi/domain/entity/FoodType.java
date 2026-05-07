@@ -1,5 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
+import java.time.ZonedDateTime;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +19,8 @@ import lombok.NoArgsConstructor;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Data
 @Entity
@@ -42,6 +46,14 @@ public class FoodType {
     @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @CreatedDate
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
 
     @JoinColumn(name = "user_id")
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH})
