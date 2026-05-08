@@ -62,7 +62,7 @@ public class FoodService {
             Page<Food> response = foodRepository.findAll(querySpecification, pageRequest);
             return FoodMapper.INSTANCE.toModel(response, userService.getCurrentUserId());
         } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException |
-                 UnknownPropertyException ex) {
+                 UnknownPropertyException _) {
             log.debug("Invalid query or sort parameters provided query='{}', sort='{}'",
                     queryRequest.getQuery(), queryRequest.getSort());
             throw new InvalidRSQLException("Invalid query or sort parameters");

@@ -42,7 +42,7 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(
-            summary = "Authenticates the user and sends back a token.",
+            summary = "Authenticates the user and sends back a accessToken.",
             responses = {
                     @ApiResponse(responseCode = SwaggerResponseCodes.OK,
                             description = SwaggerDescriptions.SUCCESS_GET,
@@ -59,7 +59,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Registers a new user and sends back a token.",
+            summary = "Registers a new user and sends back a accessToken.",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,

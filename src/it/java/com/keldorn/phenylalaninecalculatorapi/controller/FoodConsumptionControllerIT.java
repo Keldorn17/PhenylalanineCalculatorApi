@@ -25,7 +25,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-public class FoodConsumptionControllerIT extends BaseIntegrationTest {
+class FoodConsumptionControllerIT extends BaseIntegrationTest {
 
     private static final Long NEW_FOOD_CONSUMPTION_ID = 2L;
     private static final Long UNKNOWN_ID = 99L;

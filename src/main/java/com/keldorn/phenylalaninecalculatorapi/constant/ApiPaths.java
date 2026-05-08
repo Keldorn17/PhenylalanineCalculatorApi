@@ -1,5 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.constant;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public final class ApiPaths {
 
     public static final String REGISTER = "register";

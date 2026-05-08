@@ -1,5 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.constant;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public final class SwaggerResponseCodes {
 
     public static final String OK = "200";

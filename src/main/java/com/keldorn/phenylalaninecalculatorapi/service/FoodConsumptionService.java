@@ -38,7 +38,7 @@ public class FoodConsumptionService {
     private final DailyIntakeService dailyIntakeService;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
-    private final ZoneId utcZoneId = ZoneOffset.UTC;
+    private static final ZoneId utcZoneId = ZoneOffset.UTC;
 
     private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);

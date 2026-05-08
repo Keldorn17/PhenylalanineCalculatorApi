@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-public class AuthControllerIT extends BaseIntegrationTest {
+class AuthControllerIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -353,8 +353,8 @@ public class AuthControllerIT extends BaseIntegrationTest {
 
     private void verifySuccess(AuthResponse response, String registeredUsername) {
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.token()).isNotEmpty();
-        String username = jwtService.extractUsername(response.token());
+        Assertions.assertThat(response.accessToken()).isNotEmpty();
+        String username = jwtService.extractUsername(response.accessToken());
         Assertions.assertThat(username).isEqualTo(registeredUsername);
     }
 

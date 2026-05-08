@@ -1,14 +1,17 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.JwtException;
@@ -26,12 +29,16 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString));
     }
 
-    public String generateToken(String username, Long userId) {
+    public String generateToken(User user) {
         log.debug("Generating Token");
-        final long EXPIRATION = 1000 * 60 * 60 * 24;
+        final long EXPIRATION = 1000L * 60 * 60 * 24;
         return Jwts.builder()
-                .subject(username)
-                .claim("userId", userId)
+                .subject(String.valueOf(user.getUserId()))
+                .claim("username", user.getUsername())
+                .claim("roles", user.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList()
+                )
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(signingKey)
@@ -41,15 +48,34 @@ public class JwtService {
     public Long extractUserId(String token) {
         log.debug("Extracting User Id.");
         try {
-            return Jwts.parser()
+            return Long.parseLong(Jwts.parser()
                     .verifyWith(signingKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .get("userId", Long.class);
+                    .getSubject());
         } catch (JwtException | IllegalArgumentException e) {
             log.debug("Error during extracting user id: {}", e.getMessage());
-            throw new InvalidJwtTokenReceivedException("Invalid token received");
+            throw new InvalidJwtTokenReceivedException("Invalid accessToken received");
+        }
+    }
+
+    public List<String> extractRoles(String token) {
+        log.debug("Extracting Roles.");
+        try {
+            List<?> roles = Jwts.parser()
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("roles", List.class);
+            return roles != null ? roles.stream()
+                                   .filter(String.class::isInstance)
+                                   .map(String.class::cast)
+                                   .toList() : List.of();
+        } catch (JwtException | IllegalArgumentException e) {
+            log.debug("Error during extracting roles: {}", e.getMessage());
+            throw new InvalidJwtTokenReceivedException("Invalid accessToken received");
         }
     }
 
@@ -61,10 +87,10 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .getSubject();
+                    .get("username", String.class);
         } catch (JwtException | IllegalArgumentException e) {
             log.debug("Error during extracting username: {}", e.getMessage());
-            throw new InvalidJwtTokenReceivedException("Invalid token received");
+            throw new InvalidJwtTokenReceivedException("Invalid accessToken received");
         }
     }
 

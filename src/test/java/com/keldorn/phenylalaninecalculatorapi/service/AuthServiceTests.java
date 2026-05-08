@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -35,7 +34,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTests {
+class AuthServiceTests {
 
     @Mock
     private UserService userService;
@@ -55,22 +54,22 @@ public class AuthServiceTests {
     @InjectMocks
     private AuthService authService;
 
-    private final String RETURN_TOKEN = "Test token";
-    private final String ENCODED_PASSWORD = "Encoded Password";
+    private final String returnToken = "Test accessToken";
+    private final String encodedPassword = "Encoded Password";
 
     @Test
-    public void authenticate_shouldReturnAuthResponse_whenCorrectCredentialsProvided() {
+    void authenticate_shouldReturnAuthResponse_whenCorrectCredentialsProvided() {
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         AuthRequest request = new AuthRequest(user.getUsername(), user.getPassword());
         when(authenticationManager.authenticate(any())).thenReturn(new UsernamePasswordAuthenticationToken(user, null));
-        when(jwtService.generateToken(anyString(), anyLong())).thenReturn(RETURN_TOKEN);
+        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.authenticate(request);
-        Assertions.assertThat(response.token()).isEqualTo(RETURN_TOKEN);
+        Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
     }
 
     @Test
-    public void authenticate_shouldThrow_whenBadCredentials() {
+    void authenticate_shouldThrow_whenBadCredentials() {
         AuthRequest request = new AuthRequest("user", "Invalid Password");
         doThrow(BadCredentialsException.class)
                 .when(authenticationManager)
@@ -80,23 +79,23 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void register_shouldReturnAuthResponse_whenRegistrationSucceeds() {
+    void register_shouldReturnAuthResponse_whenRegistrationSucceeds() {
         AuthRegisterRequest request =
                 new AuthRegisterRequest("test@gmail.com", "Test", "password");
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         user.setUsername(request.username());
         when(userRepository.findByUsernameOrEmail(anyString(), anyString())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(jwtService.generateToken(anyString(), anyLong())).thenReturn(RETURN_TOKEN);
+        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.register(request);
         verify(userRepository).save(any(User.class));
-        Assertions.assertThat(response.token()).isEqualTo(RETURN_TOKEN);
+        Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
     }
 
     @Test
-    public void register_shouldThrow_whenUsernameIsTaken() {
+    void register_shouldThrow_whenUsernameIsTaken() {
         AuthRegisterRequest request =
                 new AuthRegisterRequest("test@gmail.com", "Test", "password");
         User user = TestEntityFactory.user();
@@ -105,11 +104,11 @@ public class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(UsernameIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
     @Test
-    public void register_shouldThrow_whenEmailIsTaken() {
+    void register_shouldThrow_whenEmailIsTaken() {
         AuthRegisterRequest request =
                 new AuthRegisterRequest("test@gmail.com", "Test", "password");
         User user = TestEntityFactory.user();
@@ -119,38 +118,38 @@ public class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(EmailIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
     @Test
-    public void changePassword_shouldReturnAuthResponse_whenChangeSuccessful() {
+    void changePassword_shouldReturnAuthResponse_whenChangeSuccessful() {
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         String newPassword = "New Password";
         AuthPasswordChangeRequest request = new AuthPasswordChangeRequest(user.getPassword(), newPassword);
         when(userService.getCurrentUser()).thenReturn(user);
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
-        when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
-        when(jwtService.generateToken(anyString(), anyLong())).thenReturn(RETURN_TOKEN);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
+        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.changePassword(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User savedUser = captor.getValue();
-        Assertions.assertThat(response.token()).isEqualTo(RETURN_TOKEN);
-        Assertions.assertThat(savedUser.getPassword()).isEqualTo(ENCODED_PASSWORD);
+        Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
+        Assertions.assertThat(savedUser.getPassword()).isEqualTo(encodedPassword);
     }
 
     @Test
-    public void changePassword_shouldThrow_whenChangingPasswordToTheCurrentOne() {
+    void changePassword_shouldThrow_whenChangingPasswordToTheCurrentOne() {
         AuthPasswordChangeRequest request = new AuthPasswordChangeRequest("test", "test");
         Assertions.assertThatThrownBy(() -> authService.changePassword(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
     @Test
-    public void changePassword_shouldThrow_whenOldPasswordIsNotValid() {
+    void changePassword_shouldThrow_whenOldPasswordIsNotValid() {
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         String newPassword = "New Password";
@@ -160,11 +159,11 @@ public class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changePassword(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
     @Test
-    public void changeUsername_shouldReturnAuthResponse_whenChangeSuccessful() {
+    void changeUsername_shouldReturnAuthResponse_whenChangeSuccessful() {
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         String newUsername = "New Username";
@@ -172,27 +171,27 @@ public class AuthServiceTests {
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(userService.getCurrentUser()).thenReturn(user);
         when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
-        when(jwtService.generateToken(anyString(), anyLong())).thenReturn(RETURN_TOKEN);
+        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.changeUsername(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User savedUser = captor.getValue();
-        Assertions.assertThat(response.token()).isEqualTo(RETURN_TOKEN);
+        Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
         Assertions.assertThat(savedUser.getUsername()).isEqualTo(newUsername);
     }
 
     @Test
-    public void changeUsername_shouldThrow_whenUsernameIsTaken() {
+    void changeUsername_shouldThrow_whenUsernameIsTaken() {
         AuthUsernameChangeRequest request = new AuthUsernameChangeRequest("Taken Username", null);
         when(userRepository.existsByUsername(request.username())).thenReturn(true);
         Assertions.assertThatThrownBy(() -> authService.changeUsername(request))
                 .isInstanceOf(UsernameIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
     @Test
-    public void changeUsername_shouldThrow_whenInvalidPasswordPassed() {
+    void changeUsername_shouldThrow_whenInvalidPasswordPassed() {
         User user = TestEntityFactory.user();
         user.setUserId(1L);
         String newUsername = "New Username";
@@ -203,7 +202,7 @@ public class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changeUsername(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(), anyLong());
+        verify(jwtService, never()).generateToken(any(User.class));
     }
 
 }

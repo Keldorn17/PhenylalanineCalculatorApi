@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import com.keldorn.phenylalaninecalculatorapi.config.RequestAttributes;
+import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
@@ -93,7 +93,8 @@ public class UserService {
     }
 
     protected void isEmailTakenAndThrow(String email) {
-        if (userRepository.existsByEmail(email)) {
+        boolean existsByEmail = userRepository.existsByEmail(email);
+        if (existsByEmail) {
             throw new EmailIsTakenException("Email is taken");
         }
     }

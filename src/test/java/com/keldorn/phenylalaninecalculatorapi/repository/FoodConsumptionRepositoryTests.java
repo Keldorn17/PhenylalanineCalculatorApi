@@ -19,7 +19,7 @@ import org.springframework.data.domain.Pageable;
 
 @RepositoryCleanUp
 @MySQLRepositoryTest
-public class FoodConsumptionRepositoryTests {
+class FoodConsumptionRepositoryTests {
 
     @Autowired
     private FoodConsumptionRepository foodConsumptionRepository;
@@ -36,7 +36,7 @@ public class FoodConsumptionRepositoryTests {
     private User user;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = userRepository.save(TestEntityFactory.user());
         FoodType foodType = foodTypeRepository.save(TestEntityFactory.foodType());
         Food food = foodRepository.save(TestEntityFactory.food(foodType));
@@ -44,7 +44,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption() {
+    void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption() {
         Pageable pageable = PageRequest.of(0, 20);
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
                 .findAllByUserAndConsumedAtBetween(user.getUserId(),
@@ -58,7 +58,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidUser() {
+    void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidUser() {
         Pageable pageable = PageRequest.of(0, 20);
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
                 .findAllByUserAndConsumedAtBetween(Long.MAX_VALUE,
@@ -67,7 +67,7 @@ public class FoodConsumptionRepositoryTests {
     }
 
     @Test
-    public void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidDateInterval() {
+    void findAllByUserAndConsumedAtBetween_shouldReturnListOfFoodConsumption_whenInvalidDateInterval() {
         Pageable pageable = PageRequest.of(0, 20);
         List<FoodConsumption> foodConsumptionResult = foodConsumptionRepository
                 .findAllByUserAndConsumedAtBetween(user.getUserId(),

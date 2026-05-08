@@ -98,7 +98,7 @@ public class AuthService {
 
     private AuthResponse getResponse(User user) {
         log.debug("Authentication Succeeded, Sending Token Back.");
-        var jwtToken = jwtService.generateToken(user.getUsername(), user.getUserId());
+        var jwtToken = jwtService.generateToken(user);
         return new AuthResponse(jwtToken);
     }
 
@@ -113,7 +113,8 @@ public class AuthService {
     }
 
     private void isUsernameTakenAndThrow(String username) {
-        if (userRepository.existsByUsername(username)) {
+        boolean existsByUsername = userRepository.existsByUsername(username);
+        if (existsByUsername) {
             throw new UsernameIsTakenException("Username is taken.");
         }
     }

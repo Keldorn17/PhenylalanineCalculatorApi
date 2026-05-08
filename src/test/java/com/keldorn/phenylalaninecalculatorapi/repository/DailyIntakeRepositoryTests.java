@@ -17,7 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 @RepositoryCleanUp
 @MySQLRepositoryTest
-public class DailyIntakeRepositoryTests {
+class DailyIntakeRepositoryTests {
 
     @Autowired
     private DailyIntakeRepository dailyIntakeRepository;
@@ -28,12 +28,12 @@ public class DailyIntakeRepositoryTests {
     private User user;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = userRepository.save(TestEntityFactory.user());
     }
 
     @Test
-    public void save_shouldThrowDataIntegrityViolation_whenSavingDuplicateUserAndDate() {
+    void save_shouldThrowDataIntegrityViolation_whenSavingDuplicateUserAndDate() {
         DailyIntake dailyIntake = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
         DailyIntake dailyIntake2 = TestEntityFactory.dailyIntake(user, TestEntityFactory.TEST_DATE);
         dailyIntakeRepository.save(dailyIntake);
@@ -42,7 +42,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void findByUserIdAndDate_shouldReturnDailyIntake() {
+    void findByUserIdAndDate_shouldReturnDailyIntake() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
@@ -57,7 +57,7 @@ public class DailyIntakeRepositoryTests {
     }
 
     @Test
-    public void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidDate() {
+    void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidDate() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
@@ -66,11 +66,11 @@ public class DailyIntakeRepositoryTests {
         DailyIntake save = dailyIntakeRepository.save(dailyIntake);
         Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(save.getUser().getUserId(),
                 TestEntityFactory.TEST_DATE.plusDays(1));
-        Assertions.assertThat(response.isEmpty()).isTrue();
+        Assertions.assertThat(response).isEmpty();
     }
 
     @Test
-    public void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidUser() {
+    void findByUserIdAndDate_shouldReturnEmptyOptional_whenInvalidUser() {
         DailyIntake dailyIntake = DailyIntake.builder()
                 .date(TestEntityFactory.TEST_DATE)
                 .user(user)
@@ -78,7 +78,7 @@ public class DailyIntakeRepositoryTests {
                 .build();
         dailyIntakeRepository.save(dailyIntake);
         Optional<DailyIntake> response = dailyIntakeRepository.findByUserIdAndDate(100L, TestEntityFactory.TEST_DATE);
-        Assertions.assertThat(response.isEmpty()).isTrue();
+        Assertions.assertThat(response).isEmpty();
     }
 
 }
