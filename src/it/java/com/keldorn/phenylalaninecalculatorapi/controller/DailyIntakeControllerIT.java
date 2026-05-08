@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-public class DailyIntakeControllerIT extends BaseIntegrationTest {
+class DailyIntakeControllerIT extends BaseIntegrationTest {
 
     private static final LocalDate REGISTERED_DATE = LocalDate.of(2026, 1, 1);
     private static final LocalDate UNREGISTERED_DATE = LocalDate.of(2026, 4, 3);

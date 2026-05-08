@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(UserController.class)
-public class UserControllerTests {
+class UserControllerTests {
 
     @MockitoBean
     private UserService userService;

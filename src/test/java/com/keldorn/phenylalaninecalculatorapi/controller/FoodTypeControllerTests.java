@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(FoodTypeController.class)
-public class FoodTypeControllerTests {
+class FoodTypeControllerTests {
 
     @MockitoBean
     private FoodTypeService foodTypeService;

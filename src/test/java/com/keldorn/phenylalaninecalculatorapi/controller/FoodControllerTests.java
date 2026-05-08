@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(FoodController.class)
-public class FoodControllerTests {
+class FoodControllerTests {
 
     @MockitoBean
     private FoodService foodService;

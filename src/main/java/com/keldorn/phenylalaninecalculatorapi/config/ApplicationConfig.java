@@ -2,6 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 

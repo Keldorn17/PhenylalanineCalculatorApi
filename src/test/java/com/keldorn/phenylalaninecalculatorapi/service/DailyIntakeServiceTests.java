@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class DailyIntakeServiceTests {
+class DailyIntakeServiceTests {
 
     @Mock
     private DailyIntakeRepository dailyIntakeRepository;
@@ -36,13 +36,13 @@ public class DailyIntakeServiceTests {
     @InjectMocks
     private DailyIntakeService dailyIntakeService;
 
-    private final Long USER_ID = 1L;
+    private final Long userId = 1L;
 
     @Test
-    public void findByDate_shouldReturnsDailyIntakeResponse_whenDailyIntakeExists() {
+    void findByDate_shouldReturnsDailyIntakeResponse_whenDailyIntakeExists() {
         DailyIntake dailyIntake = TestEntityFactory.dailyIntake(TestEntityFactory.user(), TestEntityFactory.TEST_DATE);
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE);
         Assertions.assertThat(response.id()).isEqualTo(dailyIntake.getId());
@@ -51,23 +51,23 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void findByDate_shouldThrowResourceNotFoundException() {
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+    void findByDate_shouldThrowResourceNotFoundException() {
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
-    public void addAmount_shouldDoSuccessfulSubtract() {
+    void addAmount_shouldDoSuccessfulSubtract() {
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToSubtract = BigDecimal.valueOf(-5);
         DailyIntake dailyIntake = DailyIntake.builder()
                 .totalPhenylalanine(currentTotal)
                 .build();
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract);
         ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
@@ -79,14 +79,14 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void addAmount_shouldDoSuccessfulAddition() {
+    void addAmount_shouldDoSuccessfulAddition() {
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToAdd = BigDecimal.valueOf(5);
         DailyIntake dailyIntake = DailyIntake.builder()
                 .totalPhenylalanine(currentTotal)
                 .build();
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
         ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
@@ -98,14 +98,14 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void addAmount_shouldThrowDailyIntakeCannotBeLowerThanZeroException() {
+    void addAmount_shouldThrowDailyIntakeCannotBeLowerThanZeroException() {
         BigDecimal currentTotal = BigDecimal.TEN;
         BigDecimal amountToSubtract = BigDecimal.valueOf(-20);
         DailyIntake dailyIntake = DailyIntake.builder()
                 .totalPhenylalanine(currentTotal)
                 .build();
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.of(dailyIntake));
         Assertions.assertThatThrownBy(() -> dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract))
                 .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
@@ -113,12 +113,12 @@ public class DailyIntakeServiceTests {
     }
 
     @Test
-    public void addAmount_shouldCreateNewDailyIntake_whenOneDoesntExists() {
+    void addAmount_shouldCreateNewDailyIntake_whenOneDoesntExists() {
         BigDecimal amountToAdd = BigDecimal.TEN;
         User user = TestEntityFactory.user();
-        when(userService.getCurrentUserId()).thenReturn(USER_ID);
+        when(userService.getCurrentUserId()).thenReturn(userId);
         when(userService.getCurrentUser()).thenReturn(user);
-        when(dailyIntakeRepository.findByUserIdAndDate(USER_ID, TestEntityFactory.TEST_DATE))
+        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
         dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
         ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);

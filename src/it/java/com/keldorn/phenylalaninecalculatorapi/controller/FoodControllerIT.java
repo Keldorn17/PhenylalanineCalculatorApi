@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-public class FoodControllerIT extends BaseIntegrationTest {
+class FoodControllerIT extends BaseIntegrationTest {
 
     private static final Long UNKNOWN_ID = 99L;
     private static final Long UPDATE_FOOD_TYPE_ID = 2L;

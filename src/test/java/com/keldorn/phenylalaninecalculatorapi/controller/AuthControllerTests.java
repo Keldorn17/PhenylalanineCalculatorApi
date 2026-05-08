@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(AuthController.class)
-public class AuthControllerTests extends RestTestUtils {
+class AuthControllerTests extends RestTestUtils {
 
     @MockitoBean
     private AuthService authService;
@@ -50,7 +50,7 @@ public class AuthControllerTests extends RestTestUtils {
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.token()).isEqualTo(expectedResponse.token());
+        Assertions.assertThat(response.accessToken()).isEqualTo(expectedResponse.accessToken());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class AuthControllerTests extends RestTestUtils {
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.token()).isEqualTo(expectedResponse.token());
+        Assertions.assertThat(response.accessToken()).isEqualTo(expectedResponse.accessToken());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class AuthControllerTests extends RestTestUtils {
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.token()).isEqualTo(expectedResponse.token());
+        Assertions.assertThat(response.accessToken()).isEqualTo(expectedResponse.accessToken());
     }
 
     @Test
@@ -202,7 +202,7 @@ public class AuthControllerTests extends RestTestUtils {
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.token()).isEqualTo(expectedResponse.token());
+        Assertions.assertThat(response.accessToken()).isEqualTo(expectedResponse.accessToken());
     }
 
     @Test

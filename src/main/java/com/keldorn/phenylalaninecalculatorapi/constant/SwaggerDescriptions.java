@@ -1,5 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.constant;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public final class SwaggerDescriptions {
 
     public static final String NOT_FOUND = "Not Found";

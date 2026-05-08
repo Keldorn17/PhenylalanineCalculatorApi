@@ -59,7 +59,7 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
                     .returnResult()
                     .getResponseBody();
             Assertions.assertThat(response).isNotNull();
-            cachedToken = response.token();
+            cachedToken = response.accessToken();
         }
         return cachedToken;
     }

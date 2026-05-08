@@ -1,6 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.security;
 
-import com.keldorn.phenylalaninecalculatorapi.config.RequestAttributes;
+import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 

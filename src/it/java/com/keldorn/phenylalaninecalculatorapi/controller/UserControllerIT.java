@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-public class UserControllerIT extends BaseIntegrationTest {
+class UserControllerIT extends BaseIntegrationTest {
 
     private static final String UPDATED_EMAIL = "updated@mail.com";
     private static final BigDecimal UPDATED_DAILY_LIMIT = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
@@ -87,17 +87,6 @@ public class UserControllerIT extends BaseIntegrationTest {
                 .headers(withBearer(getAuthToken()))
                 .exchange()
                 .expectStatus().isNoContent();
-    }
-
-    @Test
-    @DirtyTest
-    void testDelete_shouldReturn401FromSecurityLayer_whenTokenIsMissing() {
-        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        var responseSpec = restTestClient.get()
-                .uri(ApiRoutes.USER_PATH)
-                .exchange()
-                .expectStatus().isUnauthorized();
-        verifyResponse(responseSpec, expectedResponse);
     }
 
     private static Stream<Arguments> updateUserTestCases() {

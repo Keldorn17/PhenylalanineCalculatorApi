@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
-public class FoodTypeControllerIT extends BaseIntegrationTest {
+class FoodTypeControllerIT extends BaseIntegrationTest {
 
     private static final Long EXISTING_FOOD_TYPE_ID = 1L;
     private static final Long UNOWNED_FOOD_TYPE_ID = 2L;

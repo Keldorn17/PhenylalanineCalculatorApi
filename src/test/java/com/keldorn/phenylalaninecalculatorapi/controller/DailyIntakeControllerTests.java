@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(DailyIntakeController.class)
-public class DailyIntakeControllerTests {
+class DailyIntakeControllerTests {
 
     @MockitoBean
     private DailyIntakeService dailyIntakeService;
