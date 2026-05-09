@@ -46,6 +46,12 @@ class AuthServiceTests {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private RefreshTokenService refreshTokenService;
+
+    @Mock
+    private RoleService roleService;
+
+    @Mock
     private JwtService jwtService;
 
     @Mock
@@ -63,7 +69,7 @@ class AuthServiceTests {
         user.setUserId(1L);
         AuthRequest request = new AuthRequest(user.getUsername(), user.getPassword());
         when(authenticationManager.authenticate(any())).thenReturn(new UsernamePasswordAuthenticationToken(user, null));
-        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
+        when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.authenticate(request);
         Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
     }
@@ -87,8 +93,9 @@ class AuthServiceTests {
         user.setUsername(request.username());
         when(userRepository.findByUsernameOrEmail(anyString(), anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
+        when(roleService.findByRoleNameOrThrow(any())).thenReturn(TestEntityFactory.role());
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
+        when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.register(request);
         verify(userRepository).save(any(User.class));
         Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
@@ -104,7 +111,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(UsernameIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
     @Test
@@ -118,7 +125,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(EmailIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
     @Test
@@ -130,7 +137,7 @@ class AuthServiceTests {
         when(userService.getCurrentUser()).thenReturn(user);
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
-        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
+        when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.changePassword(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -145,7 +152,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changePassword(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
     @Test
@@ -159,7 +166,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changePassword(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
     @Test
@@ -171,7 +178,7 @@ class AuthServiceTests {
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(userService.getCurrentUser()).thenReturn(user);
         when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
-        when(jwtService.generateToken(any(User.class))).thenReturn(returnToken);
+        when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
         AuthResponse response = authService.changeUsername(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -187,7 +194,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changeUsername(request))
                 .isInstanceOf(UsernameIsTakenException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
     @Test
@@ -202,7 +209,7 @@ class AuthServiceTests {
         Assertions.assertThatThrownBy(() -> authService.changeUsername(request))
                 .isInstanceOf(PasswordMismatchException.class);
         verify(userRepository, never()).save(any());
-        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(User.class));
     }
 
 }

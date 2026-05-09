@@ -8,6 +8,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRefreshRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
@@ -36,13 +37,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping(ApiRoutes.AUTH_PATH)
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Endpoint for authenticating, registering, password and username change.")
+@Tag(name = "Authentication", description = "Endpoint for authenticating, registering, refresh, password and username change.")
 public class AuthController {
 
     private final AuthService authService;
 
     @Operation(
-            summary = "Authenticates the user and sends back a accessToken.",
+            summary = "Authenticates the user and sends back access token and refresh token.",
             responses = {
                     @ApiResponse(responseCode = SwaggerResponseCodes.OK,
                             description = SwaggerDescriptions.SUCCESS_GET,
@@ -59,7 +60,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Registers a new user and sends back a accessToken.",
+            summary = "Registers a new user and sends back access token and refresh token",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
@@ -77,7 +78,24 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Changes user's password.",
+            summary = "Refreshing access token from refresh token",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))
+                    )
+            }
+    )
+    @UnauthorizedApiResponse
+    @PostMapping(ApiPaths.REFRESH)
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody AuthRefreshRequest request) {
+        log.info("Refresh POST {}", ApiRoutes.AUTH_PATH);
+        return ResponseEntity.ok(authService.refresh(request));
+    }
+
+    @Operation(
+            summary = "Changes user's password",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
@@ -96,7 +114,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Changes user's username.",
+            summary = "Changes user's username",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,

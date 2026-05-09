@@ -38,7 +38,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void authenticate_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token");
+        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
         AuthRequest request = new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.authenticate(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.post()
@@ -76,7 +76,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void register_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token");
+        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
         AuthRegisterRequest request = new AuthRegisterRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_USERNAME,
@@ -137,7 +137,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void changePassword_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token");
+        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenReturn(expectedResponse);
@@ -189,7 +189,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void changeUsername_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token");
+        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenReturn(expectedResponse);

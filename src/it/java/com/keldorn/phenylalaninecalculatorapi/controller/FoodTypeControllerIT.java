@@ -38,7 +38,7 @@ class FoodTypeControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.get()
                 .uri(path(ApiRoutes.FOOD_TYPE_PATH_BY_ID, foodTypeId))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
@@ -67,7 +67,7 @@ class FoodTypeControllerIT extends BaseIntegrationTest {
                 ), new TestPage.PageMetadata(20, 0, 2, 1));
         restTestClient.get()
                 .uri(ApiRoutes.FOOD_TYPE_PATH)
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<TestPage<FoodTypeResponse>>() {})
@@ -84,7 +84,7 @@ class FoodTypeControllerIT extends BaseIntegrationTest {
         var responseSpec = restTestClient.post()
                 .uri(ApiRoutes.FOOD_TYPE_PATH)
                 .body(request)
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
@@ -106,7 +106,7 @@ class FoodTypeControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.FOOD_TYPE_PATH_BY_ID, foodTypeId))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
@@ -126,7 +126,7 @@ class FoodTypeControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.delete()
                 .uri(path(ApiRoutes.FOOD_TYPE_PATH_BY_ID, foodTypeId))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);

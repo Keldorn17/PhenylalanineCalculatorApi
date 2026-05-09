@@ -28,7 +28,7 @@ class DailyIntakeControllerIT extends BaseIntegrationTest {
             String date,
             HttpStatus expectedStatus,
             Object expectedResponse) {
-        String token = getAuthToken();
+        String token = getAuthToken().accessToken();
         var responseSpec = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.DAILY_INTAKE_PATH)

@@ -4,6 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ public class DeleteUserAssociationsService {
     private final FoodRepository foodRepository;
     private final FoodTypeRepository foodTypeRepository;
     private final DailyIntakeRepository dailyIntakeRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
     @Transactional
@@ -31,7 +33,8 @@ public class DeleteUserAssociationsService {
         log.debug("Deleted daily intake {}, for user {}", dailyIntakeCount, userId);
         int foodConsumptionCount = foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);
         log.debug("Deleted food consumption {}, for user {}", foodConsumptionCount, userId);
-
+        refreshTokenRepository.deleteByUser_UserId(userId);
+        log.debug("Deleted refresh tokens for user {}", userId);
     }
 
 }

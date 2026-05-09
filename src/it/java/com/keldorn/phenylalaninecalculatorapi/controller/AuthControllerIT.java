@@ -1,17 +1,18 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRefreshRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import com.keldorn.phenylalaninecalculatorapi.service.DeleteUserAssociationsService;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
@@ -106,7 +107,7 @@ class AuthControllerIT extends BaseIntegrationTest {
             AuthPasswordChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = getAuthToken();
+        String token = getAuthToken().accessToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .headers(withBearer(token))
@@ -143,8 +144,8 @@ class AuthControllerIT extends BaseIntegrationTest {
     void testChangePassword_shouldReturn401FromSecurityLayer_whenZombieTokenReceived() {
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, NEW_PASSWORD);
-        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = getAuthToken();
+        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.DELETED_ACCOUNT_RESPONSE);
+        String token = getAuthToken().accessToken();
         wipeDatabase();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
@@ -162,7 +163,7 @@ class AuthControllerIT extends BaseIntegrationTest {
             AuthUsernameChangeRequest request,
             HttpStatus expectedStatus,
             ErrorResponse expectedResponse) {
-        String token = getAuthToken();
+        String token = getAuthToken().accessToken();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .headers(withBearer(token))
@@ -199,8 +200,8 @@ class AuthControllerIT extends BaseIntegrationTest {
     void testChangeUsername_shouldReturn401FromSecurityLayer_whenZombieTokenReceived() {
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(NEW_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
-        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        String token = getAuthToken();
+        ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.DELETED_ACCOUNT_RESPONSE);
+        String token = getAuthToken().accessToken();
         wipeDatabase();
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
@@ -209,6 +210,29 @@ class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
         verifyResponse(responseSpec, expectedResponse);
+    }
+
+    @Test
+    @DirtyTest
+    void testRefresh_shouldReturn200() {
+        restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
+                .body(new AuthRefreshRequest(getAuthToken().refreshToken()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .value(actual -> verifySuccess(actual, TestEntityFactory.DEFAULT_USERNAME));
+    }
+
+    @Test
+    @DirtyTest
+    void testRefresh_shouldReturn401_whenInvalidTokenReceived() {
+        var responseSpec = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
+                .body(new AuthRefreshRequest("Invalid Token"))
+                .exchange()
+                .expectStatus().isUnauthorized();
+        verifyResponse(responseSpec, error(HttpStatus.UNAUTHORIZED, ApiResponses.UNAUTHORIZED_RESPONSE));
     }
 
     private static Stream<Arguments> getRegistrationTestCases() {
@@ -354,6 +378,7 @@ class AuthControllerIT extends BaseIntegrationTest {
     private void verifySuccess(AuthResponse response, String registeredUsername) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.accessToken()).isNotEmpty();
+        Assertions.assertThat(response.refreshToken()).isNotEmpty();
         String username = jwtService.extractUsername(response.accessToken());
         Assertions.assertThat(username).isEqualTo(registeredUsername);
     }
