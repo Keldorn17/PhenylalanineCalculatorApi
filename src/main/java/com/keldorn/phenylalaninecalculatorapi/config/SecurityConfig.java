@@ -3,7 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
-import com.keldorn.phenylalaninecalculatorapi.security.JwtAuthFilter;
+import com.keldorn.phenylalaninecalculatorapi.filter.JwtAuthFilter;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -36,7 +35,7 @@ public class SecurityConfig {
 
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
             "/swagger-resources/**", "/api-docs/**", "/actuator/health", "/api/v1/auth/authenticate",
-            "/api/v1/auth/register"};
+            "/api/v1/auth/register", "/api/v1/auth/refresh"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthFilter jwtAuthFilter,
@@ -72,10 +71,9 @@ public class SecurityConfig {
     @Bean
     public JwtAuthFilter jwtAuthFilter(
             JwtService jwtService,
-            UserDetailsService userDetailsService,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
     ) {
-        return new JwtAuthFilter(jwtService, userDetailsService, resolver);
+        return new JwtAuthFilter(jwtService, resolver);
     }
 
 }

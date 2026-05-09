@@ -4,8 +4,9 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
+import com.keldorn.phenylalaninecalculatorapi.domain.entity.Role;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
-import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
+import com.keldorn.phenylalaninecalculatorapi.domain.enums.Roles;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodtype.FoodTypeResponse;
@@ -20,6 +21,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 public class TestEntityFactory {
 
@@ -43,11 +45,18 @@ public class TestEntityFactory {
     public static final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, 1, 1),
             LocalTime.of(12, 0), UTC).toInstant();
 
+    public static Role role() {
+        return Role.builder()
+                .id(DEFAULT_ID)
+                .name(Roles.ROLE_USER)
+                .build();
+    }
+
     public static User user() {
         return User.builder()
                 .dailyLimit(DEFAULT_BIG_DECIMAL_VALUE)
                 .email(DEFAULT_EMAIL)
-                .role(Role.ROLE_USER)
+                .roles(List.of(role()))
                 .password(DEFAULT_PASSWORD)
                 .username(DEFAULT_USERNAME)
                 .build();

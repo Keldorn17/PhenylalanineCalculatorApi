@@ -28,7 +28,7 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
     @Autowired
     protected RestTestClient restTestClient;
 
-    private String cachedToken;
+    private AuthResponse cachedTokens;
 
     static final MySQLContainer mysql = new MySQLContainer("mysql:9.6.0")
             .withDatabaseName("phenylalanine")
@@ -48,8 +48,8 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         registry.add("spring.liquibase.enabled", () -> "true");
     }
 
-    protected String getAuthToken() {
-        if (cachedToken == null) {
+    protected AuthResponse getAuthToken() {
+        if (cachedTokens == null) {
             AuthResponse response = restTestClient.post()
                     .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
                     .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
@@ -59,9 +59,9 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
                     .returnResult()
                     .getResponseBody();
             Assertions.assertThat(response).isNotNull();
-            cachedToken = response.accessToken();
+            cachedTokens = response;
         }
-        return cachedToken;
+        return cachedTokens;
     }
 
     protected static ErrorResponse error(HttpStatus status, String details) {

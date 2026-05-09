@@ -30,7 +30,7 @@ class UserControllerIT extends BaseIntegrationTest {
         UserResponse expectedResponse = userResponse();
         var responseSpec = restTestClient.get()
                 .uri(ApiRoutes.USER_PATH)
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isOk();
         verifyResponse(responseSpec, expectedResponse);
@@ -56,7 +56,7 @@ class UserControllerIT extends BaseIntegrationTest {
         var responseSpec = restTestClient.patch()
                 .uri(ApiRoutes.USER_PATH)
                 .body(request)
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
@@ -84,7 +84,7 @@ class UserControllerIT extends BaseIntegrationTest {
     void testDelete_shouldReturn204() {
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isNoContent();
     }

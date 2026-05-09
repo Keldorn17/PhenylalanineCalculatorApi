@@ -128,3 +128,47 @@ ALTER TABLE daily_intake ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMES
 -- Adds is_deleted to Food
 -- rollback ALTER TABLE food DROP COLUMN is_deleted;
 ALTER TABLE food ADD is_deleted BOOLEAN NOT NULL;
+
+-- changeset Patai Zoltan:create-roles-table
+-- Creates roles table
+-- rollback DROP TABLE roles;
+CREATE TABLE roles
+(
+    role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name    VARCHAR(255) UNIQUE NOT NULL
+);
+
+-- changeset Patai Zoltan:create-user-roles-table
+-- Creates user_roles table
+-- rollback DROP TABLE user_roles;
+CREATE TABLE user_roles
+(
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (role_id) REFERENCES roles (role_id)
+);
+
+-- changeset Patai Zoltan:create-refresh-tokens-table
+-- Creates refresh_tokens table
+-- rollback DROP TABLE refresh_tokens;
+CREATE TABLE refresh_tokens
+(
+    token_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token       VARCHAR(500) UNIQUE NOT NULL,
+    user_id     BIGINT              NOT NULL,
+    expiry_date DATETIME(6)         NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
+
+-- changeset Patai Zoltan:migrate-user-roles
+-- Migrate existing roles
+-- rollback DELETE FROM user_roles; DELETE FROM roles;
+INSERT INTO roles (name) VALUES ('ROLE_USER');
+INSERT INTO user_roles (user_id, role_id) SELECT user_id, (SELECT role_id FROM roles WHERE name = 'ROLE_USER') FROM users;
+
+-- changeset Patai Zoltan:drop-role-from-users
+-- Drop role column
+-- rollback ALTER TABLE users ADD role VARCHAR(255) NOT NULL DEFAULT 'ROLE_USER';
+ALTER TABLE users DROP COLUMN role;

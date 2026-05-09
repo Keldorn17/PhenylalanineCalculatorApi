@@ -22,7 +22,7 @@ public interface UserMapper {
     @Mapping(source = "dailyLimit", target = "dailyLimit")
     UserResponse toModel(User user);
 
-    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "password", ignore = true)

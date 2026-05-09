@@ -1,16 +1,20 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
-import com.keldorn.phenylalaninecalculatorapi.domain.enums.Role;
+import com.keldorn.phenylalaninecalculatorapi.domain.enums.Roles;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRefreshRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +33,13 @@ public class AuthService {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final RoleService roleService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
         User user = manageAuth(request.username(), request.password());
@@ -49,12 +55,11 @@ public class AuthService {
             }
             throw new EmailIsTakenException("Email is taken");
         });
-
         var user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(encodePassword(request.password()))
-                .role(Role.ROLE_USER)
+                .roles(List.of(roleService.findByRoleNameOrThrow(Roles.ROLE_USER)))
                 .build();
         User savedUser = userRepository.save(user);
         return getResponse(savedUser);
@@ -88,6 +93,14 @@ public class AuthService {
         return getResponse(user);
     }
 
+    public AuthResponse refresh(AuthRefreshRequest request) {
+        log.debug("Refreshing token");
+        Long userId = jwtService.extractUserId(request.refreshToken());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidJwtTokenReceivedException("Invalid token received"));
+        return refreshTokenService.refresh(request.refreshToken(), user);
+    }
+
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
@@ -98,8 +111,9 @@ public class AuthService {
 
     private AuthResponse getResponse(User user) {
         log.debug("Authentication Succeeded, Sending Token Back.");
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken);
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = refreshTokenService.save(user);
+        return new AuthResponse(accessToken, refreshToken);
     }
 
     private User manageAuth(String username, String password) {

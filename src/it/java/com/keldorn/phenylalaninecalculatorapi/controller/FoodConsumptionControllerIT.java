@@ -41,7 +41,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         .queryParam("date", TestEntityFactory.TEST_DATE)
                         .build()
                 )
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .headers(headers -> headers.add("X-Timezone", TestEntityFactory.UTC_TIMEZONE))
                 .exchange()
                 .expectStatus().isOk()
@@ -59,7 +59,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         .queryParam("date", TestEntityFactory.TEST_DATE.plusDays(1))
                         .build()
                 )
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<TestPage<FoodConsumptionResponse>>() {})
@@ -90,7 +90,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.post()
                 .uri(path(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID, foodId))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
@@ -113,7 +113,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID, id))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
@@ -133,7 +133,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
             Object expectedResponse) {
         var responseSpec = restTestClient.delete()
                 .uri(path(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID, id))
-                .headers(withBearer(getAuthToken()))
+                .headers(withBearer(getAuthToken().accessToken()))
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
