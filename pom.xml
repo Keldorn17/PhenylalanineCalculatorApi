@@ -32,7 +32,7 @@
         <org.springdoc.version>3.0.3</org.springdoc.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <io.opentelemetry.version>1.62.0</io.opentelemetry.version>
-        <io.opentelemetry.instrumentation.version>2.27.0-alpha</io.opentelemetry.instrumentation.version>
+        <io.opentelemetry.instrumentation.version>2.28.0-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.0</io.github.perplexhub.version>
         </properties>
 
