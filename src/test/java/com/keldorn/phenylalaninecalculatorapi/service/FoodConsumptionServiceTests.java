@@ -65,7 +65,7 @@ class FoodConsumptionServiceTests {
         Long foodId = 1L;
         BigDecimal foodPheContent = BigDecimal.valueOf(200);
         BigDecimal consumedAmount = BigDecimal.valueOf(50);
-        BigDecimal expectedCalculatedPhe = BigDecimal.valueOf(10).setScale(4, RoundingMode.HALF_UP);
+        BigDecimal expectedCalculatedPhe = BigDecimal.valueOf(100).setScale(4, RoundingMode.HALF_UP);
         FoodConsumptionRequest request = new FoodConsumptionRequest(consumedAmount);
         User user = TestEntityFactory.user();
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
@@ -150,7 +150,7 @@ class FoodConsumptionServiceTests {
         BigDecimal oldAmount = BigDecimal.valueOf(25);
         BigDecimal oldPheAmount = BigDecimal.valueOf(5).setScale(4, RoundingMode.HALF_UP);
         BigDecimal newAmount = BigDecimal.valueOf(50);
-        BigDecimal newPheAmount = BigDecimal.valueOf(10).setScale(4, RoundingMode.HALF_UP);
+        BigDecimal newPheAmount = BigDecimal.valueOf(100).setScale(4, RoundingMode.HALF_UP);
         BigDecimal expectedDelta = newPheAmount.subtract(oldPheAmount);
         FoodConsumptionRequest request = new FoodConsumptionRequest(newAmount);
         User user = TestEntityFactory.user();

@@ -105,7 +105,7 @@ public class FoodConsumptionService {
     private BigDecimal calculatePhenylalanineAmount(BigDecimal phenylalanine, BigDecimal amount) {
         log.debug("Calculating phenylalanine amount");
         return phenylalanine.multiply(amount)
-                .divide(BigDecimal.valueOf(1000), RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
                 .setScale(4, RoundingMode.HALF_UP);
     }
 

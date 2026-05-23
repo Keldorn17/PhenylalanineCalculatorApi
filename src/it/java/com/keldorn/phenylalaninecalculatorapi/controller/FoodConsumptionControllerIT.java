@@ -145,7 +145,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         TestEntityFactory.DEFAULT_ID,
                         foodConsumptionRequest(),
                         HttpStatus.CREATED,
-                        foodConsumptionResponse(NEW_FOOD_CONSUMPTION_ID, BigDecimal.TEN, BigDecimal.valueOf(0.1))
+                        foodConsumptionResponse(NEW_FOOD_CONSUMPTION_ID, BigDecimal.TEN)
                 ),
                 Arguments.of("Food not found",
                         UNKNOWN_ID,
@@ -169,7 +169,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         foodConsumptionRequest(),
                         HttpStatus.OK,
                         foodConsumptionResponse(TestEntityFactory.DEFAULT_ID,
-                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE, BigDecimal.valueOf(0.1))
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE)
                 ),
                 Arguments.of("Conflict: Negative overall food consumption",
                         TestEntityFactory.DEFAULT_ID,
@@ -199,9 +199,8 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
         return new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
     }
 
-    private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount,
-            BigDecimal phenylalanineAmount) {
-        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, amount, phenylalanineAmount,
+    private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount) {
+        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, amount, BigDecimal.ONE,
                 TestEntityFactory.TEST_DATE_TIME);
     }
 
