@@ -4,6 +4,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -15,10 +16,10 @@ class JwtServiceTests {
             "VGhpc0lzQVNlY3JldEtleUZvclRlc3RpbmdUaGF0SXNMb25nRW5vdWdoMTIzNDU2";
     private static final String SECRET_B =
             "VSwsajBDcVlMRzJ8Lik9ekUhJTxgUyYpfU1gfjxJIT5KZVpqRUFHS1Y+WUU4J0l1XEZLP2gwTTVJ";
-    private static final Long EXPIRATION_TIME = 300000L;
+    private static final Duration EXPIRATION_TIME = Duration.ofDays(1);
 
-    private final JwtService jwtServiceA = new JwtService(SECRET_A, EXPIRATION_TIME, EXPIRATION_TIME);
-    private final JwtService jwtServiceB = new JwtService(SECRET_B, EXPIRATION_TIME, EXPIRATION_TIME);
+    private final JwtService jwtServiceA = new JwtService(SECRET_A, SECRET_A, EXPIRATION_TIME, EXPIRATION_TIME);
+    private final JwtService jwtServiceB = new JwtService(SECRET_B, SECRET_B, EXPIRATION_TIME, EXPIRATION_TIME);
 
     private final String testUsername = "Test User";
     private final Long testUserId = 1L;
