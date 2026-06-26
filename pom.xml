@@ -33,7 +33,7 @@
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <io.opentelemetry.version>1.63.0</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.28.1-alpha</io.opentelemetry.instrumentation.version>
-        <io.github.perplexhub.version>7.0.0</io.github.perplexhub.version>
+        <io.github.perplexhub.version>7.0.2</io.github.perplexhub.version>
         </properties>
 
         <dependencyManagement>
