@@ -52,7 +52,9 @@ spring.datasource.password=your_super_secret_password
 
 ```properties
 # Secret key for JWT signing
-jwt.secret.string=your_super_long_random_secret_key_here
-jwt.access.expiration.time=300000
-jwt.refresh.expiration.time=86400000
+jwt.secret.access=your_super_long_random_secret_key_here
+jwt.secret.refresh=your_super_long_random_secret_key_here
+# Expiration time use 's' for seconds, 'm' for minutes, 'h' for hours, or 'd' for days
+jwt.access.expiration.time=300s
+jwt.refresh.expiration.time=24h
 ```

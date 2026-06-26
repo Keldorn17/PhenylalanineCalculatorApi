@@ -95,7 +95,7 @@ public class AuthService {
 
     public AuthResponse refresh(AuthRefreshRequest request) {
         log.debug("Refreshing token");
-        Long userId = jwtService.extractUserId(request.refreshToken());
+        Long userId = jwtService.extractUserIdFromRefreshToken(request.refreshToken());
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidJwtTokenReceivedException("Invalid token received"));
         return refreshTokenService.refresh(request.refreshToken(), user);
