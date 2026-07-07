@@ -75,7 +75,7 @@ public class ApplicationConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+                .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
     }
 
     @Bean

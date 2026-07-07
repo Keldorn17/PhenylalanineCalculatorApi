@@ -8,6 +8,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,8 @@ import org.springframework.http.HttpStatus;
 
 class DailyIntakeControllerIT extends BaseIntegrationTest {
 
-    private static final LocalDate REGISTERED_DATE = LocalDate.of(2026, 1, 1);
-    private static final LocalDate UNREGISTERED_DATE = LocalDate.of(2026, 4, 3);
+    private static final LocalDate REGISTERED_DATE = LocalDate.of(2026, Month.JANUARY, 1);
+    private static final LocalDate UNREGISTERED_DATE = LocalDate.of(2026, Month.APRIL, 3);
     private static final String MALFORMED_DATE = "malformed date";
 
     @MethodSource("getDailyIntakeTestCases")
