@@ -2,6 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.Mockito.when;
 
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -33,7 +34,7 @@ class DailyIntakeControllerTests {
         when(dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE)).thenReturn(expectedResponse);
         DailyIntakeResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/daily-intake")
+                        .path(ApiRoutes.DAILY_INTAKE_PATH)
                         .queryParam("date", TestEntityFactory.TEST_DATE)
                         .build())
                 .exchange()
@@ -52,7 +53,7 @@ class DailyIntakeControllerTests {
     void getDailyIntake_shouldReturn400_whenDateIsMalformed() {
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/daily-intake")
+                        .path(ApiRoutes.DAILY_INTAKE_PATH)
                         .queryParam("date", "invalid")
                         .build())
                 .exchange()
@@ -65,7 +66,7 @@ class DailyIntakeControllerTests {
                 .thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/daily-intake")
+                        .path(ApiRoutes.DAILY_INTAKE_PATH)
                         .queryParam("date", TestEntityFactory.TEST_DATE)
                         .build())
                 .exchange()
