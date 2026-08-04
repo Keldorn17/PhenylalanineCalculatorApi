@@ -117,7 +117,7 @@ class DailyIntakeServiceTests {
         BigDecimal amountToAdd = BigDecimal.TEN;
         User user = TestEntityFactory.user();
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(userService.getCurrentUser()).thenReturn(user);
+        when(userService.getCurrentUserReference()).thenReturn(user);
         when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
                 .thenReturn(Optional.empty());
         dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);

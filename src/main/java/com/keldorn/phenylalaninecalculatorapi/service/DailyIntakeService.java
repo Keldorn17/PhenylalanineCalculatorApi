@@ -53,7 +53,7 @@ public class DailyIntakeService {
         log.debug("Adding amount for daily intake: {} to date: {}", amount, date);
         DailyIntake dailyIntake = dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
                 .orElseGet(() -> DailyIntake.builder()
-                        .user(userService.getCurrentUser())
+                        .user(userService.getCurrentUserReference())
                         .date(date)
                         .totalPhenylalanine(BigDecimal.ZERO)
                         .build());

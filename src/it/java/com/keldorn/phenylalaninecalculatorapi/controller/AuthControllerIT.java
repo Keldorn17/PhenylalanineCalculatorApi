@@ -28,6 +28,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import io.jsonwebtoken.Claims;
+
 class AuthControllerIT extends BaseIntegrationTest {
 
     @Autowired
@@ -44,7 +46,7 @@ class AuthControllerIT extends BaseIntegrationTest {
     private static final String INVALID_PASSWORD = "invalid password";
     private static final String TEST_REGISTER_EMAIL = "test@test.com";
     private static final String TEST_REGISTER_USERNAME = "test";
-    private static final String NEW_PASSWORD = "new password";
+    private static final String NEW_PASSWORD = "newPassword1@";
     private static final String NEW_USERNAME = "new username";
 
     private static final String MISSING_EMAIL_RESPONSE =
@@ -389,7 +391,8 @@ class AuthControllerIT extends BaseIntegrationTest {
     private void verifySuccess(AuthResponse response, String registeredUsername) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.accessToken()).isNotEmpty();
-        String username = jwtService.extractUsername(response.accessToken());
+        Claims claims = jwtService.validateAndParseAccessToken(response.accessToken());
+        String username = jwtService.extractUsername(claims);
         Assertions.assertThat(username).isEqualTo(registeredUsername);
     }
 
