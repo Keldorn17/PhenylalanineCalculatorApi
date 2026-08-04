@@ -88,9 +88,15 @@ class FoodTypeServiceTests {
         foodType.setUser(user);
         FoodTypeRequest request = new FoodTypeRequest(foodType.getName(), foodType.getMultiplier());
         when(userService.getCurrentUserReference()).thenReturn(user);
-        when(foodTypeRepository.save(foodType)).thenReturn(foodType);
+        when(foodTypeRepository.save(any(FoodType.class))).thenReturn(foodType);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         FoodTypeResponse response = foodTypeService.save(request);
-        verify(foodTypeRepository).save(foodType);
+        ArgumentCaptor<FoodType> captor = ArgumentCaptor.forClass(FoodType.class);
+        verify(foodTypeRepository).save(captor.capture());
+        FoodType savedEntity = captor.getValue();
+        Assertions.assertThat(savedEntity).isNotNull();
+        Assertions.assertThat(savedEntity.getName()).isEqualTo(request.name());
+        Assertions.assertThat(savedEntity.getMultiplier()).isEqualTo(request.multiplier());
         doAssertionsCheckOnResponse(response, foodType);
     }
 

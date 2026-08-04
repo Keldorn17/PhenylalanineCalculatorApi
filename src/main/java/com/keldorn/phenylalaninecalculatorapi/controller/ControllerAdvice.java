@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -36,7 +37,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class,
-            DailyIntakeCannotBeLowerThanZeroException.class
+            DailyIntakeCannotBeLowerThanZeroException.class, OptimisticLockingFailureException.class
     })
     public ResponseEntity<Object> handleConflict(Exception ex) {
         return buildAndLog(HttpStatus.CONFLICT, ApiResponses.CLIENT_ERROR, ex);
@@ -133,6 +134,8 @@ public class ControllerAdvice {
             case "DailyIntakeCannotBeLowerThanZeroException" -> ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE;
             case "InvalidRSQLException" -> ApiResponses.INVALID_RSQL_RESPONSE;
             case "CannotEditResourceException" -> ApiResponses.UNOWNED_RESOURCE_RESPONSE;
+            case "OptimisticLockingFailureException", "ObjectOptimisticLockingFailureException" ->
+                    ApiResponses.CONCURRENT_UPDATE_RESPONSE;
             default -> ApiResponses.DEFAULT_RESPONSE;
         };
     }

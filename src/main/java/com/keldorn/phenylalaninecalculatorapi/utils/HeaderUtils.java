@@ -18,8 +18,21 @@ public class HeaderUtils {
                 .path(ApiRoutes.REFRESH_PATH)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Strict")
+                .sameSite("None")
                 .maxAge(maxAge)
+                .build();
+        httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        return httpHeaders;
+    }
+
+    public HttpHeaders getCleanRefreshHeader() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                .path(ApiRoutes.REFRESH_PATH)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(0)
                 .build();
         httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
         return httpHeaders;

@@ -12,7 +12,8 @@ public final class ApiResponses {
     public static final String USERNAME_IS_TAKEN_RESPONSE = "This username is already taken.";
     public static final String PASSWORD_MISMATCH_RESPONSE = "The password provided does not match our records.";
     public static final String DELETED_ACCOUNT_RESPONSE = "This account no longer exists.";
-    public static final String UNAUTHORIZED_RESPONSE = "Invalid or expired authentication accessToken or bad credentials";
+    public static final String UNAUTHORIZED_RESPONSE =
+            "Invalid or expired authentication accessToken or bad credentials";
     public static final String RESOURCE_NOT_FOUND_RESPONSE = "The requested resource could not be found.";
     public static final String DAILY_INTAKE_NEGATIVE_RESPONSE = "Daily intake values must be zero or greater.";
     public static final String INTERNAL_RESPONSE = "An internal server error occurred. Please try again later.";
@@ -23,6 +24,7 @@ public final class ApiResponses {
             "Full authentication is required to access this resource";
     public static final String INVALID_RSQL_RESPONSE = "Invalid query or sort parameters";
     public static final String UNOWNED_RESOURCE_RESPONSE = "You are not the owner of this resource";
+    public static final String CONCURRENT_UPDATE_RESPONSE = "A concurrent update occurred. Please try again.";
 
     public static final String MUST_NOT_BE_BLANK_RESPONSE = "%s must not be blank";
     public static final String MUST_NOT_BE_NULL_RESPONSE = "%s must not be null";

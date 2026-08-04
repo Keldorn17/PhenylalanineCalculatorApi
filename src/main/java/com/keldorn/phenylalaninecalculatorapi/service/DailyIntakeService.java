@@ -49,7 +49,7 @@ public class DailyIntakeService {
      * @throws DailyIntakeCannotBeLowerThanZeroException if the update would result in a negative total.
      */
     @Transactional
-    protected void addAmount(LocalDate date, BigDecimal amount) {
+    public void addAmount(LocalDate date, BigDecimal amount) {
         log.debug("Adding amount for daily intake: {} to date: {}", amount, date);
         DailyIntake dailyIntake = dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
                 .orElseGet(() -> DailyIntake.builder()
