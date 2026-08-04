@@ -1,9 +1,9 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
+import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +12,6 @@ import javax.crypto.SecretKey;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -34,14 +33,11 @@ public class JwtService {
     private final Long accessExpirationTime;
     private final Long refreshExpirationTime;
 
-    public JwtService(@Value("${jwt.secret.access}") String accessSecret,
-            @Value("${jwt.secret.refresh}") String refreshSecret,
-            @Value("${jwt.access.expiration.time}") Duration accessExpirationTime,
-            @Value("${jwt.refresh.expiration.time}") Duration refreshExpirationTime) {
-        this.signingKeyAccess = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
-        this.signingKeyRefresh = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
-        this.accessExpirationTime = accessExpirationTime.toMillis();
-        this.refreshExpirationTime = refreshExpirationTime.toMillis();
+    public JwtService(JwtProperties jwtProperties) {
+        this.signingKeyAccess = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecret().getAccess()));
+        this.signingKeyRefresh = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecret().getRefresh()));
+        this.accessExpirationTime = jwtProperties.getAccess().getExpirationTime().toMillis();
+        this.refreshExpirationTime = jwtProperties.getRefresh().getExpirationTime().toMillis();
     }
 
     public long getRefreshExpirationTime() {

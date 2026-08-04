@@ -11,7 +11,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponseInternal;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
@@ -70,7 +70,7 @@ class AuthServiceTests {
         AuthRequest request = new AuthRequest(user.getUsername(), user.getPassword());
         when(authenticationManager.authenticate(any())).thenReturn(new UsernamePasswordAuthenticationToken(user, null));
         when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
-        AuthResponse response = authService.authenticate(request);
+        AuthResponseInternal response = authService.authenticate(request);
         Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
     }
 
@@ -96,7 +96,7 @@ class AuthServiceTests {
         when(roleService.findByRoleNameOrThrow(any())).thenReturn(TestEntityFactory.role());
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
-        AuthResponse response = authService.register(request);
+        AuthResponseInternal response = authService.register(request);
         verify(userRepository).save(any(User.class));
         Assertions.assertThat(response.accessToken()).isEqualTo(returnToken);
     }
@@ -138,7 +138,7 @@ class AuthServiceTests {
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
-        AuthResponse response = authService.changePassword(request);
+        AuthResponseInternal response = authService.changePassword(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User savedUser = captor.getValue();
@@ -179,7 +179,7 @@ class AuthServiceTests {
         when(userService.getCurrentUser()).thenReturn(user);
         when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
         when(jwtService.generateAccessToken(any(User.class))).thenReturn(returnToken);
-        AuthResponse response = authService.changeUsername(request);
+        AuthResponseInternal response = authService.changeUsername(request);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User savedUser = captor.getValue();
