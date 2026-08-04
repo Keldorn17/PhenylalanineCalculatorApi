@@ -6,6 +6,8 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.filter.JwtAuthFilter;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Slf4j
@@ -32,6 +37,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
+    private final CorsProperties corsProperties;
 
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
             "/swagger-resources/**", "/api-docs/**", "/actuator/health", "/api/v1/auth/authenticate",
@@ -40,8 +46,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthFilter jwtAuthFilter,
             ObjectMapper objectMapper) {
-        log.info("Initializing Spring Security filter chain,");
+        log.info("Initializing Spring Security filter chain");
         return httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(freeResourceUrls).permitAll()
@@ -69,10 +76,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter(
-            JwtService jwtService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
-    ) {
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public JwtAuthFilter jwtAuthFilter(JwtService jwtService,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         return new JwtAuthFilter(jwtService, resolver);
     }
 
