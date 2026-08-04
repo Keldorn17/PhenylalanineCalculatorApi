@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface FoodConsumptionRepository extends JpaRepository<FoodConsumption, Long> {
 
+    @EntityGraph(attributePaths = {"food"})
     @Query("FROM FoodConsumption fc WHERE fc.user.userId = ?1 AND fc.consumedAt >= ?2 AND fc.consumedAt < ?3")
     Page<FoodConsumption> findAllByUserAndConsumedAtBetween(Long userId, Instant start, Instant end, Pageable pageable);
 

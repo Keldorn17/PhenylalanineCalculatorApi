@@ -54,23 +54,27 @@ public class JwtService {
         return generateToken(user, refreshExpirationTime, this.signingKeyRefresh, REFRESH_TYPE);
     }
 
-    public Long extractUserId(String token) {
-        log.debug("Extracting User Id.");
-        return Long.parseLong(extractAccessClaims(token).getSubject());
+    public Claims validateAndParseAccessToken(String token) {
+        return extractAccessClaims(token);
     }
 
-    public List<String> extractRoles(String token) {
+    public Long extractUserId(Claims claims) {
+        log.debug("Extracting User Id.");
+        return Long.parseLong(claims.getSubject());
+    }
+
+    public List<String> extractRoles(Claims claims) {
         log.debug("Extracting Roles.");
-        List<?> roles = extractAccessClaims(token).get("roles", List.class);
+        List<?> roles = claims.get("roles", List.class);
         return roles != null ? roles.stream()
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .toList() : List.of();
     }
 
-    public String extractUsername(String token) {
+    public String extractUsername(Claims claims) {
         log.debug("Extracting Username.");
-        return extractAccessClaims(token).get("username", String.class);
+        return claims.get("username", String.class);
     }
 
     private String generateToken(User user, Long expirationTime, SecretKey signingKey, String tokenType) {

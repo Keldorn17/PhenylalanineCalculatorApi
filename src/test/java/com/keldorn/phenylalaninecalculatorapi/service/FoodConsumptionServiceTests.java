@@ -70,7 +70,7 @@ class FoodConsumptionServiceTests {
         User user = TestEntityFactory.user();
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setPhenylalanine(foodPheContent);
-        when(userService.getCurrentUser()).thenReturn(user);
+        when(userService.getCurrentUserReference()).thenReturn(user);
         when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);

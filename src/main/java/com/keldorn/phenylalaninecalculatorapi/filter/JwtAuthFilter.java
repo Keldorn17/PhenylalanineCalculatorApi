@@ -21,6 +21,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import io.jsonwebtoken.Claims;
+
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -39,10 +41,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             String token = getToken(request, response, filterChain);
             if (token != null) {
-                String username = jwtService.extractUsername(token);
-                Long userId = jwtService.extractUserId(token);
+                Claims claims = jwtService.validateAndParseAccessToken(token);
+                String username = jwtService.extractUsername(claims);
+                Long userId = jwtService.extractUserId(claims);
                 request.setAttribute(RequestAttributes.CURRENT_USER_ID, userId);
-                authenticate(request, username, token);
+                authenticate(request, username, claims);
                 filterChain.doFilter(request, response);
             }
         } catch (InvalidJwtTokenReceivedException e) {
@@ -50,9 +53,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private void authenticate(HttpServletRequest request, String username, String token) {
+    private void authenticate(HttpServletRequest request, String username, Claims claims) {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var roles = jwtService.extractRoles(token);
+            var roles = jwtService.extractRoles(claims);
             var authorities = roles.stream()
                     .map(SimpleGrantedAuthority::new)
                     .toList();

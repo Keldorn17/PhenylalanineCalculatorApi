@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,8 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class,
-            DailyIntakeCannotBeLowerThanZeroException.class, OptimisticLockingFailureException.class
+            DailyIntakeCannotBeLowerThanZeroException.class, OptimisticLockingFailureException.class,
+            DataIntegrityViolationException.class
     })
     public ResponseEntity<Object> handleConflict(Exception ex) {
         return buildAndLog(HttpStatus.CONFLICT, ApiResponses.CLIENT_ERROR, ex);

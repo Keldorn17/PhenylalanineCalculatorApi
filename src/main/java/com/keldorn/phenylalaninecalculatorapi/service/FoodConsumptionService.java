@@ -47,7 +47,8 @@ public class FoodConsumptionService {
     }
 
     @Transactional(readOnly = true)
-    public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest, String timezone) {
+    public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest,
+            String timezone) {
         log.debug("Finding all food consumptions by date");
         ZoneId zoneId = resolveZoneId(timezone);
         Instant start = date.atStartOfDay(zoneId).toInstant();
@@ -69,7 +70,7 @@ public class FoodConsumptionService {
         LocalDate userLocalDate = LocalDate.ofInstant(now, userZoneId);
         dailyIntakeService.addAmount(userLocalDate, phenylalanineAmount);
         FoodConsumption foodConsumption = FoodConsumption.builder()
-                .user(userService.getCurrentUser())
+                .user(userService.getCurrentUserReference())
                 .food(food)
                 .consumedAt(now)
                 .amount(request.amount())

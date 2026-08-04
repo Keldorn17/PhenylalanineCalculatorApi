@@ -4,9 +4,9 @@
 -- changeset Patai Zoltán:load-test-user
 -- Loads test user
 INSERT INTO users (username, email, password, daily_limit)
-VALUES ('testUser', 'test@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoaLw9eP59snqmbCiePoD3Gti', 400);
+VALUES ('testUser', 'test@testmail.com', '$2a$12$d4jNoGLVcxccjZ5e0xZ4hOrwhCniZ/otJa50xKEOeI3ukwSQuvafG', 400);
 INSERT INTO users (username, email, password, daily_limit)
-VALUES ('testUser2', 'test2@testmail.com', '$2a$10$FzMGv14lGX0uJSr5DCAxQu9k/6/2yoaLw9eP59snqmbCiePoD3Gti', 400);
+VALUES ('testUser2', 'test2@testmail.com', '$2a$12$d4jNoGLVcxccjZ5e0xZ4hOrwhCniZ/otJa50xKEOeI3ukwSQuvafG', 400);
 
 -- Test User Roles
 -- changeset Patai Zoltán:load-test-user-roles

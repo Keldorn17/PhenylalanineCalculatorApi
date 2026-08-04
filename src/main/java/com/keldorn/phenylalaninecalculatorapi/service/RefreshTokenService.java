@@ -29,7 +29,8 @@ public class RefreshTokenService {
     public String save(User user) {
         log.debug("Saving Refresh Token.");
         var token = jwtService.generateRefreshToken(user);
-        refreshTokenRepository.deleteByUser_UserId(user.getUserId());
+        refreshTokenRepository.deleteByUser_UserIdAndExpiryDateBefore(user.getUserId(),
+                ZonedDateTime.now(ZoneOffset.UTC));
         var refreshToken = RefreshToken.builder()
                 .user(user)
                 .token(token)
@@ -50,6 +51,7 @@ public class RefreshTokenService {
             throw new InvalidJwtTokenReceivedException("Refresh token was expired");
         }
         String accessToken = jwtService.generateAccessToken(user);
+        refreshTokenRepository.delete(token);
         String newRefreshToken = selfProvider.getObject().save(user);
         return new AuthResponseInternal(accessToken, newRefreshToken);
     }

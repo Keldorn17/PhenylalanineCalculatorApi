@@ -172,3 +172,8 @@ INSERT INTO user_roles (user_id, role_id) SELECT user_id, (SELECT role_id FROM r
 -- Drop role column
 -- rollback ALTER TABLE users ADD role VARCHAR(255) NOT NULL DEFAULT 'ROLE_USER';
 ALTER TABLE users DROP COLUMN role;
+
+-- changeset Patai Zoltan:add-idx-food-consumption-user-consumed-at
+-- Adds composite index on (user_id, consumed_at) to optimize date-range queries
+-- rollback DROP INDEX idx_food_consumption_user_consumed_at ON food_consumption;
+CREATE INDEX idx_food_consumption_user_consumed_at ON food_consumption (user_id, consumed_at);

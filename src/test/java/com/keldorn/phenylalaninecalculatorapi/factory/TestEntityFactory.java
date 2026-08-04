@@ -28,7 +28,7 @@ public class TestEntityFactory {
 
     public static final String DEFAULT_USERNAME = "testUser";
     public static final String DEFAULT_EMAIL = "test@testmail.com";
-    public static final String DEFAULT_PASSWORD = "testPassword";
+    public static final String DEFAULT_PASSWORD = "testPassword1@";
     public static final String DEFAULT_FOOD_TYPE_NAME = "testFoodType";
     public static final String DEFAULT_FOOD_NAME = "testFood";
     public static final BigDecimal DEFAULT_BIG_DECIMAL_VALUE = BigDecimal.TEN.setScale(4, RoundingMode.HALF_UP);
