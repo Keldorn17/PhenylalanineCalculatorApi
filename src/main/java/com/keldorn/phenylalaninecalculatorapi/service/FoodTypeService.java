@@ -57,24 +57,24 @@ public class FoodTypeService {
     }
 
     @Transactional
-    @CacheEvict(value = {"foodTypeEntities", "foodTypePages", "foodEntities", "foodPages"}, allEntries = true)
+    @CacheEvict(value = {"foodTypePages", "foodPages"}, allEntries = true)
     public FoodTypeResponse update(Long id, FoodTypeRequest request) {
         log.debug("Updating Food Type");
         FoodType foodType = foodTypeReadService.findByIdOrThrow(id);
         foodType.setName(request.name());
         foodType.setMultiplier(request.multiplier());
         Long currentUserId = userService.getCurrentUserId();
-        canEditOrThrow(currentUserId, foodType.getUser().getUserId());
+        canEditOrThrow(currentUserId, foodType.getUser() != null ? foodType.getUser().getUserId() : null);
         return FoodTypeMapper.INSTANCE.toModel(foodTypeRepository.save(foodType), currentUserId);
     }
 
     @Transactional
-    @CacheEvict(value = {"foodTypeEntities", "foodTypePages", "foodEntities", "foodPages"}, allEntries = true)
+    @CacheEvict(value = {"foodTypePages", "foodPages"}, allEntries = true)
     public void deleteById(Long id) {
         log.debug("Deleting Food Type By Id: {}", id);
         FoodType foodType = foodTypeReadService.findByIdOrThrow(id);
         Long currentUserId = userService.getCurrentUserId();
-        canEditOrThrow(currentUserId, foodType.getUser().getUserId());
+        canEditOrThrow(currentUserId, foodType.getUser() != null ? foodType.getUser().getUserId() : null);
         foodTypeRepository.delete(foodType);
     }
 

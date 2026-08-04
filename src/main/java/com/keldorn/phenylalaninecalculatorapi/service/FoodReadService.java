@@ -7,7 +7,6 @@ import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,6 @@ public class FoodReadService {
     private final FoodRepository foodRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "foodEntities", key = "#id")
     public Food findByIdOrThrow(Long id) {
         log.debug("Getting Food By Id: {}", id);
         return foodRepository.findById(id)

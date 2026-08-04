@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfig {
 
-    private final String[] cacheNames = {"foodTypeEntities", "foodTypePages", "foodEntities", "foodPages"};
+    private final String[] cacheNames = {"foodTypePages", "foodPages"};
 
     @Bean
     public CacheManager cacheManager() {
