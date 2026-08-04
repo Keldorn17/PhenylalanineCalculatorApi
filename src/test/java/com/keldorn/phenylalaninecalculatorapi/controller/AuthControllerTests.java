@@ -2,17 +2,20 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.Mockito.when;
 
+import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponseInternal;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
+import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.PasswordMismatchException;
-import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
+import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.AuthService;
 import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
@@ -22,12 +25,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(AuthController.class)
+@Import(JwtProperties.class)
 class AuthControllerTests extends RestTestUtils {
 
     @MockitoBean
@@ -38,7 +44,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void authenticate_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
+        AuthResponseInternal expectedResponse = new AuthResponseInternal("Test Token", "TestToken");
         AuthRequest request = new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.authenticate(request)).thenReturn(expectedResponse);
         AuthResponse response = restTestClient.post()
@@ -76,7 +82,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void register_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
+        AuthResponseInternal expectedResponse = new AuthResponseInternal("Test Token", "TestToken");
         AuthRegisterRequest request = new AuthRegisterRequest(
                 TestEntityFactory.DEFAULT_EMAIL,
                 TestEntityFactory.DEFAULT_USERNAME,
@@ -137,7 +143,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void changePassword_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
+        AuthResponseInternal expectedResponse = new AuthResponseInternal("Test Token", "TestToken");
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenReturn(expectedResponse);
@@ -189,7 +195,7 @@ class AuthControllerTests extends RestTestUtils {
 
     @Test
     void changeUsername_shouldReturn200() {
-        AuthResponse expectedResponse = new AuthResponse("Test Token", "Test Token");
+        AuthResponseInternal expectedResponse = new AuthResponseInternal("Test Token", "TestToken");
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenReturn(expectedResponse);
@@ -238,6 +244,33 @@ class AuthControllerTests extends RestTestUtils {
                 .body(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void refresh_shouldReturn200() {
+        AuthResponseInternal expectedResponse = new AuthResponseInternal("New Access Token", "NewRefreshToken");
+        String testRefreshToken = "Valid Refresh Token";
+        when(authService.refresh(testRefreshToken)).thenReturn(expectedResponse);
+        AuthResponse response = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
+                .cookie("refreshToken", testRefreshToken)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.accessToken()).isEqualTo(expectedResponse.accessToken());
+    }
+
+    @Test
+    void refresh_shouldReturn401_whenCookieMissing() {
+        when(authService.refresh(null)).thenThrow(InvalidJwtTokenReceivedException.class);
+        restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
 }

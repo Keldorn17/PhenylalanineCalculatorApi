@@ -2,7 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.RefreshToken;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponseInternal;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.repository.RefreshTokenRepository;
 
@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class RefreshTokenService {
 
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ObjectProvider<RefreshTokenService> selfProvider;
 
     @Transactional
     public String save(User user) {
@@ -38,7 +40,8 @@ public class RefreshTokenService {
         return token;
     }
 
-    public AuthResponse refresh(String refreshToken, User user) {
+    @Transactional
+    public AuthResponseInternal refresh(String refreshToken, User user) {
         log.debug("Creating access token from refresh token");
         RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new InvalidJwtTokenReceivedException("Invalid token received"));
@@ -47,7 +50,8 @@ public class RefreshTokenService {
             throw new InvalidJwtTokenReceivedException("Refresh token was expired");
         }
         String accessToken = jwtService.generateAccessToken(user);
-        return new AuthResponse(accessToken, refreshToken);
+        String newRefreshToken = selfProvider.getObject().save(user);
+        return new AuthResponseInternal(accessToken, newRefreshToken);
     }
 
 }

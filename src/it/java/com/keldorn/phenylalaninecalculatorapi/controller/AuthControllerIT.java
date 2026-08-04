@@ -6,7 +6,6 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRefreshRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
@@ -25,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -215,9 +215,20 @@ class AuthControllerIT extends BaseIntegrationTest {
     @Test
     @DirtyTest
     void testRefresh_shouldReturn200() {
+        var authResult = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
+                .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult();
+        var cookie = authResult.getResponseCookies();
+        var refreshTokenCookie = cookie.getFirst("refreshToken");
+        Assertions.assertThat(refreshTokenCookie).isNotNull();
+        String refreshToken = refreshTokenCookie.getValue();
         restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
-                .body(new AuthRefreshRequest(getAuthToken().refreshToken()))
+                .cookie("refreshToken", refreshToken)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
@@ -229,7 +240,7 @@ class AuthControllerIT extends BaseIntegrationTest {
     void testRefresh_shouldReturn401_whenInvalidTokenReceived() {
         var responseSpec = restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
-                .body(new AuthRefreshRequest("Invalid Token"))
+                .cookie("refreshToken", "Invalid Token")
                 .exchange()
                 .expectStatus().isUnauthorized();
         verifyResponse(responseSpec, error(HttpStatus.UNAUTHORIZED, ApiResponses.UNAUTHORIZED_RESPONSE));
@@ -378,12 +389,12 @@ class AuthControllerIT extends BaseIntegrationTest {
     private void verifySuccess(AuthResponse response, String registeredUsername) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.accessToken()).isNotEmpty();
-        Assertions.assertThat(response.refreshToken()).isNotEmpty();
         String username = jwtService.extractUsername(response.accessToken());
         Assertions.assertThat(username).isEqualTo(registeredUsername);
     }
 
     private void verifySuccess(RestTestClient.ResponseSpec spec, String registeredUsername) {
+        spec.expectHeader().exists(HttpHeaders.SET_COOKIE);
         spec.expectBody(AuthResponse.class)
                 .value(actual -> verifySuccess(actual, registeredUsername));
     }

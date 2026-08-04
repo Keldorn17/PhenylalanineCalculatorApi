@@ -3,10 +3,9 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.domain.enums.Roles;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRefreshRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
-import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponseInternal;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
@@ -40,14 +39,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public AuthResponse authenticate(AuthRequest request) {
+    public AuthResponseInternal authenticate(AuthRequest request) {
         log.debug("Authenticating User.");
         User user = manageAuth(request.username(), request.password());
         return getResponse(user);
     }
 
     @Transactional
-    public AuthResponse register(AuthRegisterRequest request) {
+    public AuthResponseInternal register(AuthRegisterRequest request) {
         log.debug("Registering New User.");
         userRepository.findByUsernameOrEmail(request.username(), request.email()).ifPresent(u -> {
             if (u.getUsername().equals(request.username())) {
@@ -66,7 +65,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse changePassword(AuthPasswordChangeRequest request) {
+    public AuthResponseInternal changePassword(AuthPasswordChangeRequest request) {
         log.debug("Changing users password");
         if (request.oldPassword().equals(request.password())) {
             throw new PasswordMismatchException("Old password can not be equal to new password.");
@@ -81,7 +80,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse changeUsername(AuthUsernameChangeRequest request) {
+    public AuthResponseInternal changeUsername(AuthUsernameChangeRequest request) {
         log.debug("Change users username");
         isUsernameTakenAndThrow(request.username());
         var user = userService.getCurrentUser();
@@ -93,12 +92,15 @@ public class AuthService {
         return getResponse(user);
     }
 
-    public AuthResponse refresh(AuthRefreshRequest request) {
+    public AuthResponseInternal refresh(String refreshToken) {
         log.debug("Refreshing token");
-        Long userId = jwtService.extractUserIdFromRefreshToken(request.refreshToken());
+        if (refreshToken == null) {
+            throw new InvalidJwtTokenReceivedException("Invalid token received");
+        }
+        Long userId = jwtService.extractUserIdFromRefreshToken(refreshToken);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidJwtTokenReceivedException("Invalid token received"));
-        return refreshTokenService.refresh(request.refreshToken(), user);
+        return refreshTokenService.refresh(refreshToken, user);
     }
 
     private String encodePassword(String password) {
@@ -109,11 +111,11 @@ public class AuthService {
         return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
-    private AuthResponse getResponse(User user) {
+    private AuthResponseInternal getResponse(User user) {
         log.debug("Authentication Succeeded, Sending Token Back.");
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = refreshTokenService.save(user);
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponseInternal(accessToken, refreshToken);
     }
 
     private User manageAuth(String username, String password) {
