@@ -57,5 +57,11 @@ jwt.secret.refresh=your_super_long_random_secret_key_here
 # Expiration time use 's' for seconds, 'm' for minutes, 'h' for hours, or 'd' for days
 jwt.access.expiration-time=300s
 jwt.refresh.expiration-time=24h
+
 app.cors.allowed-origins=http://localhost:3000
+
+app.cookie.refresh.httpOnly=true
+app.cookie.refresh.secure=true
+# Available properties for same-site: STRICT, LAX, NONE
+app.cookie.refresh.same-site=STRICT
 ```

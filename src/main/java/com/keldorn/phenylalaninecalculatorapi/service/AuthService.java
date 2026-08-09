@@ -103,6 +103,14 @@ public class AuthService {
         return refreshTokenService.refresh(refreshToken, user);
     }
 
+    @Transactional
+    public void logout(String refreshToken) {
+        log.debug("Logging out user");
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            refreshTokenService.deleteByToken(refreshToken);
+        }
+    }
+
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }

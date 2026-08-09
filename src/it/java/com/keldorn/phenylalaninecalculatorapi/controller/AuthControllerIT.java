@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthUsernameChangeRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
+import com.keldorn.phenylalaninecalculatorapi.repository.RefreshTokenRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 import com.keldorn.phenylalaninecalculatorapi.service.DeleteUserAssociationsService;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
@@ -34,6 +35,9 @@ class AuthControllerIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     private DeleteUserAssociationsService deleteUserAssociationsService;
@@ -246,6 +250,45 @@ class AuthControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
         verifyResponse(responseSpec, error(HttpStatus.UNAUTHORIZED, ApiResponses.UNAUTHORIZED_RESPONSE));
+    }
+
+    @Test
+    @DirtyTest
+    void testLogout_shouldReturn204_andInvalidateToken() {
+        var authResult = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
+                .body(new AuthRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult();
+        var cookie = authResult.getResponseCookies();
+        var refreshTokenCookie = cookie.getFirst("refreshToken");
+        Assertions.assertThat(refreshTokenCookie).isNotNull();
+        String refreshToken = refreshTokenCookie.getValue();
+
+        Assertions.assertThat(refreshTokenRepository.findByToken(refreshToken)).isPresent();
+
+        var logoutResult = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.LOGOUT))
+                .cookie("refreshToken", refreshToken)
+                .exchange()
+                .expectStatus().isNoContent()
+                .returnResult();
+
+        var logoutCookies = logoutResult.getResponseCookies();
+        var cleanCookie = logoutCookies.getFirst("refreshToken");
+        Assertions.assertThat(cleanCookie).isNotNull();
+        Assertions.assertThat(cleanCookie.getMaxAge().isZero()).isTrue();
+        Assertions.assertThat(cleanCookie.getValue()).isEmpty();
+
+        Assertions.assertThat(refreshTokenRepository.findByToken(refreshToken)).isEmpty();
+
+        restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
+                .cookie("refreshToken", refreshToken)
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     private static Stream<Arguments> getRegistrationTestCases() {

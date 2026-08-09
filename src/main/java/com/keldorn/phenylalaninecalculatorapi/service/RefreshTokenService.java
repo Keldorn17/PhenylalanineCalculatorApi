@@ -56,4 +56,10 @@ public class RefreshTokenService {
         return new AuthResponseInternal(accessToken, newRefreshToken);
     }
 
+    @Transactional
+    public void deleteByToken(String refreshToken) {
+        log.debug("Deleting users refresh token");
+        refreshTokenRepository.deleteByToken(refreshToken);
+    }
+
 }

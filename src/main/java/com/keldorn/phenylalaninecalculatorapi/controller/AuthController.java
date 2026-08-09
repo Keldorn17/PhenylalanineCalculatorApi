@@ -3,7 +3,6 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
@@ -46,7 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtProperties jwtProperties;
+    private final HeaderUtils headerUtils;
 
     @Operation(
             summary = "Authenticates the user, returning an access token and setting a refresh token cookie.",
@@ -69,8 +68,7 @@ public class AuthController {
         log.info("Authenticate POST {}", ApiRoutes.AUTH_PATH);
         AuthResponseInternal response = authService.authenticate(request);
         return ResponseEntity.ok()
-                .headers(HeaderUtils.getRefreshHeader(response.refreshToken(),
-                        jwtProperties.getRefresh().getExpirationTime()))
+                .headers(headerUtils.getRefreshHeader(response.refreshToken()))
                 .body(new AuthResponse(response.accessToken()));
     }
 
@@ -96,13 +94,13 @@ public class AuthController {
         log.info("Register POST {}", ApiRoutes.AUTH_PATH);
         AuthResponseInternal response = authService.register(request);
         return ResponseEntity.ok()
-                .headers(HeaderUtils.getRefreshHeader(response.refreshToken(),
-                        jwtProperties.getRefresh().getExpirationTime()))
+                .headers(headerUtils.getRefreshHeader(response.refreshToken()))
                 .body(new AuthResponse(response.accessToken()));
     }
 
     @Operation(
-            summary = "Refreshes the access token using the refresh token stored in the cookie, and updates the refresh token cookie.",
+            summary = "Refreshes the access token using the refresh token stored in the cookie, and updates the " +
+                    "refresh token cookie.",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
@@ -123,8 +121,7 @@ public class AuthController {
         log.info("Refresh POST {}", ApiRoutes.AUTH_PATH);
         AuthResponseInternal response = authService.refresh(refreshToken);
         return ResponseEntity.ok()
-                .headers(HeaderUtils.getRefreshHeader(response.refreshToken(),
-                        jwtProperties.getRefresh().getExpirationTime()))
+                .headers(headerUtils.getRefreshHeader(response.refreshToken()))
                 .body(new AuthResponse(response.accessToken()));
     }
 
@@ -151,8 +148,7 @@ public class AuthController {
         log.info("Password Change Request {}", ApiRoutes.AUTH_PATH);
         AuthResponseInternal response = authService.changePassword(request);
         return ResponseEntity.ok()
-                .headers(HeaderUtils.getRefreshHeader(response.refreshToken(),
-                        jwtProperties.getRefresh().getExpirationTime()))
+                .headers(headerUtils.getRefreshHeader(response.refreshToken()))
                 .body(new AuthResponse(response.accessToken()));
     }
 
@@ -179,9 +175,35 @@ public class AuthController {
         log.info("Username Change Request {}", ApiRoutes.AUTH_PATH);
         AuthResponseInternal response = authService.changeUsername(request);
         return ResponseEntity.ok()
-                .headers(HeaderUtils.getRefreshHeader(response.refreshToken(),
-                        jwtProperties.getRefresh().getExpirationTime()))
+                .headers(headerUtils.getRefreshHeader(response.refreshToken()))
                 .body(new AuthResponse(response.accessToken()));
+    }
+
+    @Operation(
+            summary = "Logouts the user using the refresh token stored in the cookie, and updates the refresh token " +
+                    "cookie.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SwaggerResponseCodes.OK,
+                            description = SwaggerDescriptions.SUCCESS_GET,
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class)),
+                            headers = @Header(
+                                    name = "Set-Cookie",
+                                    description = "Contains the updated HttpOnly refresh token cookie ('refreshToken')",
+                                    schema = @Schema(type = "string")
+                            )
+                    )
+            }
+    )
+    @UnauthorizedApiResponse
+    @PostMapping(ApiPaths.LOGOUT)
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        log.info("Logout POST {}", ApiRoutes.AUTH_PATH);
+        authService.logout(refreshToken);
+        return ResponseEntity.noContent()
+                .headers(headerUtils.getCleanRefreshHeader())
+                .build();
     }
 
 }
