@@ -8,7 +8,6 @@ public final class ApiRoutes {
     private static final String BY_ID = "/{id}";
     public static final String BASE_PATH = "/api/v1";
     public static final String AUTH_PATH = BASE_PATH + "/auth";
-    public static final String REFRESH_PATH = AUTH_PATH + "/refresh";
     public static final String USER_PATH = BASE_PATH + "/users/me";
     public static final String FOOD_PATH = BASE_PATH + "/foods";
     public static final String FOOD_PATH_BY_ID = FOOD_PATH + BY_ID;

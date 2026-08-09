@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
+import com.keldorn.phenylalaninecalculatorapi.config.RefreshCookieProperties;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthPasswordChangeRequest;
@@ -18,6 +19,7 @@ import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundExceptio
 import com.keldorn.phenylalaninecalculatorapi.exception.UsernameIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.AuthService;
+import com.keldorn.phenylalaninecalculatorapi.utils.HeaderUtils;
 import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
 
 import org.assertj.core.api.Assertions;
@@ -33,7 +35,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 @AutoConfigureRestTestClient
 @WebMvcTest(AuthController.class)
-@Import(JwtProperties.class)
+@Import({JwtProperties.class, HeaderUtils.class, RefreshCookieProperties.class})
 class AuthControllerTests extends RestTestUtils {
 
     @MockitoBean
@@ -271,6 +273,26 @@ class AuthControllerTests extends RestTestUtils {
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
                 .exchange()
                 .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void logout_shouldReturn204_andCleanCookie() {
+        String testRefreshToken = "Valid Refresh Token";
+        restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.LOGOUT))
+                .cookie("refreshToken", testRefreshToken)
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+    }
+
+    @Test
+    void logout_shouldReturn204_whenCookieMissing() {
+        restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.LOGOUT))
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
     }
 
 }

@@ -41,7 +41,7 @@ public class SecurityConfig {
 
     private final String[] freeResourceUrls = {"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
             "/swagger-resources/**", "/api-docs/**", "/actuator/health", "/api/v1/auth/authenticate",
-            "/api/v1/auth/register", "/api/v1/auth/refresh"};
+            "/api/v1/auth/register", "/api/v1/auth/logout", "/api/v1/auth/refresh"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthFilter jwtAuthFilter,

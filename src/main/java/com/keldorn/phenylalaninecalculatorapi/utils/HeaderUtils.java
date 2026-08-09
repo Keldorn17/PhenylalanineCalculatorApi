@@ -1,39 +1,41 @@
 package com.keldorn.phenylalaninecalculatorapi.utils;
 
+import com.keldorn.phenylalaninecalculatorapi.config.RefreshCookieProperties;
+import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 
 import java.time.Duration;
 
-import lombok.experimental.UtilityClass;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
-@UtilityClass
+@Component
+@RequiredArgsConstructor
 public class HeaderUtils {
 
-    public HttpHeaders getRefreshHeader(String refreshToken, Duration maxAge) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .path(ApiRoutes.REFRESH_PATH)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(maxAge)
-                .build();
-        httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
-        return httpHeaders;
+    private final RefreshCookieProperties refreshCookieProperties;
+    private final JwtProperties jwtProperties;
+
+    public HttpHeaders getRefreshHeader(String refreshToken) {
+        return createCookieHeader(refreshToken, jwtProperties.getRefresh().getExpirationTime());
     }
 
     public HttpHeaders getCleanRefreshHeader() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                .path(ApiRoutes.REFRESH_PATH)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(0)
+        return createCookieHeader("", Duration.ZERO);
+    }
+
+    private HttpHeaders createCookieHeader(String value, Duration maxAge) {
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", value)
+                .path(ApiRoutes.AUTH_PATH)
+                .httpOnly(refreshCookieProperties.isHttpOnly())
+                .secure(refreshCookieProperties.isSecure())
+                .sameSite(refreshCookieProperties.getSameSite().getValue())
+                .maxAge(maxAge)
                 .build();
+        HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
         return httpHeaders;
     }
