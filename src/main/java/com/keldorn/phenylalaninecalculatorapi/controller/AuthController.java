@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
+import com.keldorn.phenylalaninecalculatorapi.config.JwtProperties;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
@@ -46,6 +47,11 @@ public class AuthController {
 
     private final AuthService authService;
     private final HeaderUtils headerUtils;
+    private final JwtProperties jwtProperties;
+
+    private Long getExpiresIn() {
+        return jwtProperties.getAccess().getExpirationTime().getSeconds();
+    }
 
     @Operation(
             summary = "Authenticates the user, returning an access token and setting a refresh token cookie.",
@@ -69,7 +75,7 @@ public class AuthController {
         AuthResponseInternal response = authService.authenticate(request);
         return ResponseEntity.ok()
                 .headers(headerUtils.getRefreshHeader(response.refreshToken()))
-                .body(new AuthResponse(response.accessToken()));
+                .body(new AuthResponse(response.accessToken(), getExpiresIn()));
     }
 
     @Operation(
@@ -95,7 +101,7 @@ public class AuthController {
         AuthResponseInternal response = authService.register(request);
         return ResponseEntity.ok()
                 .headers(headerUtils.getRefreshHeader(response.refreshToken()))
-                .body(new AuthResponse(response.accessToken()));
+                .body(new AuthResponse(response.accessToken(), getExpiresIn()));
     }
 
     @Operation(
@@ -122,7 +128,7 @@ public class AuthController {
         AuthResponseInternal response = authService.refresh(refreshToken);
         return ResponseEntity.ok()
                 .headers(headerUtils.getRefreshHeader(response.refreshToken()))
-                .body(new AuthResponse(response.accessToken()));
+                .body(new AuthResponse(response.accessToken(), getExpiresIn()));
     }
 
     @Operation(
@@ -149,7 +155,7 @@ public class AuthController {
         AuthResponseInternal response = authService.changePassword(request);
         return ResponseEntity.ok()
                 .headers(headerUtils.getRefreshHeader(response.refreshToken()))
-                .body(new AuthResponse(response.accessToken()));
+                .body(new AuthResponse(response.accessToken(), getExpiresIn()));
     }
 
     @Operation(
@@ -176,7 +182,7 @@ public class AuthController {
         AuthResponseInternal response = authService.changeUsername(request);
         return ResponseEntity.ok()
                 .headers(headerUtils.getRefreshHeader(response.refreshToken()))
-                .body(new AuthResponse(response.accessToken()));
+                .body(new AuthResponse(response.accessToken(), getExpiresIn()));
     }
 
     @Operation(
