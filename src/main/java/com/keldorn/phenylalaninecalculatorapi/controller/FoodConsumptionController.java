@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.annotation.BadRequestApiResponse;
-import com.keldorn.phenylalaninecalculatorapi.annotation.ConflictApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.NotFoundApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -14,7 +13,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodConsumptionService;
 
 import java.net.URI;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import jakarta.validation.Valid;
 
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -65,12 +63,11 @@ public class FoodConsumptionController {
     @UnauthorizedApiResponse
     public ResponseEntity<PagedFoodConsumptionResponse> getAllFoodConsumptionByDate(
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
-            @RequestParam LocalDate date,
-            @ParameterObject PaginationRequest paginationRequest,
-            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone
+            @RequestParam ZonedDateTime date,
+            @ParameterObject PaginationRequest paginationRequest
     ) {
         log.info("Get request for getting all food consumption by date: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        var result = foodConsumptionService.findAllByDate(date, paginationRequest, timezone);
+        var result = foodConsumptionService.findAllByDate(date, paginationRequest);
         return ResponseEntity.ok(result);
     }
 
@@ -84,7 +81,6 @@ public class FoodConsumptionController {
                     )
             }
     )
-    @ConflictApiResponse
     @NotFoundApiResponse
     @BadRequestApiResponse
     @UnauthorizedApiResponse
@@ -92,11 +88,10 @@ public class FoodConsumptionController {
     public ResponseEntity<FoodConsumptionResponse> postFoodConsumption(
             @Parameter(description = "ID of the food being consumed", example = "42")
             @PathVariable Long foodId,
-            @Valid @RequestBody FoodConsumptionRequest request,
-            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone
+            @Valid @RequestBody FoodConsumptionRequest request
     ) {
         log.info("Post request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request, timezone);
+        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
         URI uri = UriComponentsBuilder.fromUriString(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID)
                 .buildAndExpand(response.id())
                 .toUri();
@@ -114,14 +109,13 @@ public class FoodConsumptionController {
             }
     )
     @NotFoundApiResponse
-    @ConflictApiResponse
-    @PutMapping("/{id}")
+    @BadRequestApiResponse
     @UnauthorizedApiResponse
+    @PutMapping("/{id}")
     public ResponseEntity<FoodConsumptionResponse> putFoodConsumption(@PathVariable Long id,
-            @Valid @RequestBody FoodConsumptionRequest request,
-            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone) {
+            @Valid @RequestBody FoodConsumptionRequest request) {
         log.info("Put request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        return ResponseEntity.ok(foodConsumptionService.update(id, request, timezone));
+        return ResponseEntity.ok(foodConsumptionService.update(id, request));
     }
 
     @Operation(
@@ -135,13 +129,11 @@ public class FoodConsumptionController {
             }
     )
     @NotFoundApiResponse
-    @ConflictApiResponse
     @UnauthorizedApiResponse
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id,
-            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         log.info("Delete request for id: {}, {}", id, ApiRoutes.FOOD_CONSUMPTION_PATH);
-        foodConsumptionService.deleteById(id, timezone);
+        foodConsumptionService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 

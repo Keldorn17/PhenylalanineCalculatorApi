@@ -1,18 +1,19 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
-import com.keldorn.phenylalaninecalculatorapi.mapper.DailyIntakeMapper;
-import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,47 +23,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class DailyIntakeService {
 
     private final UserService userService;
-    private final DailyIntakeRepository dailyIntakeRepository;
+    private final FoodConsumptionRepository foodConsumptionRepository;
+    private final ObjectProvider<DailyIntakeService> selfProvider;
+
+    @Transactional(readOnly = true)
+    public DailyIntakeResponse findByDate(ZonedDateTime date) {
+        log.debug("Sending response for findByDate");
+        Long userId = userService.getCurrentUserId();
+        LocalDate localDate = date.toLocalDate();
+        ZoneId zoneId = date.getZone();
+        ZonedDateTime startOfDay = localDate.atStartOfDay(zoneId);
+        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+        if (!foodConsumptionRepository.existsDailyIntake(userId, startOfDay, endOfDay)) {
+            throw new ResourceNotFoundException("No daily intake information found at: " + localDate);
+        }
+        BigDecimal totalPhenylalanine =
+                foodConsumptionRepository.calculateDailyIntake(userId, startOfDay, endOfDay);
+        return new DailyIntakeResponse(localDate, totalPhenylalanine);
+    }
 
     @Transactional(readOnly = true)
     public DailyIntakeResponse findByDate(LocalDate date) {
-        log.debug("Sending response for findByDate");
-        return DailyIntakeMapper.INSTANCE.toModel(findByDateOrThrow(date));
-    }
-
-    private DailyIntake findByDateOrThrow(LocalDate date) {
-        log.debug("Getting daily intake by date");
-        return dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
-                .orElseThrow(() -> new ResourceNotFoundException("No daily intake information found at: " + date));
-    }
-
-    /**
-     * Updates the total phenylalanine amount for a specific date.
-     * <p>
-     * This method supports both increments and decrements. Pass a positive value to add
-     * to the total, or a negative value to subtract from it.
-     * <p>
-     * If there isn't any data registered for a specific date it will save one.
-     *
-     * @param date   The date for which the intake data should be updated.
-     * @param amount The amount to add to (positive) or subtract from (negative) the total.
-     * @throws DailyIntakeCannotBeLowerThanZeroException if the update would result in a negative total.
-     */
-    @Transactional
-    public void addAmount(LocalDate date, BigDecimal amount) {
-        log.debug("Adding amount for daily intake: {} to date: {}", amount, date);
-        DailyIntake dailyIntake = dailyIntakeRepository.findByUserIdAndDate(userService.getCurrentUserId(), date)
-                .orElseGet(() -> DailyIntake.builder()
-                        .user(userService.getCurrentUserReference())
-                        .date(date)
-                        .totalPhenylalanine(BigDecimal.ZERO)
-                        .build());
-        BigDecimal updated = dailyIntake.getTotalPhenylalanine().add(amount);
-        if (updated.compareTo(BigDecimal.ZERO) < 0) {
-            throw new DailyIntakeCannotBeLowerThanZeroException("Daily intake cannot be lower than zero");
-        }
-        dailyIntake.setTotalPhenylalanine(updated);
-        dailyIntakeRepository.save(dailyIntake);
+        return selfProvider.getObject().findByDate(date.atStartOfDay(ZoneOffset.UTC));
     }
 
 }

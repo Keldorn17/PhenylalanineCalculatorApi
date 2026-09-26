@@ -1,133 +1,86 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
-import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
+import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.time.ZonedDateTime;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 
 @ExtendWith(MockitoExtension.class)
 class DailyIntakeServiceTests {
 
     @Mock
-    private DailyIntakeRepository dailyIntakeRepository;
+    private FoodConsumptionRepository foodConsumptionRepository;
 
     @Mock
     private UserService userService;
 
+    @Mock
+    private ObjectProvider<DailyIntakeService> selfProvider;
+
     @InjectMocks
     private DailyIntakeService dailyIntakeService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(selfProvider.getObject()).thenReturn(dailyIntakeService);
+    }
 
     private final Long userId = 1L;
 
     @Test
-    void findByDate_shouldReturnsDailyIntakeResponse_whenDailyIntakeExists() {
-        DailyIntake dailyIntake = TestEntityFactory.dailyIntake(TestEntityFactory.user(), TestEntityFactory.TEST_DATE);
+    void findByDate_shouldReturnsDailyIntakeResponse_whenFoodConsumptionExists() {
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.of(dailyIntake));
+        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
+                any(ZonedDateTime.class)))
+                .thenReturn(true);
+        when(foodConsumptionRepository.calculateDailyIntake(eq(userId), any(ZonedDateTime.class),
+                any(ZonedDateTime.class)))
+                .thenReturn(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
         DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE);
-        Assertions.assertThat(response.id()).isEqualTo(dailyIntake.getId());
-        Assertions.assertThat(response.date()).isEqualTo(dailyIntake.getDate());
-        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(dailyIntake.getTotalPhenylalanine());
+        Assertions.assertThat(response.date()).isEqualTo(TestEntityFactory.TEST_DATE);
+        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
     }
 
     @Test
-    void findByDate_shouldThrowResourceNotFoundException() {
+    void findByDate_shouldThrowResourceNotFoundException_whenNoFoodConsumption() {
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.empty());
+        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
+                any(ZonedDateTime.class)))
+                .thenReturn(false);
         Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
-    void addAmount_shouldDoSuccessfulSubtract() {
-        BigDecimal currentTotal = BigDecimal.TEN;
-        BigDecimal amountToSubtract = BigDecimal.valueOf(-5);
-        DailyIntake dailyIntake = DailyIntake.builder()
-                .totalPhenylalanine(currentTotal)
-                .build();
+    void findByDate_withZonedDateTime_shouldReturnDailyIntakeResponse() {
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.of(dailyIntake));
-        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract);
-        ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
-        verify(dailyIntakeRepository).save(captor.capture());
-        DailyIntake savedIntake = captor.getValue();
-        int expectedValue = 5;
-        Assertions.assertThat(savedIntake.getTotalPhenylalanine())
-                .isEqualByComparingTo(BigDecimal.valueOf(expectedValue));
-    }
-
-    @Test
-    void addAmount_shouldDoSuccessfulAddition() {
-        BigDecimal currentTotal = BigDecimal.TEN;
-        BigDecimal amountToAdd = BigDecimal.valueOf(5);
-        DailyIntake dailyIntake = DailyIntake.builder()
-                .totalPhenylalanine(currentTotal)
-                .build();
-        when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.of(dailyIntake));
-        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
-        ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
-        verify(dailyIntakeRepository).save(captor.capture());
-        DailyIntake savedIntake = captor.getValue();
-        int expectedValue = 15;
-        Assertions.assertThat(savedIntake.getTotalPhenylalanine())
-                .isEqualByComparingTo(BigDecimal.valueOf(expectedValue));
-    }
-
-    @Test
-    void addAmount_shouldThrowDailyIntakeCannotBeLowerThanZeroException() {
-        BigDecimal currentTotal = BigDecimal.TEN;
-        BigDecimal amountToSubtract = BigDecimal.valueOf(-20);
-        DailyIntake dailyIntake = DailyIntake.builder()
-                .totalPhenylalanine(currentTotal)
-                .build();
-        when(userService.getCurrentUserId()).thenReturn(userId);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.of(dailyIntake));
-        Assertions.assertThatThrownBy(() -> dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToSubtract))
-                .isInstanceOf(DailyIntakeCannotBeLowerThanZeroException.class);
-        verify(dailyIntakeRepository, never()).save(any());
-    }
-
-    @Test
-    void addAmount_shouldCreateNewDailyIntake_whenOneDoesntExists() {
-        BigDecimal amountToAdd = BigDecimal.TEN;
-        User user = TestEntityFactory.user();
-        when(userService.getCurrentUserId()).thenReturn(userId);
-        when(userService.getCurrentUserReference()).thenReturn(user);
-        when(dailyIntakeRepository.findByUserIdAndDate(userId, TestEntityFactory.TEST_DATE))
-                .thenReturn(Optional.empty());
-        dailyIntakeService.addAmount(TestEntityFactory.TEST_DATE, amountToAdd);
-        ArgumentCaptor<DailyIntake> captor = ArgumentCaptor.forClass(DailyIntake.class);
-        verify(dailyIntakeRepository).save(captor.capture());
-        DailyIntake response = captor.getValue();
-        Assertions.assertThat(response.getId()).isNull();
-        Assertions.assertThat(response.getUser()).isEqualTo(user);
-        Assertions.assertThat(response.getDate()).isEqualTo(TestEntityFactory.TEST_DATE);
-        Assertions.assertThat(response.getTotalPhenylalanine()).isEqualByComparingTo(amountToAdd);
+        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
+                any(ZonedDateTime.class)))
+                .thenReturn(true);
+        when(foodConsumptionRepository.calculateDailyIntake(eq(userId), any(ZonedDateTime.class),
+                any(ZonedDateTime.class)))
+                .thenReturn(BigDecimal.valueOf(15));
+        DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_ZONED_DATE_TIME);
+        Assertions.assertThat(response.date()).isEqualTo(TestEntityFactory.TEST_DATE);
+        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(BigDecimal.valueOf(15));
     }
 
 }

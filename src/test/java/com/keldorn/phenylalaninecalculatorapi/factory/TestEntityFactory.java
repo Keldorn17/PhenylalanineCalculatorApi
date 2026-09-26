@@ -1,6 +1,5 @@
 package com.keldorn.phenylalaninecalculatorapi.factory;
 
-import com.keldorn.phenylalaninecalculatorapi.domain.entity.DailyIntake;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
@@ -14,9 +13,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneId;
@@ -35,16 +32,15 @@ public class TestEntityFactory {
     public static final Integer DEFAULT_INTEGER_VALUE = 10;
     public static final Long DEFAULT_ID = 1L;
 
-    private static final ZoneId UTC = ZoneOffset.UTC;
-    public static final String UTC_TIMEZONE = "UTC";
+    public static final ZoneId UTC = ZoneOffset.UTC;
     public static final LocalDate TEST_DATE = LocalDate.of(2026, Month.JANUARY, 1);
-    public static final LocalDateTime TEST_DATE_TIME = LocalDateTime.of(TEST_DATE, LocalTime.of(0, 0));
-    public static final Instant START = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 1),
-            LocalTime.of(0, 0), UTC).toInstant();
-    public static final Instant END = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 2),
-            LocalTime.of(0, 0), UTC).toInstant();
-    public static final Instant CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 1),
-            LocalTime.of(12, 0), UTC).toInstant();
+    public static final ZonedDateTime TEST_ZONED_DATE_TIME = ZonedDateTime.of(TEST_DATE, LocalTime.of(0, 0), UTC);
+    public static final ZonedDateTime START = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 1),
+            LocalTime.of(0, 0), UTC);
+    public static final ZonedDateTime END = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 2),
+            LocalTime.of(0, 0), UTC);
+    public static final ZonedDateTime CONSUMED_AT = ZonedDateTime.of(LocalDate.of(2026, Month.JANUARY, 1),
+            LocalTime.of(12, 0), UTC);
 
     public static Role role() {
         return Role.builder()
@@ -80,7 +76,7 @@ public class TestEntityFactory {
                 .build();
     }
 
-    public static FoodConsumption foodConsumption(User user, Food food, Instant consumedAt) {
+    public static FoodConsumption foodConsumption(User user, Food food, ZonedDateTime consumedAt) {
         return FoodConsumption.builder()
                 .user(user)
                 .food(food)
@@ -90,17 +86,9 @@ public class TestEntityFactory {
                 .build();
     }
 
-    public static DailyIntake dailyIntake(User user, LocalDate date) {
-        return DailyIntake.builder()
-                .date(date)
-                .user(user)
-                .totalPhenylalanine(DEFAULT_BIG_DECIMAL_VALUE)
-                .build();
-    }
-
     public static FoodConsumptionResponse foodConsumptionResponse() {
         return new FoodConsumptionResponse(DEFAULT_ID, DEFAULT_FOOD_NAME, DEFAULT_BIG_DECIMAL_VALUE,
-                DEFAULT_BIG_DECIMAL_VALUE, TEST_DATE_TIME);
+                DEFAULT_BIG_DECIMAL_VALUE, TEST_ZONED_DATE_TIME);
     }
 
     public static FoodResponse foodResponse() {

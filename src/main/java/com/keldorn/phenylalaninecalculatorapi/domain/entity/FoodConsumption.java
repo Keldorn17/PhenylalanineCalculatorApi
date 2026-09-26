@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.domain.entity;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 
 import jakarta.persistence.CascadeType;
@@ -45,7 +44,7 @@ public class FoodConsumption {
     private BigDecimal amount;
 
     @Column(name = "consumed_at")
-    private Instant consumedAt;
+    private ZonedDateTime consumedAt;
 
     @Column(name = "phenylalanine_amount", precision = 12, scale = 4)
     private BigDecimal phenylalanineAmount;

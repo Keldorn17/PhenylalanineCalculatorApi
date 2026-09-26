@@ -40,19 +40,6 @@ CREATE TABLE food
     FOREIGN KEY (food_type_id) REFERENCES food_type (food_type_id)
 );
 
--- changeset Patai Zoltan:create-daily_intake-table
--- Creates Daily Intake table
--- rollback DROP TABLE daily_intake
-CREATE TABLE daily_intake
-(
-    daily_intake_id     BIGINT AUTO_INCREMENT PRIMARY KEY,
-    date                DATE,
-    total_phenylalanine DECIMAL(12, 4),
-    user_id             BIGINT,
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
-    UNIQUE INDEX uq_daily_intake_user_date (user_id, date)
-);
-
 -- changeset Patai Zoltan:create-food_consumption-table
 -- Creates Food Consumption table
 -- rollback DROP TABLE food_consumption
@@ -78,11 +65,6 @@ ALTER TABLE users
 -- Adds is_deleted to Food Type
 -- rollback ALTER TABLE food_type DROP COLUMN is_deleted;
 ALTER TABLE food_type ADD is_deleted BOOLEAN NOT NULL;
-
--- changeset Patai Zoltan:add-version-to-daily_intake
--- Adds version column for optimistic locking
--- rollback ALTER TABLE daily_intake DROP COLUMN version;
-ALTER TABLE daily_intake ADD version BIGINT DEFAULT 0 NOT NULL;
 
 -- changeset Patai Zoltan:add-user-id-to-food-type
 -- Adds userId column to Food Type
@@ -117,12 +99,6 @@ ALTER TABLE food_consumption ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_T
 -- rollback ALTER TABLE users DROP COLUMN created_at; ALTER TABLE users DROP COLUMN updated_at;
 ALTER TABLE users ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
 ALTER TABLE users ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
-
--- changeset Patai Zoltan:add-created-at-and-updated-at-to-daily-intake
--- Adds created_at and updated_at to Daily Intake
--- rollback ALTER TABLE daily_intake DROP COLUMN created_at; ALTER TABLE daily_intake DROP COLUMN updated_at;
-ALTER TABLE daily_intake ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6);
-ALTER TABLE daily_intake ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 
 -- changeset Patai Zoltan:add-is-deleted-food
 -- Adds is_deleted to Food

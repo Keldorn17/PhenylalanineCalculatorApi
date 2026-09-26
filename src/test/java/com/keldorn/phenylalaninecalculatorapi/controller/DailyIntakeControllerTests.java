@@ -1,5 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -9,6 +10,7 @@ import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.DailyIntakeService;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,8 +32,8 @@ class DailyIntakeControllerTests {
 
     @Test
     void getDailyIntake_shouldReturn200AndDailyIntake() {
-        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(1L, TestEntityFactory.TEST_DATE, BigDecimal.TEN);
-        when(dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE)).thenReturn(expectedResponse);
+        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(TestEntityFactory.TEST_DATE, BigDecimal.TEN);
+        when(dailyIntakeService.findByDate(any(ZonedDateTime.class))).thenReturn(expectedResponse);
         DailyIntakeResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.DAILY_INTAKE_PATH)
@@ -43,7 +45,6 @@ class DailyIntakeControllerTests {
                 .returnResult()
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
         Assertions.assertThat(response.date()).isEqualTo(expectedResponse.date());
         Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(
                 expectedResponse.totalPhenylalanine());
@@ -62,7 +63,7 @@ class DailyIntakeControllerTests {
 
     @Test
     void getDailyIntake_shouldReturn404_whenResourceNotFound() {
-        when(dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
+        when(dailyIntakeService.findByDate(any(ZonedDateTime.class)))
                 .thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder

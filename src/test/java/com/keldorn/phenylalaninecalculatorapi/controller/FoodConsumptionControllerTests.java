@@ -2,7 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -12,13 +12,13 @@ import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptio
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
-import com.keldorn.phenylalaninecalculatorapi.exception.DailyIntakeCannotBeLowerThanZeroException;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.FoodConsumptionService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -47,8 +46,8 @@ class FoodConsumptionControllerTests {
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         PagedFoodConsumptionResponse pageResponse =
                 new PagedFoodConsumptionResponse(List.of(expectedResponse), new PageResponse());
-        when(foodConsumptionService.findAllByDate(testDate, paginationRequest, TestEntityFactory.UTC_TIMEZONE)).thenReturn(
-                pageResponse);
+        when(foodConsumptionService.findAllByDate(any(ZonedDateTime.class), eq(paginationRequest)))
+                .thenReturn(pageResponse);
         PagedFoodConsumptionResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -95,7 +94,7 @@ class FoodConsumptionControllerTests {
         Long foodId = 42L;
         FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
-        when(foodConsumptionService.save(foodId, request, TestEntityFactory.UTC_TIMEZONE)).thenReturn(expectedResponse);
+        when(foodConsumptionService.save(foodId, request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -127,7 +126,7 @@ class FoodConsumptionControllerTests {
 
     @Test
     void postFoodConsumption_shouldReturn404_whenResourceNotFound() {
-        when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class), anyString())).thenThrow(
+        when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 ResourceNotFoundException.class);
         restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -141,26 +140,11 @@ class FoodConsumptionControllerTests {
     }
 
     @Test
-    void postFoodConsumption_shouldReturn409_whenNegativeDailyIntakeValueInserted() {
-        when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class), anyString())).thenThrow(
-                DailyIntakeCannotBeLowerThanZeroException.class);
-        restTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
-                        .build()
-                )
-                .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
-    }
-
-    @Test
     void putFoodConsumption_shouldReturn200() {
         Long id = TestEntityFactory.DEFAULT_ID;
         FoodConsumptionRequest request = new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
-        when(foodConsumptionService.update(id, request, TestEntityFactory.UTC_TIMEZONE)).thenReturn(expectedResponse);
+        when(foodConsumptionService.update(id, request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.put()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -192,7 +176,7 @@ class FoodConsumptionControllerTests {
 
     @Test
     void putFoodConsumption_shouldReturn404_whenResourceNotFound() {
-        when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class), anyString())).thenThrow(
+        when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
                 ResourceNotFoundException.class);
         restTestClient.put()
                 .uri(uriBuilder -> uriBuilder
@@ -203,21 +187,6 @@ class FoodConsumptionControllerTests {
                 .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().isNotFound();
-    }
-
-    @Test
-    void putFoodConsumption_shouldReturn409_whenNegativeDailyIntakeValueInserted() {
-        when(foodConsumptionService.update(anyLong(), any(FoodConsumptionRequest.class), anyString())).thenThrow(
-                DailyIntakeCannotBeLowerThanZeroException.class);
-        restTestClient.put()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
-                        .build()
-                )
-                .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -235,7 +204,7 @@ class FoodConsumptionControllerTests {
     @Test
     void deleteById_shouldReturn404_whenResourceNotFound() {
         doThrow(ResourceNotFoundException.class)
-                .when(foodConsumptionService).deleteById(anyLong(), anyString());
+                .when(foodConsumptionService).deleteById(anyLong());
         restTestClient.delete()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
@@ -244,20 +213,6 @@ class FoodConsumptionControllerTests {
                 )
                 .exchange()
                 .expectStatus().isNotFound();
-    }
-
-    @Test
-    void deleteById_shouldReturn409_whenNegativeDailyIntakeValueInserted() {
-        doThrow(DailyIntakeCannotBeLowerThanZeroException.class)
-                .when(foodConsumptionService).deleteById(anyLong(), anyString());
-        restTestClient.delete()
-                .uri(uriBuilder -> uriBuilder
-                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
-                        .build()
-                )
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     private void doAssertionsCheckOnResponse(FoodConsumptionResponse response,
