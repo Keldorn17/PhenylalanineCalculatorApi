@@ -40,7 +40,7 @@ public class UserService {
     public UserResponse update(UserRequest request) {
         var user = getCurrentUser();
         log.debug("Updating user information for: {}", user.getUserId());
-        if (request.email() != null) {
+        if (request.email() != null && !request.email().equalsIgnoreCase(user.getEmail())) {
             isEmailTakenAndThrow(request.email());
         }
         UserMapper.INSTANCE.updateEntity(request, user);
