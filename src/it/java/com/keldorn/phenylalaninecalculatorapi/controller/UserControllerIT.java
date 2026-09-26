@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 class UserControllerIT extends BaseIntegrationTest {
 
     private static final String UPDATED_EMAIL = "updated@mail.com";
+    private static final String TAKEN_EMAIL = "test2@testmail.com";
     private static final BigDecimal UPDATED_DAILY_LIMIT = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
     private static final String INVALID_EMAIL = "invalid email";
 
@@ -97,9 +98,14 @@ class UserControllerIT extends BaseIntegrationTest {
                         userResponse(UPDATED_EMAIL, UPDATED_DAILY_LIMIT)
                 ),
                 Arguments.of("Email is taken",
-                        new UserRequest(TestEntityFactory.DEFAULT_EMAIL, null),
+                        new UserRequest(TAKEN_EMAIL, null),
                         HttpStatus.CONFLICT,
                         error(HttpStatus.CONFLICT, ApiResponses.EMAIL_IS_TAKEN_RESPONSE)
+                ),
+                Arguments.of("Keep existing email when only dailyLimit is changed",
+                        new UserRequest(TestEntityFactory.DEFAULT_EMAIL, UPDATED_DAILY_LIMIT),
+                        HttpStatus.OK,
+                        userResponse(TestEntityFactory.DEFAULT_EMAIL, UPDATED_DAILY_LIMIT)
                 ),
                 Arguments.of("Invalid email passed",
                         new UserRequest(INVALID_EMAIL, null),
