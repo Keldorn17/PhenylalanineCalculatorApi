@@ -190,9 +190,8 @@ public class AuthController {
                     "cookie.",
             responses = {
                     @ApiResponse(
-                            responseCode = SwaggerResponseCodes.OK,
-                            description = SwaggerDescriptions.SUCCESS_GET,
-                            content = @Content(schema = @Schema(implementation = AuthResponse.class)),
+                            responseCode = SwaggerResponseCodes.NO_CONTENT,
+                            description = SwaggerDescriptions.SUCCESS_DELETE,
                             headers = @Header(
                                     name = "Set-Cookie",
                                     description = "Contains the updated HttpOnly refresh token cookie ('refreshToken')",
