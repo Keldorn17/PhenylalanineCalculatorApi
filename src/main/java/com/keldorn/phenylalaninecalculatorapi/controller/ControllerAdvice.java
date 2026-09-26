@@ -81,7 +81,7 @@ public class ControllerAdvice {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleException(MissingServletRequestParameterException ex) {
         log.error("Missing require parameter: {}", ex.getMessage());
-        String missingParam = ex.getMessage().split("'")[1];
+        String missingParam = ex.getParameterName();
         ErrorResponse response = ErrorResponse.builder()
                 .type(ApiResponses.CLIENT_ERROR)
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
@@ -94,7 +94,7 @@ public class ControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleException(MethodArgumentNotValidException ex) {
         String details = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         log.warn("Validation failed: {}", details);
         ErrorResponse response = ErrorResponse.builder()
