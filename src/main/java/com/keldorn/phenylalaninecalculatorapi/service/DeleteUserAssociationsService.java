@@ -1,6 +1,5 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import com.keldorn.phenylalaninecalculatorapi.repository.DailyIntakeRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodRepository;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodTypeRepository;
@@ -19,7 +18,6 @@ public class DeleteUserAssociationsService {
 
     private final FoodRepository foodRepository;
     private final FoodTypeRepository foodTypeRepository;
-    private final DailyIntakeRepository dailyIntakeRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final FoodConsumptionRepository foodConsumptionRepository;
 
@@ -29,8 +27,6 @@ public class DeleteUserAssociationsService {
         log.debug("Removed food associations {}, for user: {}", foodCount, userId);
         int foodTypeCount = foodTypeRepository.updateFoodTypeUser(userId, null);
         log.debug("Removed food associations {}, for user: {}", foodTypeCount, userId);
-        int dailyIntakeCount = dailyIntakeRepository.deleteDailyIntakeByUserId(userId);
-        log.debug("Deleted daily intake {}, for user {}", dailyIntakeCount, userId);
         int foodConsumptionCount = foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);
         log.debug("Deleted food consumption {}, for user {}", foodConsumptionCount, userId);
         refreshTokenRepository.deleteByUser_UserId(userId);

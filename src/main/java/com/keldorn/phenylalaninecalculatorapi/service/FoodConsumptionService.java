@@ -1,7 +1,5 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
-import static com.keldorn.phenylalaninecalculatorapi.utils.TimezoneHelper.resolveZoneId;
-
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
@@ -14,14 +12,15 @@ import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionReposito
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +34,8 @@ public class FoodConsumptionService {
 
     private final UserService userService;
     private final FoodReadService foodReadService;
-    private final DailyIntakeService dailyIntakeService;
     private final FoodConsumptionRepository foodConsumptionRepository;
-
-    private static final ZoneId utcZoneId = ZoneOffset.UTC;
+    private final ObjectProvider<FoodConsumptionService> selfProvider;
 
     private FoodConsumption findByIdOrThrow(Long id, Long userId) {
         log.debug("Finding food consumption by id {}", id);
@@ -47,59 +44,58 @@ public class FoodConsumptionService {
     }
 
     @Transactional(readOnly = true)
-    public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest,
-            String timezone) {
+    public PagedFoodConsumptionResponse findAllByDate(ZonedDateTime date, PaginationRequest paginationRequest) {
         log.debug("Finding all food consumptions by date");
-        ZoneId zoneId = resolveZoneId(timezone);
-        Instant start = date.atStartOfDay(zoneId).toInstant();
-        Instant end = date.plusDays(1).atStartOfDay(zoneId).toInstant();
+        LocalDate localDate = date.toLocalDate();
+        ZoneId zoneId = date.getZone();
+        ZonedDateTime start = localDate.atStartOfDay(zoneId);
+        ZonedDateTime end = start.plusDays(1);
         Long userId = userService.getCurrentUserId();
         Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
         Page<FoodConsumption> response =
                 foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable);
-        return FoodConsumptionMapper.INSTANCE.toModel(response, zoneId);
+        return FoodConsumptionMapper.INSTANCE.toModel(response);
+    }
+
+    @Transactional(readOnly = true)
+    public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest) {
+        return selfProvider.getObject().findAllByDate(date.atStartOfDay(ZoneOffset.UTC), paginationRequest);
     }
 
     @Transactional
-    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request, String timezone) {
+    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request) {
         log.debug("Creating food consumption");
         Food food = foodReadService.findByIdOrThrow(foodId);
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
-        Instant now = Instant.now();
-        ZoneId userZoneId = resolveZoneId(timezone);
-        LocalDate userLocalDate = LocalDate.ofInstant(now, userZoneId);
-        dailyIntakeService.addAmount(userLocalDate, phenylalanineAmount);
+        ZonedDateTime consumedAt = request.consumedAt() != null ? request.consumedAt() : ZonedDateTime.now();
         FoodConsumption foodConsumption = FoodConsumption.builder()
                 .user(userService.getCurrentUserReference())
                 .food(food)
-                .consumedAt(now)
+                .consumedAt(consumedAt)
                 .amount(request.amount())
                 .phenylalanineAmount(phenylalanineAmount)
                 .build();
-        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption));
     }
 
     @Transactional
-    public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request, String timezone) {
+    public FoodConsumptionResponse update(Long id, FoodConsumptionRequest request) {
         log.debug("Updating food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
         BigDecimal phenylalanineAmount =
                 calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
-        ZoneId userZoneId = resolveZoneId(timezone);
-        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), userZoneId);
-        dailyIntakeService.addAmount(localDate, phenylalanineAmount.subtract(foodConsumption.getPhenylalanineAmount()));
+        if (request.consumedAt() != null) {
+            foodConsumption.setConsumedAt(request.consumedAt());
+        }
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());
-        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption), utcZoneId);
+        return FoodConsumptionMapper.INSTANCE.toModel(foodConsumptionRepository.save(foodConsumption));
     }
 
     @Transactional
-    public void deleteById(Long id, String timezone) {
+    public void deleteById(Long id) {
         log.debug("Deleting food consumption by id: {}", id);
         FoodConsumption foodConsumption = findByIdOrThrow(id, userService.getCurrentUserId());
-        ZoneId userZoneId = resolveZoneId(timezone);
-        LocalDate localDate = LocalDate.ofInstant(foodConsumption.getConsumedAt(), userZoneId);
-        dailyIntakeService.addAmount(localDate, foodConsumption.getPhenylalanineAmount().negate());
         foodConsumptionRepository.delete(foodConsumption);
     }
 

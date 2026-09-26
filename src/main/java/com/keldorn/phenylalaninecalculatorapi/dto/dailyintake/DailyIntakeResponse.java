@@ -6,4 +6,4 @@ import java.time.LocalDate;
 import lombok.Builder;
 
 @Builder
-public record DailyIntakeResponse(Long id, LocalDate date, BigDecimal totalPhenylalanine) {}
+public record DailyIntakeResponse(LocalDate date, BigDecimal totalPhenylalanine) {}

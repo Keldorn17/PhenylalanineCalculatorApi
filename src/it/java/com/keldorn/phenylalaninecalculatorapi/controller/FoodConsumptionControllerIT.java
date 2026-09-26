@@ -1,5 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
+import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
+import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
@@ -7,11 +9,10 @@ import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
-import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
-import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,7 +43,6 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         .build()
                 )
                 .headers(withBearer(getAuthToken().accessToken()))
-                .headers(headers -> headers.add("X-Timezone", TestEntityFactory.UTC_TIMEZONE))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<TestPage<FoodConsumptionResponse>>() {})
@@ -152,12 +152,6 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         foodConsumptionRequest(),
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
-                ),
-                Arguments.of("Conflict: Negative food consumption",
-                        TestEntityFactory.DEFAULT_ID,
-                        new FoodConsumptionRequest(BigDecimal.valueOf(-1)),
-                        HttpStatus.CONFLICT,
-                        error(HttpStatus.CONFLICT, ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE)
                 )
         );
     }
@@ -170,12 +164,6 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                         HttpStatus.OK,
                         foodConsumptionResponse(TestEntityFactory.DEFAULT_ID,
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE)
-                ),
-                Arguments.of("Conflict: Negative overall food consumption",
-                        TestEntityFactory.DEFAULT_ID,
-                        new FoodConsumptionRequest(BigDecimal.valueOf(-100)),
-                        HttpStatus.CONFLICT,
-                        error(HttpStatus.CONFLICT, ApiResponses.DAILY_INTAKE_NEGATIVE_RESPONSE)
                 )
         );
     }
@@ -201,13 +189,14 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
 
     private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount) {
         return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, amount, BigDecimal.ONE,
-                TestEntityFactory.TEST_DATE_TIME);
+                TestEntityFactory.TEST_ZONED_DATE_TIME);
     }
 
     private static void verifySuccess(TestPage<FoodConsumptionResponse> actual,
             TestPage<FoodConsumptionResponse> expectedResponse) {
         Assertions.assertThat(actual).usingRecursiveComparison()
                 .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                .withComparatorForType(ChronoZonedDateTime::compareTo, ZonedDateTime.class)
                 .isEqualTo(expectedResponse);
     }
 
@@ -216,7 +205,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
         responseSpec.expectBody(FoodConsumptionResponse.class).value(
                 actual -> Assertions.assertThat(actual).usingRecursiveComparison()
                         .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                        .ignoringFieldsOfTypes(LocalDateTime.class)
+                        .ignoringFieldsOfTypes(ZonedDateTime.class)
                         .isEqualTo(expectedResponse));
     }
 

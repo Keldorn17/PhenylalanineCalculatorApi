@@ -3,7 +3,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE refresh_tokens;
 TRUNCATE TABLE user_roles;
 TRUNCATE TABLE food_consumption;
-TRUNCATE TABLE daily_intake;
 TRUNCATE TABLE food;
 TRUNCATE TABLE food_type;
 TRUNCATE TABLE users;

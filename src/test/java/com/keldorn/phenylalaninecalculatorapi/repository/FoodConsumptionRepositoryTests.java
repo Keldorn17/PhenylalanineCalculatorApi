@@ -8,6 +8,7 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -73,6 +74,34 @@ class FoodConsumptionRepositoryTests {
                 .findAllByUserAndConsumedAtBetween(user.getUserId(),
                         TestEntityFactory.END, TestEntityFactory.END.plusSeconds(60L), pageable).getContent();
         Assertions.assertThat(foodConsumptionResult).isEmpty();
+    }
+
+    @Test
+    void calculateDailyIntake_shouldReturnSumOfPhenylalanine() {
+        BigDecimal total = foodConsumptionRepository.calculateDailyIntake(
+                user.getUserId(), TestEntityFactory.START, TestEntityFactory.END);
+        Assertions.assertThat(total).isEqualByComparingTo(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
+    }
+
+    @Test
+    void calculateDailyIntake_shouldReturnZero_whenNoEntriesInRange() {
+        BigDecimal total = foodConsumptionRepository.calculateDailyIntake(
+                user.getUserId(), TestEntityFactory.END, TestEntityFactory.END.plusDays(1));
+        Assertions.assertThat(total).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void existsDailyIntake_shouldReturnTrue_whenEntriesExist() {
+        boolean exists = foodConsumptionRepository.existsDailyIntake(
+                user.getUserId(), TestEntityFactory.START, TestEntityFactory.END);
+        Assertions.assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsDailyIntake_shouldReturnFalse_whenNoEntriesExist() {
+        boolean exists = foodConsumptionRepository.existsDailyIntake(
+                user.getUserId(), TestEntityFactory.END, TestEntityFactory.END.plusDays(1));
+        Assertions.assertThat(exists).isFalse();
     }
 
 }

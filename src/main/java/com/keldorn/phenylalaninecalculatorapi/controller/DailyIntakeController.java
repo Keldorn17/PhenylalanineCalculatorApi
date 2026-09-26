@@ -9,7 +9,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.DailyIntakeService;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +52,7 @@ public class DailyIntakeController {
     @UnauthorizedApiResponse
     public ResponseEntity<DailyIntakeResponse> getDailyIntake(
             @Parameter(description = "Date of intake (ISO-8601)", example = "2026-01-01")
-            @RequestParam LocalDate date
+            @RequestParam ZonedDateTime date
     ) {
         log.info("Get request: {}", ApiRoutes.DAILY_INTAKE_PATH);
         return ResponseEntity.ok(dailyIntakeService.findByDate(date));
