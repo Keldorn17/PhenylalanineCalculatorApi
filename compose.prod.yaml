@@ -1,0 +1,10 @@
+services:
+  api:
+    image: ghcr.io/keldorn17/phenylalanine-api:latest
+    container_name: phenylalanine-api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: oci
+      OCI_SECRET_BUNDLE_OCID: ${OCI_SECRET_BUNDLE_OCID}
+    ports:
+      - "127.0.0.1:8080:8080"

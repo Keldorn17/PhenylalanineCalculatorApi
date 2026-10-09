@@ -34,9 +34,10 @@
         <io.opentelemetry.version>1.66.0</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.31.1-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.2</io.github.perplexhub.version>
-        </properties>
+        <com.oracle.oci.sdk.secrets.version>3.57.0</com.oracle.oci.sdk.secrets.version>
+    </properties>
 
-        <dependencyManagement>
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
@@ -53,9 +54,9 @@
                 <scope>import</scope>
             </dependency>
         </dependencies>
-        </dependencyManagement>
+    </dependencyManagement>
 
-        <dependencies>
+    <dependencies>
         <!-- Spring Boot Web & Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -167,6 +168,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- OCI -->
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-secrets</artifactId>
+            <version>${com.oracle.oci.sdk.secrets.version}</version>
         </dependency>
 
         <!-- Testing -->
