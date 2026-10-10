@@ -2,8 +2,11 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import com.keldorn.phenylalaninecalculatorapi.BaseIntegrationTest;
 import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
+import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
@@ -12,6 +15,8 @@ import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.stream.Stream;
+
+import org.assertj.core.api.Assertions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,9 +88,22 @@ class UserControllerIT extends BaseIntegrationTest {
     @Test
     @DirtyTest
     void testDelete_shouldReturn204() {
+        AuthResponse registerResponse = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REGISTER))
+                .body(new AuthRegisterRequest(
+                        "delete_user@mail.com",
+                        "deleteUser",
+                        TestEntityFactory.DEFAULT_PASSWORD
+                ))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(registerResponse).isNotNull();
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)
-                .headers(withBearer(getAuthToken().accessToken()))
+                .headers(withBearer(registerResponse.accessToken()))
                 .exchange()
                 .expectStatus().isNoContent();
     }

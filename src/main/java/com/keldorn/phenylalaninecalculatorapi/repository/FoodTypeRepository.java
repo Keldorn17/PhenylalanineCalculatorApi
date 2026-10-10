@@ -15,8 +15,8 @@ import org.springframework.data.repository.query.Param;
 public interface FoodTypeRepository extends JpaRepository<FoodType, Long> {
 
     @Modifying
-    @Query(value = "UPDATE food_type SET user_id = :updatedUserId WHERE user_id = :userId", nativeQuery = true)
-    int updateFoodTypeUser(@Param("userId") Long userId, @Param("updatedUserId") Long updatedUserId);
+    @Query(value = "UPDATE food_type SET user_id = null, is_deleted = true WHERE user_id = :userId", nativeQuery = true)
+    int deleteFoodTypeWhenUserDeleted(@Param("userId") Long userId);
 
     @Override
     @NullMarked

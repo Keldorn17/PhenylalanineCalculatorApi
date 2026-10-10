@@ -10,6 +10,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
+import com.keldorn.phenylalaninecalculatorapi.utils.HeaderUtils;
 
 import jakarta.validation.Valid;
 
@@ -38,6 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class UserController {
 
     private final UserService userService;
+    private final HeaderUtils headerUtils;
 
     @Operation(
             summary = "Retrieves the authenticated user's information.",
@@ -92,7 +94,9 @@ public class UserController {
     public ResponseEntity<Void> deleteUser() {
         log.info("Delete Request: {}", ApiRoutes.USER_PATH);
         userService.delete();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+                .headers(headerUtils.getCleanRefreshHeader())
+                .build();
     }
 
 }

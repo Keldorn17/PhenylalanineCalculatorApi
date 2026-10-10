@@ -27,7 +27,9 @@ public class UserService {
 
     private final HttpServletRequest request;
     private final UserRepository userRepository;
+    private final TokenDenylistService tokenDenylistService;
     private final DeleteUserAssociationsService deleteUserAssociationsService;
+
 
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
@@ -51,6 +53,7 @@ public class UserService {
     public void delete() {
         Long userId = getCurrentUserId();
         log.debug("Deleting user for: {}", userId);
+        tokenDenylistService.revokeToken(userId);
         deleteUserAssociationsService.removeAssociation(userId);
         userRepository.deleteById(userId);
     }

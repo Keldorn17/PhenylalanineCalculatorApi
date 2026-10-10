@@ -23,9 +23,9 @@ public class DeleteUserAssociationsService {
 
     @Transactional
     public void removeAssociation(Long userId) {
-        int foodCount = foodRepository.updateFoodUser(userId, null);
+        int foodCount = foodRepository.deleteFoodWhenUserDeleted(userId);
         log.debug("Removed food associations {}, for user: {}", foodCount, userId);
-        int foodTypeCount = foodTypeRepository.updateFoodTypeUser(userId, null);
+        int foodTypeCount = foodTypeRepository.deleteFoodTypeWhenUserDeleted(userId);
         log.debug("Removed food associations {}, for user: {}", foodTypeCount, userId);
         int foodConsumptionCount = foodConsumptionRepository.deleteFoodConsumptionByUserId(userId);
         log.debug("Deleted food consumption {}, for user {}", foodConsumptionCount, userId);
