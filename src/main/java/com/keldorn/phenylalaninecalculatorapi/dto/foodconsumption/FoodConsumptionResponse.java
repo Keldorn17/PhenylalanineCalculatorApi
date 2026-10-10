@@ -8,6 +8,7 @@ import lombok.Builder;
 @Builder
 public record FoodConsumptionResponse(
         Long id,
+        Long foodId,
         String foodName,
         BigDecimal amount,
         BigDecimal phenylalanineAmount,

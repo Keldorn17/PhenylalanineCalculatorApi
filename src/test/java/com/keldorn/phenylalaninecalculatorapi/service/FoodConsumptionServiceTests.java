@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
@@ -67,15 +68,16 @@ class FoodConsumptionServiceTests {
         BigDecimal foodPheContent = BigDecimal.valueOf(200);
         BigDecimal consumedAmount = BigDecimal.valueOf(50);
         BigDecimal expectedCalculatedPhe = BigDecimal.valueOf(100).setScale(4, RoundingMode.HALF_UP);
-        FoodConsumptionRequest request = new FoodConsumptionRequest(consumedAmount);
+        FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(foodId, consumedAmount);
         User user = TestEntityFactory.user();
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setId(foodId);
         food.setPhenylalanine(foodPheContent);
         when(userService.getCurrentUserReference()).thenReturn(user);
         when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
-        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
+        FoodConsumptionResponse response = foodConsumptionService.save(request);
         ArgumentCaptor<FoodConsumption> captor = ArgumentCaptor.forClass(FoodConsumption.class);
         verify(foodConsumptionRepository).save(captor.capture());
         FoodConsumption savedEntity = captor.getValue();
@@ -87,10 +89,10 @@ class FoodConsumptionServiceTests {
 
     @Test
     void save_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
-        FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
+        FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(foodConsumptionId, BigDecimal.TEN);
         when(foodReadService.findByIdOrThrow(foodConsumptionId))
                 .thenThrow(ResourceNotFoundException.class);
-        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(foodConsumptionId, request))
+        Assertions.assertThatThrownBy(() -> foodConsumptionService.save(request))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(foodConsumptionRepository, never()).save(any());
     }
@@ -99,9 +101,11 @@ class FoodConsumptionServiceTests {
     void findAllByDate_shouldReturnPageOfFoodConsumptionResponses() {
         Long userId = 1L;
         PaginationRequest paginationRequest = new PaginationRequest(0, 20);
+        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setId(TestEntityFactory.DEFAULT_ID);
         FoodConsumption foodConsumption = TestEntityFactory.foodConsumption(
                 TestEntityFactory.user(),
-                TestEntityFactory.food(TestEntityFactory.foodType()),
+                food,
                 TestEntityFactory.CONSUMED_AT
         );
         List<FoodConsumption> consumptionList = List.of(foodConsumption);
@@ -138,9 +142,11 @@ class FoodConsumptionServiceTests {
         BigDecimal newPheAmount = BigDecimal.valueOf(100).setScale(4, RoundingMode.HALF_UP);
         FoodConsumptionRequest request = new FoodConsumptionRequest(newAmount);
         User user = TestEntityFactory.user();
+        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setId(TestEntityFactory.DEFAULT_ID);
         FoodConsumption existingEntity = TestEntityFactory.foodConsumption(
                 user,
-                TestEntityFactory.food(TestEntityFactory.foodType()),
+                food,
                 TestEntityFactory.CONSUMED_AT
         );
         existingEntity.setAmount(oldAmount);
@@ -198,6 +204,7 @@ class FoodConsumptionServiceTests {
 
     private void doAssertionsCheckOnResponse(FoodConsumptionResponse response, FoodConsumption foodConsumption) {
         Assertions.assertThat(response.id()).isEqualTo(foodConsumption.getId());
+        Assertions.assertThat(response.foodId()).isEqualTo(foodConsumption.getFood().getId());
         Assertions.assertThat(response.amount()).isEqualTo(foodConsumption.getAmount());
         Assertions.assertThat(response.consumedAt()).isNotNull();
         Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(

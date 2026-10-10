@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.annotation.UnauthorizedApiResponse
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerDescriptions;
 import com.keldorn.phenylalaninecalculatorapi.constant.SwaggerResponseCodes;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
@@ -84,14 +85,12 @@ public class FoodConsumptionController {
     @NotFoundApiResponse
     @BadRequestApiResponse
     @UnauthorizedApiResponse
-    @PostMapping("/{foodId}")
+    @PostMapping
     public ResponseEntity<FoodConsumptionResponse> postFoodConsumption(
-            @Parameter(description = "ID of the food being consumed", example = "42")
-            @PathVariable Long foodId,
-            @Valid @RequestBody FoodConsumptionRequest request
+            @Valid @RequestBody FoodConsumptionCreateRequest request
     ) {
         log.info("Post request for: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        FoodConsumptionResponse response = foodConsumptionService.save(foodId, request);
+        FoodConsumptionResponse response = foodConsumptionService.save(request);
         URI uri = UriComponentsBuilder.fromUriString(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID)
                 .buildAndExpand(response.id())
                 .toUri();

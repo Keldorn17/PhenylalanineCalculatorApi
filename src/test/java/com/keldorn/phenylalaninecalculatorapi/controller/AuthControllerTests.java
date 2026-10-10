@@ -184,7 +184,7 @@ class AuthControllerTests extends RestTestUtils {
     }
 
     @Test
-    void changePassword_shouldReturn409_whenPasswordMismatch() {
+    void changePassword_shouldReturn401_whenPasswordMismatch() {
         AuthPasswordChangeRequest request =
                 new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changePassword(request)).thenThrow(PasswordMismatchException.class);
@@ -192,7 +192,7 @@ class AuthControllerTests extends RestTestUtils {
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.PASSWORD))
                 .body(request)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -237,7 +237,7 @@ class AuthControllerTests extends RestTestUtils {
     }
 
     @Test
-    void changeUsername_shouldReturn409_whenPasswordMismatch() {
+    void changeUsername_shouldReturn401_whenPasswordMismatch() {
         AuthUsernameChangeRequest request =
                 new AuthUsernameChangeRequest(TestEntityFactory.DEFAULT_USERNAME, TestEntityFactory.DEFAULT_PASSWORD);
         when(authService.changeUsername(request)).thenThrow(PasswordMismatchException.class);
@@ -245,7 +245,7 @@ class AuthControllerTests extends RestTestUtils {
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.USERNAME))
                 .body(request)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test

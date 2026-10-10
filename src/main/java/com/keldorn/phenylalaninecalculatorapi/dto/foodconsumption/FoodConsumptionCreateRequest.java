@@ -5,17 +5,19 @@ import java.time.ZonedDateTime;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import lombok.Builder;
 
 @Builder
-public record FoodConsumptionRequest(
+public record FoodConsumptionCreateRequest(
+        @NotNull @PositiveOrZero Long foodId,
         @Positive @NotNull BigDecimal amount,
         ZonedDateTime consumedAt
 ) {
 
-    public FoodConsumptionRequest(BigDecimal amount) {
-        this(amount, null);
+    public FoodConsumptionCreateRequest(Long foodId, BigDecimal amount) {
+        this(foodId, amount, null);
     }
 
 }

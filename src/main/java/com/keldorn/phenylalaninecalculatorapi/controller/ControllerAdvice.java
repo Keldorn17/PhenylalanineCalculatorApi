@@ -37,7 +37,7 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.NOT_FOUND, ApiResponses.CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class, PasswordMismatchException.class,
+    @ExceptionHandler({EmailIsTakenException.class, UsernameIsTakenException.class,
             DailyIntakeCannotBeLowerThanZeroException.class, OptimisticLockingFailureException.class,
             DataIntegrityViolationException.class
     })
@@ -46,7 +46,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({InvalidJwtTokenReceivedException.class, BadCredentialsException.class,
-            DeletedUserTokenReceivedException.class})
+            DeletedUserTokenReceivedException.class, PasswordMismatchException.class})
     public ResponseEntity<Object> handleUnauthorized(Exception ex) {
         return buildAndLog(HttpStatus.UNAUTHORIZED, ApiResponses.CLIENT_ERROR, ex);
     }

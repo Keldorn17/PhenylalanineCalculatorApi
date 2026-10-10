@@ -122,7 +122,7 @@ public class FoodController {
     @NotFoundApiResponse
     @UnauthorizedApiResponse
     @PatchMapping("/{id}")
-    public ResponseEntity<FoodResponse> patchFood(@PathVariable Long id, @RequestBody FoodUpdateRequest request) {
+    public ResponseEntity<FoodResponse> patchFood(@PathVariable Long id, @Valid @RequestBody FoodUpdateRequest request) {
         log.info("Patch Request to {} : {}", id, ApiRoutes.FOOD_PATH);
         return ResponseEntity.ok(foodService.update(id, request));
     }

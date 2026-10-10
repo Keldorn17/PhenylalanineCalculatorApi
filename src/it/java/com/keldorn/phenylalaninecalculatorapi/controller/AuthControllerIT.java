@@ -389,13 +389,13 @@ class AuthControllerIT extends BaseIntegrationTest {
                 Arguments.of("Both password are the same",
                         new AuthPasswordChangeRequest(TestEntityFactory.DEFAULT_PASSWORD,
                                 TestEntityFactory.DEFAULT_PASSWORD),
-                        HttpStatus.CONFLICT,
-                        error(HttpStatus.CONFLICT, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
+                        HttpStatus.UNAUTHORIZED,
+                        error(HttpStatus.UNAUTHORIZED, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
                 ),
                 Arguments.of("Test user's password not match the provided old password",
                         new AuthPasswordChangeRequest(INVALID_PASSWORD, NEW_PASSWORD),
-                        HttpStatus.CONFLICT,
-                        error(HttpStatus.CONFLICT, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
+                        HttpStatus.UNAUTHORIZED,
+                        error(HttpStatus.UNAUTHORIZED, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
                 )
         );
     }
@@ -425,8 +425,8 @@ class AuthControllerIT extends BaseIntegrationTest {
                 ),
                 Arguments.of("Test user's password not match the provided password",
                         new AuthUsernameChangeRequest(NEW_USERNAME, INVALID_PASSWORD),
-                        HttpStatus.CONFLICT,
-                        error(HttpStatus.CONFLICT, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
+                        HttpStatus.UNAUTHORIZED,
+                        error(HttpStatus.UNAUTHORIZED, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
                 )
         );
     }
