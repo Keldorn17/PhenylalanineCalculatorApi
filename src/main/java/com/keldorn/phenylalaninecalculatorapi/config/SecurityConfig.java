@@ -5,6 +5,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.filter.JwtAuthFilter;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
+import com.keldorn.phenylalaninecalculatorapi.service.TokenDenylistService;
 
 import java.util.List;
 
@@ -92,8 +93,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthFilter(JwtService jwtService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
-        return new JwtAuthFilter(jwtService, resolver);
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
+            TokenDenylistService tokenDenylistService) {
+        return new JwtAuthFilter(jwtService, resolver, tokenDenylistService);
     }
 
 }

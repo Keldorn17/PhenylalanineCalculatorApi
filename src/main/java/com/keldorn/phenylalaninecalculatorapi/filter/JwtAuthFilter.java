@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.filter;
 import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.service.JwtService;
+import com.keldorn.phenylalaninecalculatorapi.service.TokenDenylistService;
 
 import java.io.IOException;
 
@@ -27,11 +28,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final HandlerExceptionResolver resolver;
+    private final TokenDenylistService tokenDenylistService;
 
     public JwtAuthFilter(JwtService jwtService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
+            TokenDenylistService tokenDenylistService) {
         this.jwtService = jwtService;
         this.resolver = resolver;
+        this.tokenDenylistService = tokenDenylistService;
     }
 
     @Override
@@ -44,6 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 Claims claims = jwtService.validateAndParseAccessToken(token);
                 String username = jwtService.extractUsername(claims);
                 Long userId = jwtService.extractUserId(claims);
+                if (tokenDenylistService.isRevoked(userId)) {
+                    throw new InvalidJwtTokenReceivedException();
+                }
                 request.setAttribute(RequestAttributes.CURRENT_USER_ID, userId);
                 authenticate(request, username, claims);
                 filterChain.doFilter(request, response);

@@ -18,8 +18,8 @@ import org.springframework.data.repository.query.Param;
 public interface FoodRepository extends JpaRepository<Food, Long>, JpaSpecificationExecutor<Food> {
 
     @Modifying
-    @Query("UPDATE Food f SET f.user.userId = :updatedUserId WHERE f.user.userId = :userId")
-    int updateFoodUser(@Param("userId") Long userId, @Param("updatedUserId") Long updatedUserId);
+    @Query("UPDATE Food f SET f.user.userId = null, f.isDeleted = true WHERE f.user.userId = :userId")
+    int deleteFoodWhenUserDeleted(@Param("userId") Long userId);
 
     @NonNull
     @Override

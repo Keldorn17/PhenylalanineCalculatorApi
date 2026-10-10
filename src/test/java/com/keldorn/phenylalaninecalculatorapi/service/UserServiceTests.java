@@ -44,6 +44,9 @@ class UserServiceTests {
     private UserRepository userRepository;
 
     @Mock
+    private TokenDenylistService tokenDenylistService;
+
+    @Mock
     private DeleteUserAssociationsService deleteUserAssociationsService;
 
     @InjectMocks
@@ -140,6 +143,7 @@ class UserServiceTests {
         user.setUserId(1L);
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
         userService.delete();
+        verify(tokenDenylistService).revokeToken(user.getUserId());
         verify(deleteUserAssociationsService).removeAssociation(user.getUserId());
         verify(userRepository).deleteById(user.getUserId());
     }
@@ -149,6 +153,7 @@ class UserServiceTests {
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(() -> userService.delete())
                 .isInstanceOf(DeletedUserTokenReceivedException.class);
+        verify(tokenDenylistService, never()).revokeToken(any());
         verify(userRepository, never()).delete(any());
     }
 
@@ -157,6 +162,7 @@ class UserServiceTests {
         SecurityContextHolder.clearContext();
         Assertions.assertThatThrownBy(() -> userService.delete())
                 .isInstanceOf(InvalidJwtTokenReceivedException.class);
+        verify(tokenDenylistService, never()).revokeToken(any());
         verify(userRepository, never()).delete(any(User.class));
     }
 

@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -10,12 +11,14 @@ import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceived
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.service.UserService;
+import com.keldorn.phenylalaninecalculatorapi.utils.HeaderUtils;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -25,6 +28,9 @@ class UserControllerTests {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private HeaderUtils headerUtils;
 
     @Autowired
     private RestTestClient restTestClient;
@@ -124,10 +130,12 @@ class UserControllerTests {
 
     @Test
     void deleteUser_shouldReturn204() {
+        when(headerUtils.getCleanRefreshHeader()).thenReturn(new HttpHeaders());
         restTestClient.delete()
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
                 .expectStatus().isNoContent();
+        verify(headerUtils).getCleanRefreshHeader();
     }
 
     @Test
