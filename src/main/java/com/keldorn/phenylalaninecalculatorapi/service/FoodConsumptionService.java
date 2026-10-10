@@ -2,6 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodConsumption;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
@@ -63,9 +64,9 @@ public class FoodConsumptionService {
     }
 
     @Transactional
-    public FoodConsumptionResponse save(Long foodId, FoodConsumptionRequest request) {
+    public FoodConsumptionResponse save(FoodConsumptionCreateRequest request) {
         log.debug("Creating food consumption");
-        Food food = foodReadService.findByIdOrThrow(foodId);
+        Food food = foodReadService.findByIdOrThrow(request.foodId());
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
         ZonedDateTime consumedAt = request.consumedAt() != null ? request.consumedAt() : ZonedDateTime.now();
         FoodConsumption foodConsumption = FoodConsumption.builder()

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.PagedFoodConsumptionResponse;
@@ -92,13 +93,12 @@ class FoodConsumptionControllerTests {
     @Test
     void postFoodConsumption_shouldReturn201() {
         Long foodId = 42L;
-        FoodConsumptionRequest request = new FoodConsumptionRequest(BigDecimal.TEN);
+        FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(foodId, BigDecimal.TEN);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
-        when(foodConsumptionService.save(foodId, request)).thenReturn(expectedResponse);
+        when(foodConsumptionService.save(request)).thenReturn(expectedResponse);
         FoodConsumptionResponse response = restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(foodId))
                         .build()
                 )
                 .body(request)
@@ -112,11 +112,10 @@ class FoodConsumptionControllerTests {
 
     @Test
     void postFoodConsumption_shouldReturn400_whenBodyContentIsNull() {
-        FoodConsumptionRequest request = new FoodConsumptionRequest(null);
+        FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(null, null);
         restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
                         .build()
                 )
                 .body(request)
@@ -126,15 +125,14 @@ class FoodConsumptionControllerTests {
 
     @Test
     void postFoodConsumption_shouldReturn404_whenResourceNotFound() {
-        when(foodConsumptionService.save(anyLong(), any(FoodConsumptionRequest.class))).thenThrow(
+        when(foodConsumptionService.save(any(FoodConsumptionCreateRequest.class))).thenThrow(
                 ResourceNotFoundException.class);
         restTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
-                        .pathSegment(String.valueOf(TestEntityFactory.DEFAULT_ID))
                         .build()
                 )
-                .body(new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
+                .body(new FoodConsumptionCreateRequest(TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -219,6 +217,7 @@ class FoodConsumptionControllerTests {
             FoodConsumptionResponse expectedResponse) {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.id()).isEqualTo(expectedResponse.id());
+        Assertions.assertThat(response.foodId()).isEqualTo(expectedResponse.foodId());
         Assertions.assertThat(response.consumedAt()).isEqualTo(expectedResponse.consumedAt());
         Assertions.assertThat(response.amount()).isEqualByComparingTo(expectedResponse.amount());
         Assertions.assertThat(response.phenylalanineAmount()).isEqualByComparingTo(

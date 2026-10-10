@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
+import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -84,12 +85,11 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("postFoodConsumptionTestCases")
     void testPostFoodConsumption(String description,
-            Long foodId,
-            FoodConsumptionRequest request,
+            FoodConsumptionCreateRequest request,
             HttpStatus expectedStatus,
             Object expectedResponse) {
         var responseSpec = restTestClient.post()
-                .uri(path(ApiRoutes.FOOD_CONSUMPTION_PATH_BY_ID, foodId))
+                .uri(ApiRoutes.FOOD_CONSUMPTION_PATH)
                 .headers(withBearer(getAuthToken().accessToken()))
                 .body(request)
                 .exchange()
@@ -142,14 +142,12 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
     private static Stream<Arguments> postFoodConsumptionTestCases() {
         return Stream.of(
                 Arguments.of("Successful food consumption creation",
-                        TestEntityFactory.DEFAULT_ID,
-                        foodConsumptionRequest(),
+                        foodConsumptionCreateRequest(TestEntityFactory.DEFAULT_ID),
                         HttpStatus.CREATED,
                         foodConsumptionResponse(NEW_FOOD_CONSUMPTION_ID, BigDecimal.TEN)
                 ),
                 Arguments.of("Food not found",
-                        UNKNOWN_ID,
-                        foodConsumptionRequest(),
+                        foodConsumptionCreateRequest(UNKNOWN_ID),
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )
@@ -183,12 +181,16 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
         );
     }
 
+    private static @NonNull FoodConsumptionCreateRequest foodConsumptionCreateRequest(Long foodId) {
+        return new FoodConsumptionCreateRequest(foodId, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
+    }
+
     private static @NonNull FoodConsumptionRequest foodConsumptionRequest() {
         return new FoodConsumptionRequest(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
     }
 
     private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount) {
-        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_FOOD_NAME, amount, BigDecimal.ONE,
+        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_FOOD_NAME, amount, BigDecimal.ONE,
                 TestEntityFactory.TEST_ZONED_DATE_TIME);
     }
 
