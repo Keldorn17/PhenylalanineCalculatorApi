@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
@@ -47,9 +46,6 @@ class DailyIntakeServiceTests {
     @Test
     void findByDate_shouldReturnsDailyIntakeResponse_whenFoodConsumptionExists() {
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
-                any(ZonedDateTime.class)))
-                .thenReturn(true);
         when(foodConsumptionRepository.calculateDailyIntake(eq(userId), any(ZonedDateTime.class),
                 any(ZonedDateTime.class)))
                 .thenReturn(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
@@ -60,21 +56,8 @@ class DailyIntakeServiceTests {
     }
 
     @Test
-    void findByDate_shouldThrowResourceNotFoundException_whenNoFoodConsumption() {
-        when(userService.getCurrentUserId()).thenReturn(userId);
-        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
-                any(ZonedDateTime.class)))
-                .thenReturn(false);
-        Assertions.assertThatThrownBy(() -> dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE))
-                .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
     void findByDate_withZonedDateTime_shouldReturnDailyIntakeResponse() {
         when(userService.getCurrentUserId()).thenReturn(userId);
-        when(foodConsumptionRepository.existsDailyIntake(eq(userId), any(ZonedDateTime.class),
-                any(ZonedDateTime.class)))
-                .thenReturn(true);
         when(foodConsumptionRepository.calculateDailyIntake(eq(userId), any(ZonedDateTime.class),
                 any(ZonedDateTime.class)))
                 .thenReturn(BigDecimal.valueOf(15));

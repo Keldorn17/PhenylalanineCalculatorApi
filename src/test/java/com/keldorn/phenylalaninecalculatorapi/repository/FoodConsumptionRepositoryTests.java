@@ -90,18 +90,4 @@ class FoodConsumptionRepositoryTests {
         Assertions.assertThat(total).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
-    @Test
-    void existsDailyIntake_shouldReturnTrue_whenEntriesExist() {
-        boolean exists = foodConsumptionRepository.existsDailyIntake(
-                user.getUserId(), TestEntityFactory.START, TestEntityFactory.END);
-        Assertions.assertThat(exists).isTrue();
-    }
-
-    @Test
-    void existsDailyIntake_shouldReturnFalse_whenNoEntriesExist() {
-        boolean exists = foodConsumptionRepository.existsDailyIntake(
-                user.getUserId(), TestEntityFactory.END, TestEntityFactory.END.plusDays(1));
-        Assertions.assertThat(exists).isFalse();
-    }
-
 }

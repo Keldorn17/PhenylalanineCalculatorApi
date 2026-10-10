@@ -190,7 +190,8 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
     }
 
     private static @NonNull FoodConsumptionResponse foodConsumptionResponse(Long id, BigDecimal amount) {
-        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_FOOD_NAME, amount, BigDecimal.ONE,
+        return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_FOOD_NAME,
+                amount, BigDecimal.ONE,
                 TestEntityFactory.TEST_ZONED_DATE_TIME);
     }
 

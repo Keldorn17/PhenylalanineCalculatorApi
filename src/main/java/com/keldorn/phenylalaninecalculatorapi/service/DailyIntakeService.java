@@ -1,7 +1,6 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
 
 import java.math.BigDecimal;
@@ -34,9 +33,6 @@ public class DailyIntakeService {
         ZoneId zoneId = date.getZone();
         ZonedDateTime startOfDay = localDate.atStartOfDay(zoneId);
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
-        if (!foodConsumptionRepository.existsDailyIntake(userId, startOfDay, endOfDay)) {
-            throw new ResourceNotFoundException("No daily intake information found at: " + localDate);
-        }
         BigDecimal totalPhenylalanine =
                 foodConsumptionRepository.calculateDailyIntake(userId, startOfDay, endOfDay);
         return new DailyIntakeResponse(localDate, totalPhenylalanine);

@@ -37,10 +37,4 @@ public interface FoodConsumptionRepository extends JpaRepository<FoodConsumption
             @Param("startOfDay") ZonedDateTime startOfDay,
             @Param("endOfDay") ZonedDateTime endOfDay);
 
-    @Query("SELECT COUNT(fc) > 0 FROM FoodConsumption fc WHERE fc.user.userId = :userId AND fc.consumedAt >= " +
-            ":startOfDay AND fc.consumedAt < :endOfDay")
-    boolean existsDailyIntake(@Param("userId") Long userId,
-            @Param("startOfDay") ZonedDateTime startOfDay,
-            @Param("endOfDay") ZonedDateTime endOfDay);
-
 }
