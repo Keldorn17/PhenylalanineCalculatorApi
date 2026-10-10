@@ -4,12 +4,13 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import lombok.Builder;
 
 @Builder
 public record FoodConsumptionRequest(
-        @NotNull BigDecimal amount,
+        @Positive @NotNull BigDecimal amount,
         ZonedDateTime consumedAt
 ) {
 
