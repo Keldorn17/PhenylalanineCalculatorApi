@@ -7,6 +7,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeRespons
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.stream.Stream;
@@ -69,8 +70,8 @@ class DailyIntakeControllerIT extends BaseIntegrationTest {
                 ),
                 Arguments.of("Not found for specified day",
                         UNREGISTERED_DATE.toString(),
-                        HttpStatus.NOT_FOUND,
-                        error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                        HttpStatus.OK,
+                        new DailyIntakeResponse(UNREGISTERED_DATE, BigDecimal.ZERO)
                 ),
                 Arguments.of("Malformed Date received",
                         MALFORMED_DATE,

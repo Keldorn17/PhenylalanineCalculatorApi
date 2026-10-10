@@ -132,7 +132,8 @@ class FoodConsumptionControllerTests {
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
                         .build()
                 )
-                .body(new FoodConsumptionCreateRequest(TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
+                .body(new FoodConsumptionCreateRequest(TestEntityFactory.DEFAULT_ID,
+                        TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE))
                 .exchange()
                 .expectStatus().isNotFound();
     }
