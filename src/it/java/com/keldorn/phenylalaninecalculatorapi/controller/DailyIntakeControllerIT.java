@@ -66,12 +66,12 @@ class DailyIntakeControllerIT extends BaseIntegrationTest {
                 Arguments.of("Successful daily intake retrieval",
                         REGISTERED_DATE.toString(),
                         HttpStatus.OK,
-                        new DailyIntakeResponse(REGISTERED_DATE, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE)
+                        new DailyIntakeResponse(REGISTERED_DATE, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE, BigDecimal.valueOf(400L))
                 ),
                 Arguments.of("Not found for specified day",
                         UNREGISTERED_DATE.toString(),
                         HttpStatus.OK,
-                        new DailyIntakeResponse(UNREGISTERED_DATE, BigDecimal.ZERO)
+                        new DailyIntakeResponse(UNREGISTERED_DATE, BigDecimal.ZERO, BigDecimal.valueOf(400L))
                 ),
                 Arguments.of("Malformed Date received",
                         MALFORMED_DATE,

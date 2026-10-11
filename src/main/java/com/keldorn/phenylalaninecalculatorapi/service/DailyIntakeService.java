@@ -33,9 +33,10 @@ public class DailyIntakeService {
         ZoneId zoneId = date.getZone();
         ZonedDateTime startOfDay = localDate.atStartOfDay(zoneId);
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
-        BigDecimal totalPhenylalanine =
+        BigDecimal consumedPhenylalanine =
                 foodConsumptionRepository.calculateDailyIntake(userId, startOfDay, endOfDay);
-        return new DailyIntakeResponse(localDate, totalPhenylalanine);
+        BigDecimal currentUserDailyLimit = userService.getCurrentUserDailyLimit();
+        return new DailyIntakeResponse(localDate, consumedPhenylalanine, currentUserDailyLimit);
     }
 
     @Transactional(readOnly = true)
