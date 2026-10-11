@@ -74,9 +74,13 @@ public class FoodService {
     public FoodResponse save(FoodRequest request) {
         log.debug("Saving Food");
         Food food = FoodMapper.INSTANCE.toEntity(request);
-        addTypeToFood(food, request);
         addUserToFood(food);
-        updatePhenylalanine(food);
+        if (request.foodTypeId() != null) {
+            addTypeToFood(food, request);
+        }
+        if (request.phenylalanine() == null) {
+            updatePhenylalanine(food);
+        }
         return FoodMapper.INSTANCE.toModel(foodRepository.save(food), userService.getCurrentUserId());
     }
 

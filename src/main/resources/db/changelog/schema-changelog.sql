@@ -153,3 +153,8 @@ ALTER TABLE users DROP COLUMN role;
 -- Adds composite index on (user_id, consumed_at) to optimize date-range queries
 -- rollback DROP INDEX idx_food_consumption_user_consumed_at ON food_consumption;
 CREATE INDEX idx_food_consumption_user_consumed_at ON food_consumption (user_id, consumed_at);
+
+-- changeset Patai Zoltan:drop-not-null-food-type-id-food
+-- Drops NOT NULL constraint from food_type_id in food table
+-- rollback ALTER TABLE food MODIFY COLUMN food_type_id BIGINT NOT NULL;
+ALTER TABLE food MODIFY COLUMN food_type_id BIGINT NULL;

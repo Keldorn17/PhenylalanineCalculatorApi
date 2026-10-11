@@ -94,6 +94,7 @@ class FoodControllerTests {
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
                 TestEntityFactory.DEFAULT_ID
         );
         FoodResponse expectedResponse = TestEntityFactory.foodResponse();
@@ -115,6 +116,7 @@ class FoodControllerTests {
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 null,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
                 TestEntityFactory.DEFAULT_ID
         );
         restTestClient.post()
@@ -130,6 +132,7 @@ class FoodControllerTests {
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
                 TestEntityFactory.DEFAULT_ID
         );
         when(foodService.save(request)).thenThrow(ResourceNotFoundException.class);

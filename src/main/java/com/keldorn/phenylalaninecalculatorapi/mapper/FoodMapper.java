@@ -40,11 +40,11 @@ public interface FoodMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
-    @Mapping(target = "phenylalanine", ignore = true)
     @Mapping(target = "foodConsumption", ignore = true)
     @Mapping(source = "name", target = "name")
     @Mapping(source = "protein", target = "protein")
     @Mapping(source = "calories", target = "calories")
+    @Mapping(source = "phenylalanine", target = "phenylalanine")
     Food toEntity(FoodRequest request);
 
     @Mapping(target = "id", ignore = true)
