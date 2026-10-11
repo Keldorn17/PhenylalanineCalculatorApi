@@ -46,6 +46,11 @@ Inside this folder, create the following two files:
 spring.datasource.url=jdbc:mysql://localhost:3306/phenylalanine
 spring.datasource.username=phenylalanine
 spring.datasource.password=your_super_secret_password
+
+# Default user username, password hash and email
+app.default-user.username=your_default_user
+app.default-user.password-hash=$2a$12$.kv9udd/h/IGCOKKjXArDu0uIgk0OnjG.mzxMxaDG9ulv7iQf411q
+app.default-user.email=example@invalid.invalid
 ```
 
 #### `application-secrets.properties`

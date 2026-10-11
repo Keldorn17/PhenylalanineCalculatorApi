@@ -86,7 +86,8 @@ class FoodServiceTests {
 
     @Test
     void findAll_shouldReturnEmptyList() {
-        when(foodRepository.findAll(ArgumentMatchers.<Specification<Food>>any(), any(Pageable.class))).thenReturn(Page.empty());
+        when(foodRepository.findAll(ArgumentMatchers.<Specification<Food>>any(), any(Pageable.class))).thenReturn(
+                Page.empty());
         PagedFoodResponse response = foodService.findAll(new QueryRequest(), new PaginationRequest(0, 20));
         Assertions.assertThat(response.getContent()).isEmpty();
     }
@@ -94,7 +95,7 @@ class FoodServiceTests {
     @Test
     void save_shouldReturnsFoodResponse() {
         Long foodTypeId = 1L;
-        FoodRequest request = new FoodRequest("Test Name", BigDecimal.TEN, BigDecimal.TEN, 1L);
+        FoodRequest request = new FoodRequest("Test Name", BigDecimal.TEN, BigDecimal.TEN, null, 1L);
         FoodType foodType = TestEntityFactory.foodType();
         foodType.setMultiplier(1);
         foodType.setName("Updated Type Name");
@@ -118,7 +119,7 @@ class FoodServiceTests {
 
     @Test
     void save_shouldThrowExceptionAndSaveNothing_whenFoodTypeNotFound() {
-        FoodRequest request = new FoodRequest(null, null, null, 1L);
+        FoodRequest request = new FoodRequest(null, null, null, null, 1L);
         when(foodTypeReadService.findByIdOrThrow(request.foodTypeId()))
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.save(request))
@@ -128,9 +129,7 @@ class FoodServiceTests {
 
     @Test
     void save_shouldThrowExceptionAndSaveNothing_whenUserNotFound() {
-        FoodRequest request = new FoodRequest("Test", BigDecimal.TEN, BigDecimal.TEN, 1L);
-        when(foodTypeReadService.findByIdOrThrow(request.foodTypeId()))
-                .thenReturn(TestEntityFactory.foodType());
+        FoodRequest request = new FoodRequest("Test", BigDecimal.TEN, BigDecimal.TEN, null, 1L);
         when(userService.getCurrentUserReference())
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.save(request))

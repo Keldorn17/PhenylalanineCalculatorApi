@@ -29,5 +29,7 @@ public final class ApiResponses {
     public static final String MUST_NOT_BE_BLANK_RESPONSE = "%s: must not be blank";
     public static final String MUST_NOT_BE_NULL_RESPONSE = "%s: must not be null";
     public static final String MALFORMED_EMAIL_RESPONSE = "email: must be a well-formed email address";
+    public static final String AT_LEAST_ONE_PRESENT_RESPONSE =
+            "foodRequest: Either phenylalanine or foodTypeId must be provided";
 
 }

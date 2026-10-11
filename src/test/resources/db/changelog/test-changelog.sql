@@ -1,5 +1,10 @@
 -- liquibase formatted sql
 
+-- changeset Patai Zoltan:add-role-user
+-- Adds ROLE-USER to Role
+-- rollback DELETE FROM roles;
+INSERT IGNORE INTO roles (name) VALUES ('ROLE_USER');
+
 -- Test User
 -- changeset Patai Zoltán:load-test-user
 -- Loads test user
@@ -42,4 +47,4 @@ VALUES ('apple3', .26, 52, 2, 1, 2.60, false);
 -- changeset Patai Zoltán:load-test-food-consumption
 -- Loads food consumption
 INSERT INTO food_consumption (amount, phenylalanine_amount, consumed_at, food_id, user_id)
-VALUES (10, 10, '2026-01-01T00:00', 1, 1);
+VALUES (10, 10, '2026-01-01T00:00', 1, 1);
