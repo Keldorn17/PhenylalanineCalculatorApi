@@ -4,11 +4,14 @@ import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
-import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
+import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
+
+import java.math.BigDecimal;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -30,12 +33,18 @@ public class UserService {
     private final TokenDenylistService tokenDenylistService;
     private final DeleteUserAssociationsService deleteUserAssociationsService;
 
-
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
         User user = getCurrentUser();
         log.debug("Getting Profile information for: {}", user.getUserId());
         return UserMapper.INSTANCE.toModel(user);
+    }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getCurrentUserDailyLimit() {
+        Long currentUserId = getCurrentUserId();
+        log.debug("Getting daily limit for: {}", currentUserId);
+        return userRepository.findDailyLimitByUserId(currentUserId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Transactional

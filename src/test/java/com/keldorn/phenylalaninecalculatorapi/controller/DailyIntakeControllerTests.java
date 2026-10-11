@@ -32,7 +32,7 @@ class DailyIntakeControllerTests {
 
     @Test
     void getDailyIntake_shouldReturn200AndDailyIntake() {
-        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(TestEntityFactory.TEST_DATE, BigDecimal.TEN);
+        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(TestEntityFactory.TEST_DATE, BigDecimal.TEN, null);
         when(dailyIntakeService.findByDate(any(ZonedDateTime.class))).thenReturn(expectedResponse);
         DailyIntakeResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -46,8 +46,8 @@ class DailyIntakeControllerTests {
                 .getResponseBody();
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.date()).isEqualTo(expectedResponse.date());
-        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(
-                expectedResponse.totalPhenylalanine());
+        Assertions.assertThat(response.consumedPhenylalanine()).isEqualByComparingTo(
+                expectedResponse.consumedPhenylalanine());
     }
 
     @Test

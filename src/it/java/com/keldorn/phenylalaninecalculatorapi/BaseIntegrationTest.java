@@ -12,6 +12,7 @@ import com.keldorn.phenylalaninecalculatorapi.utils.RestTestUtils;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
+import java.util.Comparator;
 
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,8 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
             Class<T> responseClass = (Class<T>) expected.getClass();
             spec.expectBody(responseClass)
                     .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
-                            .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
-                            .withComparatorForType(ChronoZonedDateTime::compareTo, ZonedDateTime.class)
+                            .withComparatorForType(Comparator.nullsFirst(BigDecimal::compareTo), BigDecimal.class)
+                            .withComparatorForType(Comparator.nullsFirst(ChronoZonedDateTime::compareTo), ZonedDateTime.class)
                             .isEqualTo(expected));
         }
     }

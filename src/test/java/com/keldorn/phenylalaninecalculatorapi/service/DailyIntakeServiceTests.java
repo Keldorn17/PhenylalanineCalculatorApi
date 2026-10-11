@@ -51,7 +51,7 @@ class DailyIntakeServiceTests {
                 .thenReturn(TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
         DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_DATE);
         Assertions.assertThat(response.date()).isEqualTo(TestEntityFactory.TEST_DATE);
-        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(
+        Assertions.assertThat(response.consumedPhenylalanine()).isEqualByComparingTo(
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
     }
 
@@ -63,7 +63,7 @@ class DailyIntakeServiceTests {
                 .thenReturn(BigDecimal.valueOf(15));
         DailyIntakeResponse response = dailyIntakeService.findByDate(TestEntityFactory.TEST_ZONED_DATE_TIME);
         Assertions.assertThat(response.date()).isEqualTo(TestEntityFactory.TEST_DATE);
-        Assertions.assertThat(response.totalPhenylalanine()).isEqualByComparingTo(BigDecimal.valueOf(15));
+        Assertions.assertThat(response.consumedPhenylalanine()).isEqualByComparingTo(BigDecimal.valueOf(15));
     }
 
 }
