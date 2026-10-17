@@ -16,7 +16,7 @@ import jakarta.validation.constraints.Pattern;
 @Constraint(validatedBy = {})
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")
+@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$#\\-!%*?&])[A-Za-z\\d@$#\\-!%*?&]{8,}$")
 public @interface CheckPasswordStrength {
     String message() default "Password does not meet complexity requirements";
 
