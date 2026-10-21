@@ -43,7 +43,7 @@ class FoodConsumptionControllerTests {
     @Test
     void getAllFoodConsumptionByDate_shouldReturn200() {
         LocalDate testDate = TestEntityFactory.TEST_DATE;
-        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
+        PaginationRequest paginationRequest = new PaginationRequest(1, 10);
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         PagedFoodConsumptionResponse pageResponse =
                 new PagedFoodConsumptionResponse(List.of(expectedResponse), new PageResponse());
@@ -53,8 +53,8 @@ class FoodConsumptionControllerTests {
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
                         .queryParam("date", testDate)
-                        .queryParam("page", paginationRequest.getPageNumber())
-                        .queryParam("size", paginationRequest.getPageSize())
+                        .queryParam("page", paginationRequest.getPage())
+                        .queryParam("size", paginationRequest.getSize())
                         .build()
                 )
                 .exchange()

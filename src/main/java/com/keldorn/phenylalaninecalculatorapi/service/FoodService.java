@@ -56,7 +56,7 @@ public class FoodService {
     @Cacheable(value = "foodPages", key = "{#queryRequest, #paginationRequest, @userService.getCurrentUserId()}")
     public PagedFoodResponse findAll(QueryRequest queryRequest, PaginationRequest paginationRequest) {
         log.debug("Finding All Foods");
-        PageRequest pageRequest = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
+        PageRequest pageRequest = PageRequest.of(paginationRequest.getPage(), paginationRequest.getSize());
         try {
             Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(queryRequest);
             Page<Food> response = foodRepository.findAll(querySpecification, pageRequest);
