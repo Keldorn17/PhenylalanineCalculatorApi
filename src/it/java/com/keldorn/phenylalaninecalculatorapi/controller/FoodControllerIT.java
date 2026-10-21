@@ -203,6 +203,20 @@ class FoodControllerIT extends BaseIntegrationTest {
                                 List.of(TestEntityFactory.foodResponse(), apple3FoodResponse(), appleFoodResponse()),
                                 new PageResponse(20, 0, 3, 1))
                 ),
+                Arguments.of("Successful get all food with page size of 3",
+                        null, 3, null, null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(
+                                List.of(TestEntityFactory.foodResponse(), apple3FoodResponse(), appleFoodResponse()),
+                                new PageResponse(3, 0, 3, 1))
+                ),
+                Arguments.of("Successful get all food with page size of 1 and page number of 2",
+                        2, 1, null, null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(
+                                List.of(appleFoodResponse()),
+                                new PageResponse(1, 2, 3, 3))
+                ),
                 Arguments.of("Query unknown name should return empty object",
                         null, null, "name==\"unknown\"", null,
                         HttpStatus.OK,

@@ -42,7 +42,7 @@ public class FoodTypeService {
     @Cacheable(value = "foodTypePages", key = "{#paginationRequest, @userService.getCurrentUserId()}")
     public PagedFoodTypeResponse findAll(PaginationRequest paginationRequest) {
         log.debug("Finding All Food Types");
-        Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
+        Pageable pageable = PageRequest.of(paginationRequest.getPage(), paginationRequest.getSize());
         return FoodTypeMapper.INSTANCE.toModel(foodTypeRepository.findAll(pageable), userService.getCurrentUserId());
     }
 

@@ -23,7 +23,7 @@ public class PaginationRequest {
     @JsonProperty("page")
     @Schema(name = "page", example = "1", description = "Controls which page is returned", requiredMode =
             Schema.RequiredMode.NOT_REQUIRED)
-    private Integer pageNumber = 0;
+    private Integer page = 0;
 
     @Builder.Default
     @Min(value = 1)
@@ -31,6 +31,6 @@ public class PaginationRequest {
     @JsonProperty("size")
     @Schema(name = "size", example = "20", description = "Controls the number of returned elements", requiredMode =
             Schema.RequiredMode.NOT_REQUIRED)
-    private Integer pageSize = 20;
+    private Integer size = 20;
 
 }

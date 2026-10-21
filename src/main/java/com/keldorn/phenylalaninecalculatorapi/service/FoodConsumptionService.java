@@ -52,7 +52,7 @@ public class FoodConsumptionService {
         ZonedDateTime start = localDate.atStartOfDay(zoneId);
         ZonedDateTime end = start.plusDays(1);
         Long userId = userService.getCurrentUserId();
-        Pageable pageable = PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize());
+        Pageable pageable = PageRequest.of(paginationRequest.getPage(), paginationRequest.getSize());
         Page<FoodConsumption> response =
                 foodConsumptionRepository.findAllByUserAndConsumedAtBetween(userId, start, end, pageable);
         return FoodConsumptionMapper.INSTANCE.toModel(response);
