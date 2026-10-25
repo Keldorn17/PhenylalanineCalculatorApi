@@ -6,7 +6,6 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,11 +58,13 @@ public class FoodService {
         log.debug("Finding All Foods");
         PageRequest pageRequest = PageRequest.of(paginationRequest.getPage(), paginationRequest.getSize());
         try {
-            Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(queryRequest);
+            Long currentUserId = userService.getCurrentUserId();
+            Specification<Food> querySpecification = FoodQueryParamsUtil.createQuerySpecification(
+                    queryRequest, currentUserId);
             Page<Food> response = foodRepository.findAll(querySpecification, pageRequest);
-            return FoodMapper.INSTANCE.toModel(response, userService.getCurrentUserId());
-        } catch (RSQLParserException | IllegalArgumentException | PropertyReferenceException |
-                 UnknownPropertyException _) {
+            return FoodMapper.INSTANCE.toModel(response, currentUserId);
+        } catch (RSQLParserException | IllegalArgumentException | InvalidDataAccessApiUsageException |
+                 PropertyReferenceException | UnknownPropertyException _) {
             log.debug("Invalid query or sort parameters provided query='{}', sort='{}'",
                     queryRequest.getQuery(), queryRequest.getSort());
             throw new InvalidRSQLException("Invalid query or sort parameters");
@@ -86,15 +88,18 @@ public class FoodService {
 
     @Transactional
     @CacheEvict(value = "foodPages", allEntries = true)
-    public FoodResponse update(Long id, FoodUpdateRequest request) {
+    public FoodResponse update(Long id, FoodRequest request) {
         log.debug("Updating Food By Id: {}", id);
         Food food = foodReadService.findByIdOrThrow(id);
         FoodMapper.INSTANCE.updateEntity(request, food);
         if (request.foodTypeId() != null) {
-            FoodType foodType = foodTypeReadService.findByIdOrThrow(request.foodTypeId());
-            food.setFoodType(foodType);
+            addTypeToFood(food, request);
+        } else {
+            food.setFoodType(null);
         }
-        updatePhenylalanine(food);
+        if (request.phenylalanine() == null) {
+            updatePhenylalanine(food);
+        }
         Long currentUserId = userService.getCurrentUserId();
         canEditOrThrow(currentUserId, food.getUser() != null ? food.getUser().getUserId() : null);
         return FoodMapper.INSTANCE.toModel(foodRepository.save(food), currentUserId);

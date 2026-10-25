@@ -3,15 +3,12 @@ package com.keldorn.phenylalaninecalculatorapi.mapper;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.Food;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
@@ -53,10 +50,12 @@ public interface FoodMapper {
     @Mapping(target = "foodType", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "phenylalanine", ignore = true)
     @Mapping(target = "foodConsumption", ignore = true)
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntity(FoodUpdateRequest request, @MappingTarget Food food);
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "protein", target = "protein")
+    @Mapping(source = "calories", target = "calories")
+    @Mapping(source = "phenylalanine", target = "phenylalanine")
+    void updateEntity(FoodRequest request, @MappingTarget Food food);
 
     default boolean canEdit(Food food, Long currentUserId) {
         return food.getUser() != null && food.getUser().getUserId().equals(currentUserId);

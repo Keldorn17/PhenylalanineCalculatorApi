@@ -7,7 +7,6 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.factory.TestEntityFactory;
@@ -81,6 +80,41 @@ class FoodControllerIT extends BaseIntegrationTest {
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
     }
 
+    @Test
+    @DirtyTest
+    void testGetAll_shouldMatchNameOrFoodTypeName_whenFoodTypeIsNull() {
+        String accessToken = getAuthToken().accessToken();
+        String foodName = "NoTypeTestFood";
+        FoodRequest createRequest = new FoodRequest(foodName,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null);
+        restTestClient.post()
+                .uri(ApiRoutes.FOOD_PATH)
+                .body(createRequest)
+                .headers(withBearer(accessToken))
+                .exchange()
+                .expectStatus().isCreated();
+        String query = "name=ilike='%s' or foodTypeName=ilike='%s'".formatted(foodName, foodName);
+        var responseSpec = restTestClient.get()
+                .uri(path(ApiRoutes.FOOD_PATH, null, null, null, query))
+                .headers(withBearer(accessToken))
+                .exchange()
+                .expectStatus().isOk();
+        PagedFoodResponse expected = new PagedFoodResponse(
+                List.of(new FoodResponse(NEXT_AVAILABLE_FOOD_TYPE_ID,
+                        foodName,
+                        TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                        TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                        TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                        null,
+                        null,
+                        true)),
+                new PageResponse(20, 0, 1, 1));
+        verifyResponseWithBigDecimalCompareTo(responseSpec, expected);
+    }
+
     @DirtyTest
     @MethodSource("postFoodTestCases")
     @ParameterizedTest(name = "{index} - {0}")
@@ -121,14 +155,14 @@ class FoodControllerIT extends BaseIntegrationTest {
     }
 
     @DirtyTest
-    @MethodSource("patchFoodTestCases")
+    @MethodSource("putFoodTestCases")
     @ParameterizedTest(name = "{index} - {0}")
-    void testPatchFood(String description,
+    void testPutFood(String description,
             Long foodId,
-            FoodUpdateRequest request,
+            FoodRequest request,
             HttpStatus expectedStatus,
             Object expectedResponse) {
-        var responseSpec = restTestClient.patch()
+        var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.FOOD_PATH_BY_ID, foodId))
                 .body(request)
                 .headers(withBearer(getAuthToken().accessToken()))
@@ -142,11 +176,11 @@ class FoodControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    void testPatchFood_shouldReturn401FromSecurityLayer_whenTokenIsMissing() {
-        FoodUpdateRequest request =
-                new FoodUpdateRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, UPDATE_FOOD_TYPE_ID);
+    void testPutFood_shouldReturn401FromSecurityLayer_whenTokenIsMissing() {
+        FoodRequest request =
+                new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID);
         ErrorResponse expectedResponse = error(HttpStatus.UNAUTHORIZED, ApiResponses.AUTHENTICATION_REQUIRED_RESPONSE);
-        var responseSpec = restTestClient.patch()
+        var responseSpec = restTestClient.put()
                 .uri(path(ApiRoutes.FOOD_PATH_BY_ID, 1L))
                 .body(request)
                 .exchange()
@@ -200,21 +234,21 @@ class FoodControllerIT extends BaseIntegrationTest {
                         null, null, null, null,
                         HttpStatus.OK,
                         new PagedFoodResponse(
-                                List.of(TestEntityFactory.foodResponse(), apple3FoodResponse(), appleFoodResponse()),
+                                List.of(appleFoodResponse(), apple3FoodResponse(), TestEntityFactory.foodResponse()),
                                 new PageResponse(20, 0, 3, 1))
                 ),
                 Arguments.of("Successful get all food with page size of 3",
                         null, 3, null, null,
                         HttpStatus.OK,
                         new PagedFoodResponse(
-                                List.of(TestEntityFactory.foodResponse(), apple3FoodResponse(), appleFoodResponse()),
+                                List.of(appleFoodResponse(), apple3FoodResponse(), TestEntityFactory.foodResponse()),
                                 new PageResponse(3, 0, 3, 1))
                 ),
                 Arguments.of("Successful get all food with page size of 1 and page number of 2",
                         2, 1, null, null,
                         HttpStatus.OK,
                         new PagedFoodResponse(
-                                List.of(appleFoodResponse()),
+                                List.of(TestEntityFactory.foodResponse()),
                                 new PageResponse(1, 2, 3, 3))
                 ),
                 Arguments.of("Query unknown name should return empty object",
@@ -227,6 +261,20 @@ class FoodControllerIT extends BaseIntegrationTest {
                         HttpStatus.OK,
                         new PagedFoodResponse(List.of(appleFoodResponse()), new PageResponse(20, 0, 1, 1))
                 ),
+                Arguments.of("Query for own foods (own==true)",
+                        null, null, "own==true", null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(
+                                List.of(appleFoodResponse(), TestEntityFactory.foodResponse()),
+                                new PageResponse(20, 0, 2, 1))
+                ),
+                Arguments.of("Query for non-own foods (own==false)",
+                        null, null, "own==false", null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(
+                                List.of(apple3FoodResponse()),
+                                new PageResponse(20, 0, 1, 1))
+                ),
                 Arguments.of("Sort ids in descending order",
                         null, null, null, "id,desc",
                         HttpStatus.OK,
@@ -236,6 +284,11 @@ class FoodControllerIT extends BaseIntegrationTest {
                 ),
                 Arguments.of("Invalid rsql query provided",
                         null, null, "invalid==\"apple\"", null,
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                ),
+                Arguments.of("Invalid own query argument provided",
+                        null, null, "own==\"invalid\"", null,
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
                 ),
@@ -335,11 +388,11 @@ class FoodControllerIT extends BaseIntegrationTest {
         );
     }
 
-    private static Stream<Arguments> patchFoodTestCases() {
+    private static Stream<Arguments> putFoodTestCases() {
         return Stream.of(
                 Arguments.of("Successful update",
                         TestEntityFactory.DEFAULT_ID,
-                        new FoodUpdateRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, UPDATE_FOOD_TYPE_ID),
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID),
                         HttpStatus.OK,
                         foodResponse(TestEntityFactory.DEFAULT_ID,
                                 UPDATE_NAME,
@@ -347,9 +400,48 @@ class FoodControllerIT extends BaseIntegrationTest {
                                 UPDATE_BIGDECIMAL,
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE)
                 ),
+                Arguments.of("Successful update without food type",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null),
+                        HttpStatus.OK,
+                        new FoodResponse(TestEntityFactory.DEFAULT_ID,
+                                UPDATE_NAME,
+                                UPDATE_BIGDECIMAL,
+                                UPDATE_BIGDECIMAL,
+                                UPDATE_BIGDECIMAL,
+                                null,
+                                null,
+                                true)
+                ),
+                Arguments.of("Food name missing",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(null, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("name"))
+                ),
+                Arguments.of("Food protein missing",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(UPDATE_NAME, null, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST,
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("protein"))
+                ),
+                Arguments.of("Food calories missing",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, null, null, UPDATE_FOOD_TYPE_ID),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST,
+                                ApiResponses.MUST_NOT_BE_NULL_RESPONSE.formatted("calories"))
+                ),
+                Arguments.of("Food type id and phenylalanine missing",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, null),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.AT_LEAST_ONE_PRESENT_RESPONSE)
+                ),
                 Arguments.of("Food type not found",
                         TestEntityFactory.DEFAULT_ID,
-                        new FoodUpdateRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, UNKNOWN_ID),
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UNKNOWN_ID),
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )

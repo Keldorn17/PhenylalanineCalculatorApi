@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.page.PageResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
@@ -144,17 +143,18 @@ class FoodControllerTests {
     }
 
     @Test
-    void patchFood_shouldReturn200() {
+    void putFood_shouldReturn200() {
         Long id = TestEntityFactory.DEFAULT_ID;
-        FoodUpdateRequest request = new FoodUpdateRequest(
+        FoodRequest request = new FoodRequest(
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
                 TestEntityFactory.DEFAULT_ID
         );
         FoodResponse expectedResponse = TestEntityFactory.foodResponse();
         when(foodService.update(id, request)).thenReturn(expectedResponse);
-        FoodResponse response = restTestClient.patch()
+        FoodResponse response = restTestClient.put()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_PATH)
                         .pathSegment(String.valueOf(id))
@@ -170,16 +170,38 @@ class FoodControllerTests {
     }
 
     @Test
-    void patchFood_shouldReturn404_whenResourceNotFound() {
+    void putFood_shouldReturn400_whenMissingRequiredInputIsPresent() {
         Long id = TestEntityFactory.DEFAULT_ID;
-        FoodUpdateRequest request = new FoodUpdateRequest(
+        FoodRequest request = new FoodRequest(
+                TestEntityFactory.DEFAULT_FOOD_NAME,
+                null,
+                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
+                TestEntityFactory.DEFAULT_ID
+        );
+        restTestClient.put()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_PATH)
+                        .pathSegment(String.valueOf(id))
+                        .build()
+                )
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void putFood_shouldReturn404_whenResourceNotFound() {
+        Long id = TestEntityFactory.DEFAULT_ID;
+        FoodRequest request = new FoodRequest(
                 TestEntityFactory.DEFAULT_FOOD_NAME,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                null,
                 TestEntityFactory.DEFAULT_ID
         );
         when(foodService.update(id, request)).thenThrow(ResourceNotFoundException.class);
-        restTestClient.patch()
+        restTestClient.put()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.FOOD_PATH)
                         .pathSegment(String.valueOf(id))
