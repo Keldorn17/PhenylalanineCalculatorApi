@@ -11,7 +11,6 @@ import com.keldorn.phenylalaninecalculatorapi.domain.entity.FoodType;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodResponse;
-import com.keldorn.phenylalaninecalculatorapi.dto.food.FoodUpdateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.food.PagedFoodResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.params.QueryRequest;
@@ -146,7 +145,7 @@ class FoodServiceTests {
         food.setUser(user);
         String foodName = "New Food Name";
         String typeName = "New Type Name";
-        FoodUpdateRequest request = new FoodUpdateRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, 1L);
+        FoodRequest request = new FoodRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, null, 1L);
         FoodType foodType = TestEntityFactory.foodType();
         foodType.setMultiplier(1);
         foodType.setName(typeName);
@@ -167,9 +166,34 @@ class FoodServiceTests {
     }
 
     @Test
+    void update_shouldReturnFoodResponse_whenPhenylalanineIsProvidedWithoutFoodType() {
+        User user = TestEntityFactory.user();
+        user.setUserId(TestEntityFactory.DEFAULT_ID);
+        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setUser(user);
+        String foodName = "New Food Name";
+        FoodRequest request = new FoodRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.TEN, null);
+        when(foodReadService.findByIdOrThrow(anyLong())).thenReturn(food);
+        when(userService.getCurrentUserId()).thenReturn(user.getUserId());
+        when(foodRepository.save(any(Food.class))).thenReturn(food);
+        FoodResponse response = foodService.update(foodId, request);
+        ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
+        verify(foodRepository).save(captor.capture());
+        Food savedFood = captor.getValue();
+        Assertions.assertThat(savedFood.getName()).isEqualTo(foodName);
+        Assertions.assertThat(savedFood.getProtein()).isEqualByComparingTo(BigDecimal.ONE);
+        Assertions.assertThat(savedFood.getCalories()).isEqualByComparingTo(BigDecimal.ONE);
+        Assertions.assertThat(savedFood.getFoodType()).isNull();
+        Assertions.assertThat(savedFood.getPhenylalanine()).isEqualByComparingTo(BigDecimal.TEN);
+        Assertions.assertThat(response.phenylalanine()).isEqualByComparingTo(BigDecimal.TEN);
+        Assertions.assertThat(response.foodTypeName()).isNull();
+        Assertions.assertThat(response.multiplier()).isNull();
+    }
+
+    @Test
     void update_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         when(foodReadService.findByIdOrThrow(foodId)).thenThrow(ResourceNotFoundException.class);
-        FoodUpdateRequest request = new FoodUpdateRequest(null, null, null, null);
+        FoodRequest request = new FoodRequest(null, null, null, null, null);
         Assertions.assertThatThrownBy(() -> foodService.update(foodId, request))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(foodRepository, never()).save(any());

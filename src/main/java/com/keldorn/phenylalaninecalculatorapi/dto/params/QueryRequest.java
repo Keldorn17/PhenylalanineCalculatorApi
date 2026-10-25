@@ -30,6 +30,6 @@ public class QueryRequest {
     @JsonProperty("sort")
     @Schema(name = "sort", example = "name,desc", description = "RSQL sort for ordering the returned data.",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String sort = "name,desc";
+    private String sort = "name,asc";
 
 }
