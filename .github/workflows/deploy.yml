@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Deploy Docker Image
 
 on:
   push:
@@ -6,6 +6,18 @@ on:
       - main
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy to OCI (e.g. latest, 1.0.0, sha-xxxxxxx)'
+        required: true
+        default: 'latest'
+        type: string
+      rebuild_image:
+        description: 'Rebuild and push Docker image before deploying'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -13,6 +25,7 @@ env:
 
 jobs:
   build-and-push:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.rebuild_image == true)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,3 +74,76 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-to-oci:
+    needs: build-and-push
+    if: |
+      always() &&
+      (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Determine Image Tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "image_tag=${{ inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy to OCI Compute Instance via SSH
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USERNAME: ${{ secrets.OCI_USERNAME }}
+          OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
+          OCI_SECRET_BUNDLE_OCID: ${{ secrets.OCI_SECRET_BUNDLE_OCID }}
+          TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s\n" "$OCI_SSH_KEY" > ~/.ssh/id_key
+          chmod 600 ~/.ssh/id_key
+          ssh-keyscan -H "$OCI_HOST" >> ~/.ssh/known_hosts
+
+          printf "IMAGE_TAG=%s\nOCI_SECRET_BUNDLE_OCID=%s\nTUNNEL_TOKEN=%s\n" \
+            "$IMAGE_TAG" "$OCI_SECRET_BUNDLE_OCID" "$TUNNEL_TOKEN" > .env.prod
+
+          ssh -i ~/.ssh/id_key "$OCI_USERNAME@$OCI_HOST" "mkdir -p ~/phenylalanine-api"
+          scp -i ~/.ssh/id_key compose.prod.yaml "$OCI_USERNAME@$OCI_HOST:~/phenylalanine-api/compose.prod.yaml"
+          scp -i ~/.ssh/id_key .env.prod "$OCI_USERNAME@$OCI_HOST:~/phenylalanine-api/.env"
+          rm -f .env.prod
+
+          ssh -i ~/.ssh/id_key "$OCI_USERNAME@$OCI_HOST" 'bash -s' << 'EOF'
+          set -e
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "Installing Docker on OCI instance..."
+            curl -fsSL https://get.docker.com | sudo sh
+            sudo usermod -aG docker "$USER"
+          fi
+
+          cd ~/phenylalanine-api
+          chmod 600 .env
+
+          sudo docker compose -f compose.prod.yaml pull
+          sudo docker compose -f compose.prod.yaml up -d --force-recreate api
+          sudo docker image prune -f
+
+          echo "Waiting for API health check..."
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/actuator/health | grep -q '"UP"'; then
+              echo "API is UP and healthy!"
+              sudo docker logs --tail 25 phenylalanine-api
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "API failed health check within 60s. Container logs:"
+          sudo docker logs --tail 100 phenylalanine-api
+          exit 1
+          EOF
