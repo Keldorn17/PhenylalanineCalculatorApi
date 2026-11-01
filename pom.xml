@@ -12,13 +12,17 @@
     <artifactId>PhenylalanineCalculatorApi</artifactId>
     <version>1.0.0</version>
     <name>PhenylalanineCalculatorApi</name>
-    <description>PhenylalanineCalculatorApi</description>
-    <url/>
+    <description>Phenylalanine Calculator API</description>
+    <url>https://github.com/Keldorn17/PhenylalanineCalculatorApi</url>
     <licenses>
         <license/>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>
+                Patai Zoltán
+            </name>
+        </developer>
     </developers>
     <scm>
         <connection/>
@@ -34,7 +38,7 @@
         <io.opentelemetry.version>1.66.0</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.31.1-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.2</io.github.perplexhub.version>
-        <com.oracle.oci.sdk.secrets.version>3.57.0</com.oracle.oci.sdk.secrets.version>
+        <com.oracle.oci.sdk.secrets.version>3.97.1</com.oracle.oci.sdk.secrets.version>
     </properties>
 
     <dependencyManagement>
@@ -174,6 +178,11 @@
         <dependency>
             <groupId>com.oracle.oci.sdk</groupId>
             <artifactId>oci-java-sdk-secrets</artifactId>
+            <version>${com.oracle.oci.sdk.secrets.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-common-httpclient-jersey3</artifactId>
             <version>${com.oracle.oci.sdk.secrets.version}</version>
         </dependency>
 

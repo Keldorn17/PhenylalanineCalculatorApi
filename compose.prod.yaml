@@ -1,6 +1,6 @@
 services:
   api:
-    image: ghcr.io/keldorn17/phenylalanine-api:latest
+    image: ghcr.io/keldorn17/phenylalanine-api:${IMAGE_TAG:-latest}
     container_name: phenylalanine-api
     restart: unless-stopped
     environment:
@@ -8,3 +8,13 @@ services:
       OCI_SECRET_BUNDLE_OCID: ${OCI_SECRET_BUNDLE_OCID}
     ports:
       - "127.0.0.1:8080:8080"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+    depends_on:
+      - api
