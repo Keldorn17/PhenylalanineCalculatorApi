@@ -35,7 +35,7 @@ VALUES (1, 'Gyümölcsök', 30, 1, false),
        (11, 'Édességek', 50, 1, false),
        (12, 'Italok', 50, 1, false);
 
--- changeset Patai Zoltan:add-default-food ignore:true
+-- changeset Patai Zoltan:add-default-food
 -- Adds default food to Food
 -- rollback DELETE FROM food;
 INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
