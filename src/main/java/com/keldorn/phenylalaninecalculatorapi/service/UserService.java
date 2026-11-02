@@ -7,7 +7,6 @@ import com.keldorn.phenylalaninecalculatorapi.dto.user.UserResponse;
 import com.keldorn.phenylalaninecalculatorapi.exception.DeletedUserTokenReceivedException;
 import com.keldorn.phenylalaninecalculatorapi.exception.EmailIsTakenException;
 import com.keldorn.phenylalaninecalculatorapi.exception.InvalidJwtTokenReceivedException;
-import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.UserMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
@@ -44,7 +43,7 @@ public class UserService {
     public BigDecimal getCurrentUserDailyLimit() {
         Long currentUserId = getCurrentUserId();
         log.debug("Getting daily limit for: {}", currentUserId);
-        return userRepository.findDailyLimitByUserId(currentUserId).orElseThrow(ResourceNotFoundException::new);
+        return userRepository.findDailyLimitByUserId(currentUserId).orElse(null);
     }
 
     @Transactional
