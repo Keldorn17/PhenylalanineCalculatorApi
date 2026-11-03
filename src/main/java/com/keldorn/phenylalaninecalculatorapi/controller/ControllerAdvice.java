@@ -52,7 +52,7 @@ public class ControllerAdvice {
         return buildAndLog(HttpStatus.UNAUTHORIZED, ApiResponses.CLIENT_ERROR, ex);
     }
 
-    @ExceptionHandler(InvalidRSQLException.class)
+    @ExceptionHandler({InvalidRSQLException.class, IllegalArgumentException.class})
     public ResponseEntity<Object> handleBadRequest(Exception ex) {
         return buildAndLog(HttpStatus.BAD_REQUEST, ApiResponses.CLIENT_ERROR, ex);
     }

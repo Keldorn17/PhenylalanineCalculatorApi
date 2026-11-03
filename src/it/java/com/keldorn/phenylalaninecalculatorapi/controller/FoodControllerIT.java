@@ -306,6 +306,16 @@ class FoodControllerIT extends BaseIntegrationTest {
                         null, null, null, "invalid desc",
                         HttpStatus.BAD_REQUEST,
                         error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_RSQL_RESPONSE)
+                ),
+                Arguments.of("Invalid page size",
+                        null, -1, null, null,
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.DEFAULT_RESPONSE)
+                ),
+                Arguments.of("Invalid page number",
+                        -1, null, null, null,
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.DEFAULT_RESPONSE)
                 )
         );
     }
