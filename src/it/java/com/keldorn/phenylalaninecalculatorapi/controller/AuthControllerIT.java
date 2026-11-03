@@ -46,12 +46,13 @@ class AuthControllerIT extends BaseIntegrationTest {
     private JwtService jwtService;
 
     private static final String NOT_TAKEN_EMAIL = "not_taken_email@gmail.com";
-    private static final String NOT_TAKEN_USERNAME = "not taken username";
+    private static final String NOT_TAKEN_USERNAME = "notTakenUsername";
     private static final String INVALID_PASSWORD = "invalid password";
+    private static final String INVALID_USERNAME = "invalid username";
     private static final String TEST_REGISTER_EMAIL = "test@test.com";
     private static final String TEST_REGISTER_USERNAME = "test";
     private static final String NEW_PASSWORD = "newPassword1@";
-    private static final String NEW_USERNAME = "new username";
+    private static final String NEW_USERNAME = "newUsername";
 
     private static final String MISSING_EMAIL_RESPONSE =
             ApiResponses.MUST_NOT_BE_BLANK_RESPONSE.formatted("email");
@@ -266,24 +267,19 @@ class AuthControllerIT extends BaseIntegrationTest {
         var refreshTokenCookie = cookie.getFirst("refreshToken");
         Assertions.assertThat(refreshTokenCookie).isNotNull();
         String refreshToken = refreshTokenCookie.getValue();
-
         Assertions.assertThat(refreshTokenRepository.findByToken(refreshToken)).isPresent();
-
         var logoutResult = restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.LOGOUT))
                 .cookie("refreshToken", refreshToken)
                 .exchange()
                 .expectStatus().isNoContent()
                 .returnResult();
-
         var logoutCookies = logoutResult.getResponseCookies();
         var cleanCookie = logoutCookies.getFirst("refreshToken");
         Assertions.assertThat(cleanCookie).isNotNull();
         Assertions.assertThat(cleanCookie.getMaxAge().isZero()).isTrue();
         Assertions.assertThat(cleanCookie.getValue()).isEmpty();
-
         Assertions.assertThat(refreshTokenRepository.findByToken(refreshToken)).isEmpty();
-
         restTestClient.post()
                 .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.REFRESH))
                 .cookie("refreshToken", refreshToken)
@@ -340,6 +336,14 @@ class AuthControllerIT extends BaseIntegrationTest {
                         ),
                         HttpStatus.CONFLICT,
                         error(HttpStatus.CONFLICT, ApiResponses.USERNAME_IS_TAKEN_RESPONSE)
+                ),
+                Arguments.of("Invalid username",
+                        new AuthRegisterRequest(NOT_TAKEN_EMAIL,
+                                INVALID_USERNAME,
+                                TestEntityFactory.DEFAULT_PASSWORD
+                        ),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_USERNAME_RESPONSE)
                 )
         );
     }
@@ -427,6 +431,11 @@ class AuthControllerIT extends BaseIntegrationTest {
                         new AuthUsernameChangeRequest(NEW_USERNAME, INVALID_PASSWORD),
                         HttpStatus.UNAUTHORIZED,
                         error(HttpStatus.UNAUTHORIZED, ApiResponses.PASSWORD_MISMATCH_RESPONSE)
+                ),
+                Arguments.of("Test user's username not match username rules",
+                        new AuthUsernameChangeRequest(INVALID_USERNAME, TestEntityFactory.DEFAULT_PASSWORD),
+                        HttpStatus.BAD_REQUEST,
+                        error(HttpStatus.BAD_REQUEST, ApiResponses.INVALID_USERNAME_RESPONSE)
                 )
         );
     }

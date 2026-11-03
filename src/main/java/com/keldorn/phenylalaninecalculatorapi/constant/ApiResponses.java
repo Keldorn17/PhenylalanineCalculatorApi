@@ -25,6 +25,9 @@ public final class ApiResponses {
     public static final String INVALID_RSQL_RESPONSE = "Invalid query or sort parameters";
     public static final String UNOWNED_RESOURCE_RESPONSE = "You are not the owner of this resource";
     public static final String CONCURRENT_UPDATE_RESPONSE = "A concurrent update occurred. Please try again.";
+    public static final String INVALID_USERNAME_RESPONSE =
+            "username: Invalid username formatting. Rules: 3-32 characters long without spaces and starts with a " +
+                    "letter.";
 
     public static final String MUST_NOT_BE_BLANK_RESPONSE = "%s: must not be blank";
     public static final String MUST_NOT_BE_NULL_RESPONSE = "%s: must not be null";
