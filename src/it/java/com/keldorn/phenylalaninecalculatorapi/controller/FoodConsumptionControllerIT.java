@@ -118,7 +118,7 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodConsumptionResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodConsumptionResponse) expectedResponse);
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);

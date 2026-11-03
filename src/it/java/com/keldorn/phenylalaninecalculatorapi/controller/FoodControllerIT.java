@@ -43,7 +43,7 @@ class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodResponse) expectedResponse);
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
@@ -74,7 +74,7 @@ class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (PagedFoodResponse) expectedResponse);
+            verifyResponse(responseSpec, (PagedFoodResponse) expectedResponse);
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
@@ -112,7 +112,7 @@ class FoodControllerIT extends BaseIntegrationTest {
                         null,
                         true)),
                 new PageResponse(20, 0, 1, 1));
-        verifyResponseWithBigDecimalCompareTo(responseSpec, expected);
+        verifyResponse(responseSpec, expected);
     }
 
     @DirtyTest
@@ -129,7 +129,7 @@ class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodResponse) expectedResponse);
             responseSpec.expectHeader().location(String.valueOf(path(ApiRoutes.FOOD_PATH_BY_ID,
                     NEXT_AVAILABLE_FOOD_TYPE_ID)));
             return;
@@ -169,7 +169,7 @@ class FoodControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (FoodResponse) expectedResponse);
+            verifyResponse(responseSpec, (FoodResponse) expectedResponse);
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);

@@ -11,7 +11,7 @@ INSERT IGNORE INTO roles (name) VALUES ('ROLE_USER');
 INSERT INTO users (username, email, password, daily_limit)
 VALUES ('testUser', 'test@testmail.com', '$2a$12$d4jNoGLVcxccjZ5e0xZ4hOrwhCniZ/otJa50xKEOeI3ukwSQuvafG', 400);
 INSERT INTO users (username, email, password, daily_limit)
-VALUES ('testUser2', 'test2@testmail.com', '$2a$12$d4jNoGLVcxccjZ5e0xZ4hOrwhCniZ/otJa50xKEOeI3ukwSQuvafG', 400);
+VALUES ('testUser2', 'test2@testmail.com', '$2a$12$d4jNoGLVcxccjZ5e0xZ4hOrwhCniZ/otJa50xKEOeI3ukwSQuvafG', null);
 
 -- Test User Roles
 -- changeset Patai Zoltán:load-test-user-roles

@@ -41,7 +41,7 @@ class DailyIntakeControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
         if (expectedStatus.is2xxSuccessful()) {
-            verifyResponseWithBigDecimalCompareTo(responseSpec, (DailyIntakeResponse) expectedResponse);
+            verifyResponse(responseSpec, (DailyIntakeResponse) expectedResponse);
             return;
         }
         verifyResponse(responseSpec, (ErrorResponse) expectedResponse);
