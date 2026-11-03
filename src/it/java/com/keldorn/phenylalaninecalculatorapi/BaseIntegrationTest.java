@@ -81,18 +81,10 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
         if (expected != null) {
             Class<T> responseClass = (Class<T>) expected.getClass();
             spec.expectBody(responseClass)
-                    .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> void verifyResponseWithBigDecimalCompareTo(RestTestClient.ResponseSpec spec, T expected) {
-        if (expected != null) {
-            Class<T> responseClass = (Class<T>) expected.getClass();
-            spec.expectBody(responseClass)
                     .value(actual -> Assertions.assertThat(actual).usingRecursiveComparison()
                             .withComparatorForType(Comparator.nullsFirst(BigDecimal::compareTo), BigDecimal.class)
-                            .withComparatorForType(Comparator.nullsFirst(ChronoZonedDateTime::compareTo), ZonedDateTime.class)
+                            .withComparatorForType(Comparator.nullsFirst(ChronoZonedDateTime::compareTo),
+                                    ZonedDateTime.class)
                             .isEqualTo(expected));
         }
     }

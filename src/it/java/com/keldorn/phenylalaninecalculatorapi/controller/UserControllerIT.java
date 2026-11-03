@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.ApiPaths;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRegisterRequest;
+import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.auth.AuthResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.user.UserRequest;
@@ -26,10 +27,11 @@ import org.springframework.http.HttpStatus;
 
 class UserControllerIT extends BaseIntegrationTest {
 
+    private static final BigDecimal UPDATED_DAILY_LIMIT = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
     private static final String UPDATED_EMAIL = "updated@mail.com";
     private static final String TAKEN_EMAIL = "test2@testmail.com";
-    private static final BigDecimal UPDATED_DAILY_LIMIT = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
     private static final String INVALID_EMAIL = "invalid email";
+    private static final String TAKEN_USERNAME = "testUser2";
 
     @Test
     void testMe_shouldReturn200() {
@@ -49,6 +51,26 @@ class UserControllerIT extends BaseIntegrationTest {
                 .uri(ApiRoutes.USER_PATH)
                 .exchange()
                 .expectStatus().isUnauthorized();
+        verifyResponse(responseSpec, expectedResponse);
+    }
+
+    @Test
+    void testMe_shouldReturn200AndDailyLimitNull() {
+        UserResponse expectedResponse = new UserResponse(2L, TAKEN_USERNAME, TAKEN_EMAIL, null);
+        AuthResponse response = restTestClient.post()
+                .uri(path(ApiRoutes.AUTH_PATH, ApiPaths.AUTHENTICATE))
+                .body(new AuthRequest(TAKEN_USERNAME, TestEntityFactory.DEFAULT_PASSWORD))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        var responseSpec = restTestClient.get()
+                .uri(ApiRoutes.USER_PATH)
+                .headers(withBearer(response.accessToken()))
+                .exchange()
+                .expectStatus().isOk();
         verifyResponse(responseSpec, expectedResponse);
     }
 
