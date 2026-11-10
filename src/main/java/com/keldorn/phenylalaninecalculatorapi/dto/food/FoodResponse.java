@@ -6,4 +6,5 @@ import lombok.Builder;
 
 @Builder
 public record FoodResponse(Long id, String name, BigDecimal protein, BigDecimal calories,
-                           BigDecimal phenylalanine, String foodTypeName, Integer multiplier, boolean canEdit) {}
+                           BigDecimal phenylalanine, String foodTypeName, Integer multiplier,
+                           boolean canEdit, boolean isPrivate) {}

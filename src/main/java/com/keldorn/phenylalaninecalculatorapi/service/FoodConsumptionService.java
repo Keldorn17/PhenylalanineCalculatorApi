@@ -66,7 +66,7 @@ public class FoodConsumptionService {
     @Transactional
     public FoodConsumptionResponse save(FoodConsumptionCreateRequest request) {
         log.debug("Creating food consumption");
-        Food food = foodReadService.findByIdOrThrow(request.foodId());
+        Food food = foodReadService.findByIdOrThrow(request.foodId(), userService.getCurrentUserId());
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
         ZonedDateTime consumedAt = request.consumedAt() != null ? request.consumedAt() : ZonedDateTime.now();
         FoodConsumption foodConsumption = FoodConsumption.builder()

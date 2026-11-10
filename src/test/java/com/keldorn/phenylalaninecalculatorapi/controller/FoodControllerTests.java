@@ -247,6 +247,7 @@ class FoodControllerTests {
         Assertions.assertThat(response.protein()).isEqualByComparingTo(expectedResponse.protein());
         Assertions.assertThat(response.calories()).isEqualByComparingTo(expectedResponse.calories());
         Assertions.assertThat(response.phenylalanine()).isEqualByComparingTo(expectedResponse.phenylalanine());
+        Assertions.assertThat(response.isPrivate()).isEqualTo(expectedResponse.isPrivate());
     }
 
 }

@@ -22,10 +22,9 @@ public interface FoodRepository extends JpaRepository<Food, Long>, JpaSpecificat
     int deleteFoodWhenUserDeleted(@Param("userId") Long userId);
 
     @NonNull
-    @Override
     @EntityGraph(attributePaths = {"foodType"})
-    @Query("FROM Food f WHERE f.id = :id AND f.isDeleted = false")
-    Optional<Food> findById(@NonNull @Param("id") Long id);
+    @Query("FROM Food f WHERE f.id = :id AND f.isDeleted = false AND (f.isPrivate = false OR f.user.userId = :userId)")
+    Optional<Food> findByIdAndVisibleToUser(@NonNull @Param("id") Long id, @NonNull @Param("userId") Long userId);
 
     @NonNull
     @Override

@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 class FoodConsumptionControllerIT extends BaseIntegrationTest {
 
     private static final Long NEW_FOOD_CONSUMPTION_ID = 2L;
+    private static final Long PRIVATE_FOOD_ID = 5L;
     private static final Long UNKNOWN_ID = 99L;
 
     @Test
@@ -148,6 +149,11 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 ),
                 Arguments.of("Food not found",
                         foodConsumptionCreateRequest(UNKNOWN_ID),
+                        HttpStatus.NOT_FOUND,
+                        error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                ),
+                Arguments.of("Private food of another user not found",
+                        foodConsumptionCreateRequest(PRIVATE_FOOD_ID),
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )

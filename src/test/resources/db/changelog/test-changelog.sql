@@ -34,14 +34,16 @@ VALUES ('testFoodType', 10, true, 1);
 -- Test Food
 -- changeset Patai Zoltán:load-test-food
 -- Loads food
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
-VALUES ('testFood', 10, 10, 1, 1, 10, false);
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
-VALUES ('apple', .26, 52, 1, 1, 2.60, false);
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
-VALUES ('apple2', .26, 52, 1, 1, 2.60, true);
-INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted)
-VALUES ('apple3', .26, 52, 2, 1, 2.60, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted, is_private)
+VALUES ('testFood', 10, 10, 1, 1, 10, false, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted, is_private)
+VALUES ('apple', .26, 52, 1, 1, 2.60, false, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted, is_private)
+VALUES ('apple2', .26, 52, 1, 1, 2.60, true, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted, is_private)
+VALUES ('apple3', .26, 52, 2, 1, 2.60, false, false);
+INSERT INTO food (name, protein, calories, user_id, food_type_id, phenylalanine, is_deleted, is_private)
+VALUES ('apple4', .26, 52, 2, 1, 2.60, false, true);
 
 -- Test Food Consumption
 -- changeset Patai Zoltán:load-test-food-consumption
