@@ -38,7 +38,7 @@
         <io.opentelemetry.version>1.66.0</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.33.0-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.2</io.github.perplexhub.version>
-        <com.oracle.oci.sdk.secrets.version>3.97.1</com.oracle.oci.sdk.secrets.version>
+        <com.oracle.oci.sdk.secrets.version>3.100.0</com.oracle.oci.sdk.secrets.version>
     </properties>
 
     <dependencyManagement>
