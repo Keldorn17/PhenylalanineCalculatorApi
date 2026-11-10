@@ -158,3 +158,8 @@ CREATE INDEX idx_food_consumption_user_consumed_at ON food_consumption (user_id,
 -- Drops NOT NULL constraint from food_type_id in food table
 -- rollback ALTER TABLE food MODIFY COLUMN food_type_id BIGINT NOT NULL;
 ALTER TABLE food MODIFY COLUMN food_type_id BIGINT NULL;
+
+-- changeset Patai Zoltan:add-private-column
+-- Add private column
+-- rollback ALTER TABLE food DROP COLUMN is_private;
+ALTER TABLE food ADD is_private BOOLEAN NOT NULL DEFAULT FALSE;

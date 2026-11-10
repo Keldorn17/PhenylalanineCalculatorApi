@@ -59,7 +59,9 @@ class FoodServiceTests {
 
     @Test
     void findById_shouldThrowFoodNotFoundException_whenResourceNotFound() {
-        when(foodReadService.findByIdOrThrow(foodId)).thenThrow(ResourceNotFoundException.class);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID))
+                .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.findById(foodId))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
@@ -67,7 +69,8 @@ class FoodServiceTests {
     @Test
     void findById_shouldReturnFoodResponse_whenFoodExists() {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
-        when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID)).thenReturn(food);
         FoodResponse response = foodService.findById(foodId);
         doAssertionsCheckOnResponse(response, food);
     }
@@ -150,7 +153,7 @@ class FoodServiceTests {
         foodType.setMultiplier(1);
         foodType.setName(typeName);
         when(foodTypeReadService.findByIdOrThrow(request.foodTypeId())).thenReturn(foodType);
-        when(foodReadService.findByIdOrThrow(anyLong())).thenReturn(food);
+        when(foodReadService.findByIdOrThrow(anyLong(), anyLong())).thenReturn(food);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodRepository.save(any(Food.class))).thenReturn(food);
         FoodResponse response = foodService.update(foodId, request);
@@ -173,7 +176,7 @@ class FoodServiceTests {
         food.setUser(user);
         String foodName = "New Food Name";
         FoodRequest request = new FoodRequest(foodName, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.TEN, null);
-        when(foodReadService.findByIdOrThrow(anyLong())).thenReturn(food);
+        when(foodReadService.findByIdOrThrow(anyLong(), anyLong())).thenReturn(food);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         when(foodRepository.save(any(Food.class))).thenReturn(food);
         FoodResponse response = foodService.update(foodId, request);
@@ -192,7 +195,9 @@ class FoodServiceTests {
 
     @Test
     void update_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
-        when(foodReadService.findByIdOrThrow(foodId)).thenThrow(ResourceNotFoundException.class);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID))
+                .thenThrow(ResourceNotFoundException.class);
         FoodRequest request = new FoodRequest(null, null, null, null, null);
         Assertions.assertThatThrownBy(() -> foodService.update(foodId, request))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -205,7 +210,7 @@ class FoodServiceTests {
         user.setUserId(TestEntityFactory.DEFAULT_ID);
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setUser(user);
-        when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
+        when(foodReadService.findByIdOrThrow(foodId, user.getUserId())).thenReturn(food);
         when(userService.getCurrentUserId()).thenReturn(user.getUserId());
         foodService.deleteById(foodId);
         verify(foodRepository).delete(any(Food.class));
@@ -213,7 +218,9 @@ class FoodServiceTests {
 
     @Test
     void deleteById_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
-        when(foodReadService.findByIdOrThrow(foodId)).thenThrow(ResourceNotFoundException.class);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID))
+                .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodService.deleteById(foodId))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(foodRepository, never()).delete(any(Food.class));
@@ -227,6 +234,7 @@ class FoodServiceTests {
         Assertions.assertThat(response.protein()).isEqualByComparingTo(food.getProtein());
         Assertions.assertThat(response.multiplier()).isEqualTo(food.getFoodType().getMultiplier());
         Assertions.assertThat(response.foodTypeName()).isEqualTo(food.getFoodType().getName());
+        Assertions.assertThat(response.isPrivate()).isEqualTo(food.isPrivate());
     }
 
 }

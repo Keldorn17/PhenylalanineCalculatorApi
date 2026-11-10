@@ -60,6 +60,10 @@ public class Food {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    @Builder.Default
+    @Column(name = "is_private", nullable = false)
+    private boolean isPrivate = false;
+
     @CreatedDate
     @Column(name = "created_at")
     private ZonedDateTime createdAt;

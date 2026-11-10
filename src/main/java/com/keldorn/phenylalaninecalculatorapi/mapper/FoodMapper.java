@@ -25,6 +25,7 @@ public interface FoodMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "protein", target = "protein")
     @Mapping(source = "calories", target = "calories")
+    @Mapping(source = "private", target = "isPrivate")
     @Mapping(source = "foodType.name", target = "foodTypeName")
     @Mapping(source = "phenylalanine", target = "phenylalanine")
     @Mapping(source = "foodType.multiplier", target = "multiplier")
@@ -42,6 +43,7 @@ public interface FoodMapper {
     @Mapping(source = "protein", target = "protein")
     @Mapping(source = "calories", target = "calories")
     @Mapping(source = "phenylalanine", target = "phenylalanine")
+    @Mapping(target = "isPrivate", expression = "java(Boolean.TRUE.equals(request.isPrivate()))")
     Food toEntity(FoodRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -55,6 +57,7 @@ public interface FoodMapper {
     @Mapping(source = "protein", target = "protein")
     @Mapping(source = "calories", target = "calories")
     @Mapping(source = "phenylalanine", target = "phenylalanine")
+    @Mapping(target = "private", expression = "java(Boolean.TRUE.equals(request.isPrivate()))")
     void updateEntity(FoodRequest request, @MappingTarget Food food);
 
     default boolean canEdit(Food food, Long currentUserId) {

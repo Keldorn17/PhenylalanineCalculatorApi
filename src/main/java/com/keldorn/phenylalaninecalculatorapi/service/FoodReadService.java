@@ -18,9 +18,9 @@ public class FoodReadService {
     private final FoodRepository foodRepository;
 
     @Transactional(readOnly = true)
-    public Food findByIdOrThrow(Long id) {
-        log.debug("Getting Food By Id: {}", id);
-        return foodRepository.findById(id)
+    public Food findByIdOrThrow(Long id, Long userId) {
+        log.debug("Getting Food By Id: {} for User Id: {}", id, userId);
+        return foodRepository.findByIdAndVisibleToUser(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Food Not Found."));
     }
 

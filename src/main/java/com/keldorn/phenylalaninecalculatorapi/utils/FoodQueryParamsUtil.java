@@ -43,10 +43,17 @@ public class FoodQueryParamsUtil {
         PROPERTY_MAP.put("foodTypeName", "foodType.name");
         PROPERTY_MAP.put("foodTypeMultiplier", "foodType.multiplier");
         PROPERTY_MAP.put("username", "user.username");
+        PROPERTY_MAP.put("isPrivate", "isPrivate");
     }
 
     public static Specification<Food> createQuerySpecification(QueryRequest request, Long currentUserId) {
-        Specification<Food> spec = ((root, _, criteriaBuilder) -> criteriaBuilder.isFalse(root.get("isDeleted")));
+        Specification<Food> spec = (root, _, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.isFalse(root.get("isDeleted")),
+                criteriaBuilder.or(
+                        criteriaBuilder.isFalse(root.get("isPrivate")),
+                        criteriaBuilder.equal(root.get("user").get("userId"), currentUserId)
+                )
+        );
         if (isNotBlank(request.getQuery())) {
             spec = spec.and(toSpecification(request.getQuery(), currentUserId));
         }

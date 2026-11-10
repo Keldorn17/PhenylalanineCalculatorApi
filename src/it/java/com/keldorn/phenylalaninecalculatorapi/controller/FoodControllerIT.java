@@ -24,11 +24,12 @@ import org.springframework.http.HttpStatus;
 
 class FoodControllerIT extends BaseIntegrationTest {
 
+    private static final Long PRIVATE_FOOD_ID = 5L;
     private static final Long UNKNOWN_ID = 99L;
     private static final Long UPDATE_FOOD_TYPE_ID = 2L;
     private static final String UPDATE_NAME = "updateName";
-    private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 5L;
-    private static final Long NEXT_NEXT_AVAILABLE_FOOD_TYPE_ID = 5L;
+    private static final Long NEXT_AVAILABLE_FOOD_TYPE_ID = 6L;
+    private static final Long NEXT_NEXT_AVAILABLE_FOOD_TYPE_ID = 6L;
     private static final BigDecimal UPDATE_BIGDECIMAL = BigDecimal.ONE;
 
     @MethodSource("getByIdTestCases")
@@ -110,7 +111,8 @@ class FoodControllerIT extends BaseIntegrationTest {
                         TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                         null,
                         null,
-                        true)),
+                        true,
+                        false)),
                 new PageResponse(20, 0, 1, 1));
         verifyResponse(responseSpec, expected);
     }
@@ -224,6 +226,11 @@ class FoodControllerIT extends BaseIntegrationTest {
                         UNKNOWN_ID,
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                ),
+                Arguments.of("Private food of another user not found by id",
+                        PRIVATE_FOOD_ID,
+                        HttpStatus.NOT_FOUND,
+                        error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )
         );
     }
@@ -274,6 +281,13 @@ class FoodControllerIT extends BaseIntegrationTest {
                         new PagedFoodResponse(
                                 List.of(apple3FoodResponse()),
                                 new PageResponse(20, 0, 1, 1))
+                ),
+                Arguments.of("Query for private foods (isPrivate==true)",
+                        null, null, "isPrivate==true", null,
+                        HttpStatus.OK,
+                        new PagedFoodResponse(
+                                List.of(),
+                                new PageResponse(20, 0, 0, 0))
                 ),
                 Arguments.of("Sort ids in descending order",
                         null, null, null, "id,desc",
@@ -346,6 +360,25 @@ class FoodControllerIT extends BaseIntegrationTest {
                                 TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
                                 null,
                                 null,
+                                true,
+                                false)
+                ),
+                Arguments.of("Successful private food creation",
+                        new FoodRequest(TestEntityFactory.DEFAULT_FOOD_NAME,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                                null,
+                                TestEntityFactory.DEFAULT_ID,
+                                true),
+                        HttpStatus.CREATED,
+                        new FoodResponse(NEXT_AVAILABLE_FOOD_TYPE_ID,
+                                TestEntityFactory.DEFAULT_FOOD_NAME,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                                BigDecimal.valueOf(100L).setScale(4, RoundingMode.HALF_UP),
+                                TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
+                                TestEntityFactory.DEFAULT_INTEGER_VALUE,
+                                true,
                                 true)
                 ),
                 Arguments.of("Food name missing",
@@ -421,6 +454,22 @@ class FoodControllerIT extends BaseIntegrationTest {
                                 UPDATE_BIGDECIMAL,
                                 null,
                                 null,
+                                true,
+                                false)
+                ),
+                Arguments.of("Successful update to private food",
+                        TestEntityFactory.DEFAULT_ID,
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID,
+                                true),
+                        HttpStatus.OK,
+                        new FoodResponse(TestEntityFactory.DEFAULT_ID,
+                                UPDATE_NAME,
+                                UPDATE_BIGDECIMAL,
+                                UPDATE_BIGDECIMAL,
+                                TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE,
+                                TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
+                                TestEntityFactory.DEFAULT_INTEGER_VALUE,
+                                true,
                                 true)
                 ),
                 Arguments.of("Food name missing",
@@ -454,6 +503,12 @@ class FoodControllerIT extends BaseIntegrationTest {
                         new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UNKNOWN_ID),
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                ),
+                Arguments.of("Private food of another user not found",
+                        PRIVATE_FOOD_ID,
+                        new FoodRequest(UPDATE_NAME, UPDATE_BIGDECIMAL, UPDATE_BIGDECIMAL, null, UPDATE_FOOD_TYPE_ID),
+                        HttpStatus.NOT_FOUND,
+                        error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )
         );
     }
@@ -469,6 +524,11 @@ class FoodControllerIT extends BaseIntegrationTest {
                         UNKNOWN_ID,
                         HttpStatus.NOT_FOUND,
                         error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
+                ),
+                Arguments.of("Private food of another user not found",
+                        PRIVATE_FOOD_ID,
+                        HttpStatus.NOT_FOUND,
+                        error(HttpStatus.NOT_FOUND, ApiResponses.RESOURCE_NOT_FOUND_RESPONSE)
                 )
         );
     }
@@ -482,7 +542,8 @@ class FoodControllerIT extends BaseIntegrationTest {
                 phenylalanine,
                 TestEntityFactory.DEFAULT_FOOD_TYPE_NAME,
                 TestEntityFactory.DEFAULT_INTEGER_VALUE,
-                true);
+                true,
+                false);
     }
 
     private static FoodResponse foodResponse(Long id, BigDecimal phenylalanine) {
@@ -495,12 +556,12 @@ class FoodControllerIT extends BaseIntegrationTest {
 
     private static FoodResponse appleFoodResponse() {
         return new FoodResponse(2L, "apple", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
-                BigDecimal.valueOf(2.6), "testFoodType", 10, true);
+                BigDecimal.valueOf(2.6), "testFoodType", 10, true, false);
     }
 
     private static FoodResponse apple3FoodResponse() {
         return new FoodResponse(4L, "apple3", BigDecimal.valueOf(.26), BigDecimal.valueOf(52),
-                BigDecimal.valueOf(2.6), "testFoodType", 10, false);
+                BigDecimal.valueOf(2.6), "testFoodType", 10, false, false);
     }
 
 }

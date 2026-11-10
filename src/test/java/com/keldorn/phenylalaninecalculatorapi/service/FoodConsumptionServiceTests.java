@@ -73,8 +73,9 @@ class FoodConsumptionServiceTests {
         Food food = TestEntityFactory.food(TestEntityFactory.foodType());
         food.setId(foodId);
         food.setPhenylalanine(foodPheContent);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
         when(userService.getCurrentUserReference()).thenReturn(user);
-        when(foodReadService.findByIdOrThrow(foodId)).thenReturn(food);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID)).thenReturn(food);
         when(foodConsumptionRepository.save(any(FoodConsumption.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
         FoodConsumptionResponse response = foodConsumptionService.save(request);
@@ -90,7 +91,8 @@ class FoodConsumptionServiceTests {
     @Test
     void save_shouldThrowExceptionAndSaveNothing_whenResourceNotFound() {
         FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(foodConsumptionId, BigDecimal.TEN);
-        when(foodReadService.findByIdOrThrow(foodConsumptionId))
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(foodReadService.findByIdOrThrow(foodConsumptionId, TestEntityFactory.DEFAULT_ID))
                 .thenThrow(ResourceNotFoundException.class);
         Assertions.assertThatThrownBy(() -> foodConsumptionService.save(request))
                 .isInstanceOf(ResourceNotFoundException.class);

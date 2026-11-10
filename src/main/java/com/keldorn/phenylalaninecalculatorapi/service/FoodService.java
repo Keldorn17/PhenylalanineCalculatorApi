@@ -49,7 +49,8 @@ public class FoodService {
     @Transactional(readOnly = true)
     public FoodResponse findById(Long id) {
         log.debug("Finding Food By Id: {}", id);
-        return FoodMapper.INSTANCE.toModel(foodReadService.findByIdOrThrow(id), userService.getCurrentUserId());
+        Long currentUserId = userService.getCurrentUserId();
+        return FoodMapper.INSTANCE.toModel(foodReadService.findByIdOrThrow(id, currentUserId), currentUserId);
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +91,8 @@ public class FoodService {
     @CacheEvict(value = "foodPages", allEntries = true)
     public FoodResponse update(Long id, FoodRequest request) {
         log.debug("Updating Food By Id: {}", id);
-        Food food = foodReadService.findByIdOrThrow(id);
+        Long currentUserId = userService.getCurrentUserId();
+        Food food = foodReadService.findByIdOrThrow(id, currentUserId);
         FoodMapper.INSTANCE.updateEntity(request, food);
         if (request.foodTypeId() != null) {
             addTypeToFood(food, request);
@@ -100,7 +102,6 @@ public class FoodService {
         if (request.phenylalanine() == null) {
             updatePhenylalanine(food);
         }
-        Long currentUserId = userService.getCurrentUserId();
         canEditOrThrow(currentUserId, food.getUser() != null ? food.getUser().getUserId() : null);
         return FoodMapper.INSTANCE.toModel(foodRepository.save(food), currentUserId);
     }
@@ -109,8 +110,8 @@ public class FoodService {
     @CacheEvict(value = "foodPages", allEntries = true)
     public void deleteById(Long id) {
         log.debug("Deleting Food By Id: {}", id);
-        Food food = foodReadService.findByIdOrThrow(id);
         Long currentUserId = userService.getCurrentUserId();
+        Food food = foodReadService.findByIdOrThrow(id, currentUserId);
         canEditOrThrow(currentUserId, food.getUser() != null ? food.getUser().getUserId() : null);
         foodRepository.delete(food);
     }

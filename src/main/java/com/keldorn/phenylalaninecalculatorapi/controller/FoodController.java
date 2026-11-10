@@ -68,7 +68,7 @@ public class FoodController {
     @Operation(
             summary = "Retrieves all food entries",
             description = "Available RSQL properties: id, name, protein, calories, phenylalanine, " +
-                    "foodTypeName, foodTypeMultiplier, username, own (query only).",
+                    "foodTypeName, foodTypeMultiplier, username, isPrivate, own (query only).",
             responses = {
                     @ApiResponse(
                             responseCode = SwaggerResponseCodes.OK,
