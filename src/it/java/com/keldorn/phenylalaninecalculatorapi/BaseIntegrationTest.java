@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,13 @@ public abstract class BaseIntegrationTest extends RestTestUtils {
     static final MySQLContainer mysql = new MySQLContainer("mysql:9.6.0")
             .withDatabaseName("phenylalanine")
             .withUsername("test_user")
-            .withPassword("test_pass");
+            .withPassword("test_pass")
+            .withTmpFs(Map.of("/var/lib/mysql", "rw"))
+            .withCommand(
+                    "--innodb-flush-log-at-trx-commit=0",
+                    "--innodb-doublewrite=0",
+                    "--sync-binlog=0"
+            );
 
     static {
         mysql.start();
