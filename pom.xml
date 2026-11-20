@@ -35,7 +35,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.springdoc.version>3.2.0</org.springdoc.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
-        <io.opentelemetry.version>1.66.0</io.opentelemetry.version>
+        <io.opentelemetry.version>1.68.0</io.opentelemetry.version>
         <io.opentelemetry.instrumentation.version>2.33.0-alpha</io.opentelemetry.instrumentation.version>
         <io.github.perplexhub.version>7.0.2</io.github.perplexhub.version>
         <com.oracle.oci.sdk.secrets.version>3.97.1</com.oracle.oci.sdk.secrets.version>
