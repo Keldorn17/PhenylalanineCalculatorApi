@@ -3,6 +3,7 @@ package com.keldorn.phenylalaninecalculatorapi.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +48,7 @@ class FoodConsumptionControllerTests {
         FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
         PagedFoodConsumptionResponse pageResponse =
                 new PagedFoodConsumptionResponse(List.of(expectedResponse), new PageResponse());
-        when(foodConsumptionService.findAllByDate(any(ZonedDateTime.class), eq(paginationRequest)))
+        when(foodConsumptionService.findAllByDate(any(ZonedDateTime.class), isNull(), eq(paginationRequest)))
                 .thenReturn(pageResponse);
         PagedFoodConsumptionResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -55,6 +56,33 @@ class FoodConsumptionControllerTests {
                         .queryParam("date", testDate)
                         .queryParam("page", paginationRequest.getPage())
                         .queryParam("size", paginationRequest.getSize())
+                        .build()
+                )
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PagedFoodConsumptionResponse.class)
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getContent()).hasSize(1);
+        doAssertionsCheckOnResponse(response.getContent().getFirst(), expectedResponse);
+    }
+
+    @Test
+    void getAllFoodConsumptionByDate_shouldForwardTimezoneQueryParam() {
+        LocalDate testDate = TestEntityFactory.TEST_DATE;
+        String timezone = "Europe/Budapest";
+        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
+        FoodConsumptionResponse expectedResponse = TestEntityFactory.foodConsumptionResponse();
+        PagedFoodConsumptionResponse pageResponse =
+                new PagedFoodConsumptionResponse(List.of(expectedResponse), new PageResponse());
+        when(foodConsumptionService.findAllByDate(any(ZonedDateTime.class), eq(timezone), eq(paginationRequest)))
+                .thenReturn(pageResponse);
+        PagedFoodConsumptionResponse response = restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .queryParam("date", testDate)
+                        .queryParam("timezone", timezone)
                         .build()
                 )
                 .exchange()

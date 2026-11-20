@@ -5,6 +5,7 @@ import com.keldorn.phenylalaninecalculatorapi.annotation.DirtyTest;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiResponses;
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
 import com.keldorn.phenylalaninecalculatorapi.dto.TestPage;
+import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.error.ErrorResponse;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionCreateRequest;
 import com.keldorn.phenylalaninecalculatorapi.dto.foodconsumption.FoodConsumptionRequest;
@@ -80,6 +81,27 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
         verifyResponse(responseSpec, expectedResponse);
+    }
+
+    @DirtyTest
+    @ParameterizedTest(name = "{index} - {0}")
+    @MethodSource("earlyMorningTimezoneTestCases")
+    void testPostAndGetFoodConsumption_shouldKeepEarlyMorningEntriesOnLocalDay(String description,
+            ZonedDateTime consumedAt,
+            String expectedLocalDate,
+            String previousLocalDate,
+            String timezone) {
+        String token = getAuthToken().accessToken();
+        restTestClient.post()
+                .uri(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                .headers(withBearer(token))
+                .body(new FoodConsumptionCreateRequest(TestEntityFactory.DEFAULT_ID, BigDecimal.TEN, consumedAt))
+                .exchange()
+                .expectStatus().isCreated();
+        assertFoodConsumptionCount(token, expectedLocalDate, timezone, 1);
+        assertFoodConsumptionCount(token, previousLocalDate, timezone, 0);
+        assertDailyIntakeAmount(token, expectedLocalDate, timezone, BigDecimal.ONE);
+        assertDailyIntakeAmount(token, previousLocalDate, timezone, BigDecimal.ZERO);
     }
 
     @DirtyTest
@@ -187,6 +209,21 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
         );
     }
 
+    private static Stream<Arguments> earlyMorningTimezoneTestCases() {
+        return Stream.of(
+                Arguments.of("00:30 CET stays on local day",
+                        ZonedDateTime.parse("2026-11-20T00:30:00+01:00"),
+                        "2026-11-20",
+                        "2026-11-19",
+                        "Europe/Budapest"),
+                Arguments.of("01:00 CEST stays on local day",
+                        ZonedDateTime.parse("2026-07-20T01:00:00+02:00"),
+                        "2026-07-20",
+                        "2026-07-19",
+                        "Europe/Budapest")
+        );
+    }
+
     private static @NonNull FoodConsumptionCreateRequest foodConsumptionCreateRequest(Long foodId) {
         return new FoodConsumptionCreateRequest(foodId, TestEntityFactory.DEFAULT_BIG_DECIMAL_VALUE);
     }
@@ -199,6 +236,42 @@ class FoodConsumptionControllerIT extends BaseIntegrationTest {
         return new FoodConsumptionResponse(id, TestEntityFactory.DEFAULT_ID, TestEntityFactory.DEFAULT_FOOD_NAME,
                 amount, BigDecimal.ONE,
                 TestEntityFactory.TEST_ZONED_DATE_TIME);
+    }
+
+    private void assertFoodConsumptionCount(String token, String date, String timezone, int expectedSize) {
+        restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.FOOD_CONSUMPTION_PATH)
+                        .queryParam("date", date)
+                        .queryParam("timezone", timezone)
+                        .build()
+                )
+                .headers(withBearer(token))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<TestPage<FoodConsumptionResponse>>() {})
+                .value(page -> {
+                    Assertions.assertThat(page).isNotNull();
+                    Assertions.assertThat(page.content()).hasSize(expectedSize);
+                });
+    }
+
+    private void assertDailyIntakeAmount(String token, String date, String timezone, BigDecimal expectedAmount) {
+        restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.DAILY_INTAKE_PATH)
+                        .queryParam("date", date)
+                        .queryParam("timezone", timezone)
+                        .build()
+                )
+                .headers(withBearer(token))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(DailyIntakeResponse.class)
+                .value(intake -> {
+                    Assertions.assertThat(intake).isNotNull();
+                    Assertions.assertThat(intake.consumedPhenylalanine()).isEqualByComparingTo(expectedAmount);
+                });
     }
 
     private static void verifySuccess(TestPage<FoodConsumptionResponse> actual,

@@ -1,6 +1,7 @@
 package com.keldorn.phenylalaninecalculatorapi.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,14 +21,20 @@ import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionReposito
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -202,6 +209,69 @@ class FoodConsumptionServiceTests {
         Assertions.assertThatThrownBy(() -> foodConsumptionService.deleteById(foodConsumptionId))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(foodConsumptionRepository, never()).delete(any());
+    }
+
+    @Test
+    void save_shouldNormalizeConsumedAtToUtc() {
+        Long foodId = 1L;
+        ZonedDateTime cetTime = ZonedDateTime.parse("2026-07-20T01:00:00+02:00");
+        FoodConsumptionCreateRequest request = new FoodConsumptionCreateRequest(foodId, BigDecimal.TEN, cetTime);
+        User user = TestEntityFactory.user();
+        Food food = TestEntityFactory.food(TestEntityFactory.foodType());
+        food.setId(foodId);
+        when(userService.getCurrentUserId()).thenReturn(TestEntityFactory.DEFAULT_ID);
+        when(userService.getCurrentUserReference()).thenReturn(user);
+        when(foodReadService.findByIdOrThrow(foodId, TestEntityFactory.DEFAULT_ID)).thenReturn(food);
+        when(foodConsumptionRepository.save(any(FoodConsumption.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+        FoodConsumptionResponse response = foodConsumptionService.save(request);
+        Assertions.assertThat(response.consumedAt()).isEqualTo(ZonedDateTime.parse("2026-07-19T23:00:00Z"));
+        Assertions.assertThat(response.consumedAt().getZone()).isEqualTo(ZoneOffset.UTC);
+    }
+
+    @ParameterizedTest(name = "{index} - {0}")
+    @MethodSource("timezoneDayBoundaryTestCases")
+    void findAllByDate_withTimezone_shouldQueryExpectedUtcDayBounds(String scenario,
+            LocalDate localDate,
+            String timezone,
+            ZonedDateTime expectedStartUtc,
+            ZonedDateTime expectedEndUtc) {
+        Long userId = 1L;
+        PaginationRequest paginationRequest = new PaginationRequest(0, 20);
+        when(userService.getCurrentUserId()).thenReturn(userId);
+        ArgumentCaptor<ZonedDateTime> startCaptor = ArgumentCaptor.forClass(ZonedDateTime.class);
+        ArgumentCaptor<ZonedDateTime> endCaptor = ArgumentCaptor.forClass(ZonedDateTime.class);
+        when(foodConsumptionRepository.findAllByUserAndConsumedAtBetween(eq(userId), startCaptor.capture(),
+                endCaptor.capture(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+        foodConsumptionService.findAllByDate(localDate.atStartOfDay(ZoneOffset.UTC), timezone, paginationRequest);
+        Assertions.assertThat(startCaptor.getValue().toInstant()).isEqualTo(expectedStartUtc.toInstant());
+        Assertions.assertThat(endCaptor.getValue().toInstant()).isEqualTo(expectedEndUtc.toInstant());
+    }
+
+    private static Stream<Arguments> timezoneDayBoundaryTestCases() {
+        return Stream.of(
+                Arguments.of("Winter CET (UTC+1)",
+                        LocalDate.of(2026, 11, 20),
+                        "Europe/Budapest",
+                        ZonedDateTime.parse("2026-11-19T23:00:00Z"),
+                        ZonedDateTime.parse("2026-11-20T23:00:00Z")),
+                Arguments.of("Summer CEST (UTC+2)",
+                        LocalDate.of(2026, 7, 20),
+                        "Europe/Budapest",
+                        ZonedDateTime.parse("2026-07-19T22:00:00Z"),
+                        ZonedDateTime.parse("2026-07-20T22:00:00Z")),
+                Arguments.of("DST spring forward (23-hour day)",
+                        LocalDate.of(2026, 3, 29),
+                        "Europe/Budapest",
+                        ZonedDateTime.parse("2026-03-28T23:00:00Z"),
+                        ZonedDateTime.parse("2026-03-29T22:00:00Z")),
+                Arguments.of("DST fall back (25-hour day)",
+                        LocalDate.of(2026, 10, 25),
+                        "Europe/Budapest",
+                        ZonedDateTime.parse("2026-10-24T22:00:00Z"),
+                        ZonedDateTime.parse("2026-10-25T23:00:00Z"))
+        );
     }
 
     private void doAssertionsCheckOnResponse(FoodConsumptionResponse response, FoodConsumption foodConsumption) {

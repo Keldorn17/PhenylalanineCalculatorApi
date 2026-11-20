@@ -52,10 +52,13 @@ public class DailyIntakeController {
     @UnauthorizedApiResponse
     public ResponseEntity<DailyIntakeResponse> getDailyIntake(
             @Parameter(description = "Date of intake (ISO-8601)", example = "2026-01-01")
-            @RequestParam ZonedDateTime date
+            @RequestParam ZonedDateTime date,
+            @Parameter(description = "IANA timezone ID (e.g. Europe/Budapest). Defaults to date's zone or UTC.",
+                    example = "Europe/Budapest")
+            @RequestParam(required = false) String timezone
     ) {
         log.info("Get request: {}", ApiRoutes.DAILY_INTAKE_PATH);
-        return ResponseEntity.ok(dailyIntakeService.findByDate(date));
+        return ResponseEntity.ok(dailyIntakeService.findByDate(date, timezone));
     }
 
 }
