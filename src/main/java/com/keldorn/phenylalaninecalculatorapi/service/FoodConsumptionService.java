@@ -10,6 +10,7 @@ import com.keldorn.phenylalaninecalculatorapi.dto.params.PaginationRequest;
 import com.keldorn.phenylalaninecalculatorapi.exception.ResourceNotFoundException;
 import com.keldorn.phenylalaninecalculatorapi.mapper.FoodConsumptionMapper;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
+import com.keldorn.phenylalaninecalculatorapi.utils.TimezoneHelper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,12 +46,13 @@ public class FoodConsumptionService {
     }
 
     @Transactional(readOnly = true)
-    public PagedFoodConsumptionResponse findAllByDate(ZonedDateTime date, PaginationRequest paginationRequest) {
+    public PagedFoodConsumptionResponse findAllByDate(ZonedDateTime date, String timezone,
+            PaginationRequest paginationRequest) {
         log.debug("Finding all food consumptions by date");
         LocalDate localDate = date.toLocalDate();
-        ZoneId zoneId = date.getZone();
+        ZoneId zoneId = TimezoneHelper.resolveZoneId(timezone, date.getZone());
         ZonedDateTime start = localDate.atStartOfDay(zoneId);
-        ZonedDateTime end = start.plusDays(1);
+        ZonedDateTime end = localDate.plusDays(1).atStartOfDay(zoneId);
         Long userId = userService.getCurrentUserId();
         Pageable pageable = PageRequest.of(paginationRequest.getPage(), paginationRequest.getSize());
         Page<FoodConsumption> response =
@@ -60,7 +62,7 @@ public class FoodConsumptionService {
 
     @Transactional(readOnly = true)
     public PagedFoodConsumptionResponse findAllByDate(LocalDate date, PaginationRequest paginationRequest) {
-        return selfProvider.getObject().findAllByDate(date.atStartOfDay(ZoneOffset.UTC), paginationRequest);
+        return selfProvider.getObject().findAllByDate(date.atStartOfDay(ZoneOffset.UTC), null, paginationRequest);
     }
 
     @Transactional
@@ -68,7 +70,9 @@ public class FoodConsumptionService {
         log.debug("Creating food consumption");
         Food food = foodReadService.findByIdOrThrow(request.foodId(), userService.getCurrentUserId());
         BigDecimal phenylalanineAmount = calculatePhenylalanineAmount(food.getPhenylalanine(), request.amount());
-        ZonedDateTime consumedAt = request.consumedAt() != null ? request.consumedAt() : ZonedDateTime.now();
+        ZonedDateTime consumedAt = request.consumedAt() != null
+                ? request.consumedAt().withZoneSameInstant(ZoneOffset.UTC)
+                : ZonedDateTime.now(ZoneOffset.UTC);
         FoodConsumption foodConsumption = FoodConsumption.builder()
                 .user(userService.getCurrentUserReference())
                 .food(food)
@@ -86,7 +90,7 @@ public class FoodConsumptionService {
         BigDecimal phenylalanineAmount =
                 calculatePhenylalanineAmount(foodConsumption.getFood().getPhenylalanine(), request.amount());
         if (request.consumedAt() != null) {
-            foodConsumption.setConsumedAt(request.consumedAt());
+            foodConsumption.setConsumedAt(request.consumedAt().withZoneSameInstant(ZoneOffset.UTC));
         }
         foodConsumption.setPhenylalanineAmount(phenylalanineAmount);
         foodConsumption.setAmount(request.amount());

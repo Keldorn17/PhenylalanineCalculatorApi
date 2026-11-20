@@ -6,6 +6,7 @@ import com.keldorn.phenylalaninecalculatorapi.constant.RequestAttributes;
 import com.keldorn.phenylalaninecalculatorapi.domain.entity.User;
 import com.keldorn.phenylalaninecalculatorapi.repository.UserRepository;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class ApplicationConfig {
 
     @Bean
     public DateTimeProvider dateTimeProvider() {
-        return () -> Optional.of(ZonedDateTime.now());
+        return () -> Optional.of(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     @Bean

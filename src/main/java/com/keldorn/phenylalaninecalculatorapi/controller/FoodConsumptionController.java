@@ -65,10 +65,13 @@ public class FoodConsumptionController {
     public ResponseEntity<PagedFoodConsumptionResponse> getAllFoodConsumptionByDate(
             @Parameter(description = "Date of consumption (ISO-8601)", example = "2026-01-01")
             @RequestParam ZonedDateTime date,
+            @Parameter(description = "IANA timezone ID (e.g. Europe/Budapest). Defaults to date's zone or UTC.",
+                    example = "Europe/Budapest")
+            @RequestParam(required = false) String timezone,
             @ParameterObject PaginationRequest paginationRequest
     ) {
         log.info("Get request for getting all food consumption by date: {}", ApiRoutes.FOOD_CONSUMPTION_PATH);
-        var result = foodConsumptionService.findAllByDate(date, paginationRequest);
+        var result = foodConsumptionService.findAllByDate(date, timezone, paginationRequest);
         return ResponseEntity.ok(result);
     }
 

@@ -1,6 +1,8 @@
 package com.keldorn.phenylalaninecalculatorapi.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 import com.keldorn.phenylalaninecalculatorapi.constant.ApiRoutes;
@@ -33,11 +35,33 @@ class DailyIntakeControllerTests {
     @Test
     void getDailyIntake_shouldReturn200AndDailyIntake() {
         DailyIntakeResponse expectedResponse = new DailyIntakeResponse(TestEntityFactory.TEST_DATE, BigDecimal.TEN, null);
-        when(dailyIntakeService.findByDate(any(ZonedDateTime.class))).thenReturn(expectedResponse);
+        when(dailyIntakeService.findByDate(any(ZonedDateTime.class), isNull())).thenReturn(expectedResponse);
         DailyIntakeResponse response = restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(ApiRoutes.DAILY_INTAKE_PATH)
                         .queryParam("date", TestEntityFactory.TEST_DATE)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(DailyIntakeResponse.class)
+                .returnResult()
+                .getResponseBody();
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.date()).isEqualTo(expectedResponse.date());
+        Assertions.assertThat(response.consumedPhenylalanine()).isEqualByComparingTo(
+                expectedResponse.consumedPhenylalanine());
+    }
+
+    @Test
+    void getDailyIntake_shouldForwardTimezoneQueryParam() {
+        String timezone = "Europe/Budapest";
+        DailyIntakeResponse expectedResponse = new DailyIntakeResponse(TestEntityFactory.TEST_DATE, BigDecimal.TEN, null);
+        when(dailyIntakeService.findByDate(any(ZonedDateTime.class), eq(timezone))).thenReturn(expectedResponse);
+        DailyIntakeResponse response = restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiRoutes.DAILY_INTAKE_PATH)
+                        .queryParam("date", TestEntityFactory.TEST_DATE)
+                        .queryParam("timezone", timezone)
                         .build())
                 .exchange()
                 .expectStatus().isOk()
@@ -63,7 +87,7 @@ class DailyIntakeControllerTests {
 
     @Test
     void getDailyIntake_shouldReturn404_whenResourceNotFound() {
-        when(dailyIntakeService.findByDate(any(ZonedDateTime.class)))
+        when(dailyIntakeService.findByDate(any(ZonedDateTime.class), isNull()))
                 .thenThrow(ResourceNotFoundException.class);
         restTestClient.get()
                 .uri(uriBuilder -> uriBuilder

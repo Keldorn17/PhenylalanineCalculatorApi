@@ -1,24 +1,31 @@
 package com.keldorn.phenylalaninecalculatorapi.utils;
 
+import java.time.DateTimeException;
 import java.time.ZoneId;
-import java.util.Set;
+import java.time.ZoneOffset;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @UtilityClass
 public class TimezoneHelper {
 
-    private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
-
     public static ZoneId resolveZoneId(String timezone) {
-        if (isNotValidTimezone(timezone)) {
-            return ZoneId.of("UTC");
-        }
-        return ZoneId.of(timezone);
+        return resolveZoneId(timezone, ZoneOffset.UTC);
     }
 
-    private static boolean isNotValidTimezone(String timezoneId) {
-        return timezoneId == null || timezoneId.isEmpty() || !AVAILABLE_ZONE_IDS.contains(timezoneId);
+    public static ZoneId resolveZoneId(String timezone, ZoneId fallback) {
+        ZoneId defaultZone = fallback != null ? fallback : ZoneOffset.UTC;
+        if (timezone == null || timezone.isBlank()) {
+            return defaultZone;
+        }
+        try {
+            return ZoneId.of(timezone.trim());
+        } catch (DateTimeException _) {
+            log.warn("Invalid timezone '{}', falling back to {}", timezone, defaultZone);
+            return defaultZone;
+        }
     }
 
 }

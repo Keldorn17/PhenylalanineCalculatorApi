@@ -2,6 +2,7 @@ package com.keldorn.phenylalaninecalculatorapi.service;
 
 import com.keldorn.phenylalaninecalculatorapi.dto.dailyintake.DailyIntakeResponse;
 import com.keldorn.phenylalaninecalculatorapi.repository.FoodConsumptionRepository;
+import com.keldorn.phenylalaninecalculatorapi.utils.TimezoneHelper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,13 +27,13 @@ public class DailyIntakeService {
     private final ObjectProvider<DailyIntakeService> selfProvider;
 
     @Transactional(readOnly = true)
-    public DailyIntakeResponse findByDate(ZonedDateTime date) {
+    public DailyIntakeResponse findByDate(ZonedDateTime date, String timezone) {
         log.debug("Sending response for findByDate");
         Long userId = userService.getCurrentUserId();
         LocalDate localDate = date.toLocalDate();
-        ZoneId zoneId = date.getZone();
+        ZoneId zoneId = TimezoneHelper.resolveZoneId(timezone, date.getZone());
         ZonedDateTime startOfDay = localDate.atStartOfDay(zoneId);
-        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+        ZonedDateTime endOfDay = localDate.plusDays(1).atStartOfDay(zoneId);
         BigDecimal consumedPhenylalanine =
                 foodConsumptionRepository.calculateDailyIntake(userId, startOfDay, endOfDay);
         BigDecimal currentUserDailyLimit = userService.getCurrentUserDailyLimit();
@@ -40,8 +41,13 @@ public class DailyIntakeService {
     }
 
     @Transactional(readOnly = true)
+    public DailyIntakeResponse findByDate(ZonedDateTime date) {
+        return selfProvider.getObject().findByDate(date, null);
+    }
+
+    @Transactional(readOnly = true)
     public DailyIntakeResponse findByDate(LocalDate date) {
-        return selfProvider.getObject().findByDate(date.atStartOfDay(ZoneOffset.UTC));
+        return selfProvider.getObject().findByDate(date.atStartOfDay(ZoneOffset.UTC), null);
     }
 
 }
